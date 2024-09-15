@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Welcome to Plagiarism Detection</h1>
+    <form action="/search" method="post">
+        <div class="form-group">
+            <label for="query">Search Query:</label>
+            <input type="text" class="form-control" id="query" name="query">
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+{% endblock %}
