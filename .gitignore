@@ -1,0 +1,31 @@
+# Virtual environment
+venv/
+ENV/
+env/
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment variables
+.env
+
+# Pytest cache
+.cache/
+
+# IDEs
+.vscode/
+.idea/
+
+# Logs
+logs/
+*.log
+
+# Docker
+Dockerfile
+docker-compose.yml
+
+# Other
+*.sqlite3

@@ -1,11 +1,17 @@
 from flask import Flask
-from flask_pymongo import PyMongo
-from elasticsearch import Elasticsearch
+from .config import Config
+from .extensions import mongo, es
+from .routes.main import main as main_blueprint
 
-app = Flask(__name__)
-app.config.from_object('config.Config')
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(Config)
 
-mongo = PyMongo(app)
-es = Elasticsearch(app.config['ELASTICSEARCH_URL'])
+    # Khởi tạo các extension
+    # Đối với PyMongo và Elasticsearch, không cần gọi init_app
+    # Vì chúng được khởi tạo trực tiếp trong extensions.py
 
-from app import routes
+    # Đăng ký blueprint
+    app.register_blueprint(main_blueprint)
+
+    return app
