@@ -2,10 +2,75 @@
 
 {% block title %}Home{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+{% endblock %}
+
 {% block content %}
+<div class="header">
+    <nav class="navbar bg-body-tertiary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="">
+            </a> 
+            <a class="navbar-brand" href="{{ url_for('main.index') }}" style="display: block;">
+                Home
+            </a>   
+        </div>
+    </nav>
+</div>
 
+<div class="slider">
+    <div class="hero-section">
+        <div class="hero-slider-wrapper">
+            <div class="flexslider hero-slider">
+                <img src="{{ url_for('static', filename='images/slider_1.jpg') }}" alt="Image 1" style="width: 100%; height: auto;">
+                <div class="hero-content">     
+                    <h2 class="headline">
+                        <div class="text_to_html">
+                            <p><strong>HCMC UNIVERSITY OF TECHNOLOGY &amp; EDUCATION</strong><br>
+                            <strong>PICAPON ONLINE PLAGIARISM DETECTION SYSTEM</strong></p>
+                        </div>
+                    </h2>
+                    <div class="tagline">
+                        <div class="text_to_html">
+                            <h4>Shorten the distance, save time, high efficiency, support anytime, anywhere, ...</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!--//hero-slider-wrapper--> 
+    </div>
+</div>
 
+<!-- section -->
+<div class="container">
+    <div class="section">
+        <div class="slogan">
+            <h2>Plagiarism isn't just a violation</h2> 
+            <h2>It's a failure of creativity</h2>
+        </div>
+        <img src="{{ url_for('static', filename='images/slogan_1.jpg') }}" alt="Image 1">
+    </div>
 
+    <div class="headline">
+        __________
+        <h2 class="headline-four-alternative keyline-blue keyline">Student success starts here</h2>
+    </div>
+    <div class="section">
+        <img src="{{ url_for('static', filename='images/slogan_2.png') }}" alt="Image 2">
+        <div class="slogan">
+            <h2>Stand out with your own ideas</h2>
+            <h2>Don’t blend in with the shadows of plagiarism.</h2>
+        </div>
+    </div>
 
+    <div class="section">
+        <div class="slogan">
+            <h2>"Your ideas deserve to shine don’t let plagiarism dim your brilliance."</h2>
+        </div>
+        <img src="{{ url_for('static', filename='images/slogan_3.jpg') }}" alt="Image 3">
+    </div>
+</div>
 
 {% endblock %}

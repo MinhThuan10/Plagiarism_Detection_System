@@ -8,9 +8,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    {% block extra_css %}  <!-- Block cho CSS riêng -->
+    {% endblock %}
 </head>
 <body   >
-    <nav class="navbar navbar-expand-lg navbar-dark bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-light fixed-top">
         <div class="container-fluid">
             <div class="header-hcmute_link">
                 <a class="navbar-brand" href="https://hcmute.edu.vn/">
@@ -24,20 +26,19 @@
             
 
             <div class="header-login">
-                <a class="navbar-brand" href="{{ url_for('main.index') }}" style="display: none;">
+                <a class="navbar-brand" href="{{ url_for('main.index') }}" style="display: block;">
                     Login
                 </a>
 
-                <div class="header-avatar">
+                <div class="header-avatar" style="display: none;">
                     <div class="dropdown">
                         <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="{{ url_for('static', filename='images/avatar.jpg') }}" alt="">
 
                         </button>
                         <ul class="dropdown-menu">
-                          <li><a class="dropdown-item" href="#">Action</a></li>
-                          <li><a class="dropdown-item" href="#">Another action</a></li>
-                          <li><a class="dropdown-item" href="#">Something else here</a></li>
+                          <li><a class="dropdown-item" href="#">Quản lý tài khoản</a></li>
+                          <li><a class="dropdown-item" href="#">Đăng xuất</a></li>
                         </ul>
                       </div>
                 </div>
@@ -45,24 +46,31 @@
         </div>
     </nav>
 
-    <div class="container mt-4">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        
-        {% block content %}{% endblock %}
-    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    {% block content %}{% endblock %}
 
-    <footer class="bg-light text-center text-lg-start mt-5">
+    <footer class="text-center text-lg-start mt-5">
+        <div class="footer-hcmute_link">
+            <a class="navbar-brand" href="https://hcmute.edu.vn/">
+                <i class="bi bi-globe"></i>
+            </a>
+
+            <a class="navbar-brand" href="https://www.facebook.com/dhspkt.hcmute">
+                <i class="bi bi-facebook"></i>
+            </a>
+        </div>
         <div class="text-center p-3">
-            © 2024 FlaskApp
+            Copyright HCMUTE © 2024
         </div>
     </footer>
 

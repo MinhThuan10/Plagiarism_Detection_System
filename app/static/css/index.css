@@ -1,0 +1,58 @@
+.header .navbar .container-fluid .navbar-brand img{
+    width: 80px;
+    height: 80px;
+}
+
+.header .navbar{
+    background-color: #fff !important;
+    margin-top: 44px;
+}
+
+/* Slider */
+
+.hero-slider {
+    position: relative;
+}
+
+.hero-content {
+    position: absolute;
+    top: 45%;
+    left: 37%;
+    transform: translate(-50%, -50%);
+    color: #454545;
+    text-align: left;
+    z-index: 2;
+    max-width: 700px;
+}
+
+.headline, .tagline {
+    margin: 0;
+}
+
+
+/* section */
+
+.section {
+    display: flex;
+    align-items: center;
+    margin: 50px 0; /* Thêm khoảng cách giữa các section */
+}
+
+.section img {
+    width: 100%; /* Khi màn hình nhỏ hơn, ảnh sẽ co lại */
+    height: auto;
+}
+
+.section .slogan {
+    padding: 20px; /* Thêm khoảng cách cho slogan */
+    flex: 1; /* Đảm bảo slogan chiếm không gian còn lại */
+}
+
+.section img{
+    width: 50%;
+    height: auto;
+}
+
+.container .headline{
+    color: rgb(59, 116, 231);
+}

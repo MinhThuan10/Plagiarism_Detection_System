@@ -28,18 +28,3 @@ def index():
 
     return render_template('index.html', users=users, es_results=es_results, query=query)
 
-@main.route('/add_user', methods=['POST'])
-def add_user():
-    username = request.form.get('username')
-    email = request.form.get('email')
-    if username and email:
-        user_id = User.create_user(username, email)
-        flash('User added successfully!', 'success')
-        # Đồng thời thêm dữ liệu vào Elasticsearch
-        es.index(index="users", id=user_id, body={
-            "username": username,
-            "email": email
-        })
-        return redirect(url_for('main.index'))
-    flash('Invalid input.', 'danger')
-    return redirect(url_for('main.index'))
