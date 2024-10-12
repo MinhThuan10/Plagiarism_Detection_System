@@ -3,68 +3,9 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">User Management</h1>
 
-<!-- Form thêm người dùng -->
-<div class="card mb-4">
-    <div class="card-header">
-        Add New User
-    </div>
-    <div class="card-body">
-        <form method="POST" action="{{ url_for('main.add_user') }}">
-            <div class="mb-3">
-                <label for="username" class="form-label">Username</label>
-                <input type="text" class="form-control" id="username" name="username" required>
-            </div>
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" name="email" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Add User</button>
-        </form>
-    </div>
-</div>
 
-<!-- Form tìm kiếm -->
-<div class="mb-4">
-    <form method="GET" action="{{ url_for('main.index') }}" class="d-flex">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="q" value="{{ query or '' }}">
-        <button class="btn btn-outline-success" type="submit">Search</button>
-    </form>
-</div>
 
-<!-- Danh sách người dùng từ MongoDB -->
-<h2>Users (MongoDB)</h2>
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Username</th>
-            <th>Email</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for user in users %}
-            <tr>
-                <td>{{ user.id }}</td>
-                <td>{{ user.username }}</td>
-                <td>{{ user.email }}</td>
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
 
-<!-- Kết quả tìm kiếm từ Elasticsearch -->
-{% if es_results %}
-    <h2>Search Results (Elasticsearch)</h2>
-    <ul class="list-group">
-        {% for result in es_results %}
-            <li class="list-group-item">
-                <strong>{{ result._source.username }}</strong> - {{ result._source.email }}
-            </li>
-        {% endfor %}
-    </ul>
-{% elif query %}
-    <p>No results found for "{{ query }}".</p>
-{% endif %}
+
 {% endblock %}

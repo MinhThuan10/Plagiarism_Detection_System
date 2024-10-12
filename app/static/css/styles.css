@@ -1,5 +1,31 @@
-body {
-    padding-top: 56px;
+
+
+
+/* header */
+
+.bg-light{
+    background-color: #0a426e !important;
+}
+.header-avatar .dropdown button img {
+    width: 42px;  
+    height: 42px;     
+    border-radius: 50%;    
+    border: 1px solid white; 
+    object-fit: cover;
+}
+
+button.btn.btn-secondary.dropdown-toggle{
+    background: none;   
+    border: none;    
+    color: inherit;       
+    font: inherit;        
+    cursor: pointer;
+}
+
+.dropdown-menu[data-bs-popper] {
+    top: 88%;
+    left: -100px;
+    margin-top: var(--bs-dropdown-spacer);
 }
 
 footer {
