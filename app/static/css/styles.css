@@ -10,11 +10,21 @@
     z-index: 3  ; 
 }
 .bg-light{
-    background-color: #0a426e !important;
+    background-color: #fff !important;
 }
 
 .header-hcmute_link{
     margin-left: 12px;
+}
+.header-hcmute_link  img{
+    width: 140px;
+    height: auto;
+}
+
+.header-login a{
+    color: #000;
+    font-weight: 600;
+    font-size: 32px;
 }
 .header-avatar .dropdown button img {
     width: 42px;  
