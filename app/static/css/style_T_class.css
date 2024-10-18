@@ -1,0 +1,21 @@
+.nav-link {
+    font-weight: 550 !important;
+    font-size: 15px !important;
+    margin-top: 11px;
+}
+
+.nav-tabs{
+    padding-top: 10px;
+}
+.logo-image {
+    width: 100px;
+    margin-left: 21px;
+    margin-top: 10px;
+    margin-right: 1000px;
+}
+
+.tab-content {
+    background-color: #f1eeee; /* Màu nền trắng */
+    padding: 20px; /* Thêm khoảng cách cho nội dung */
+    height: 100vh;
+}

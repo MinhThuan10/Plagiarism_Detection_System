@@ -1,0 +1,25 @@
+.container {  
+    padding-top: -60px; 
+    width: 1000px !important;
+}
+.container2 {
+    padding-top: 100px;
+}
+.logo-image {
+    width: 200px;
+    padding-bottom: 20px;
+}
+.form-check {
+    padding-right: 10px;
+}
+
+#loginButton {
+    background-color: #0369c3; /* Màu nền */
+    border: none; 
+    font-size: 1rem; /* Kích thước chữ lớn */
+    font-weight: bold;/* Bỏ viền (nếu có) */
+}
+
+#loginButton:hover {
+    background-color: #076bb3; /* Màu nền khi di chuột qua */
+}
