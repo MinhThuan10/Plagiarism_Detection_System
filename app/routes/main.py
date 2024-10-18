@@ -1,30 +1,31 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
-from app.models.user import User
-from app.extensions import es
+from flask import Blueprint, render_template, redirect, url_for, request, flash
+from app.models.user import create_user, check_user  # Thay đổi import
 
 main = Blueprint('main', __name__)
 
+@main.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if create_user(username, password):
+            flash('Registration successful!')
+            return redirect(url_for('main.login'))
+        else:
+            flash('Username already exists!')
+    return render_template('register.html')
+
+@main.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if check_user(username, password):
+            return redirect(url_for('main.home'))  # Chuyển đến trang home
+        else:
+            flash('Invalid username or password!')
+    return render_template('login.html')
+
 @main.route('/')
-def index():
-    # Lấy tất cả người dùng từ MongoDB
-    users = User.get_all_users()
-
-    # Tìm kiếm trong Elasticsearch
-    query = request.args.get('q')
-    es_results = []
-    if query:
-        es_response = es.search(
-            index="users",
-            body={
-                "query": {
-                    "multi_match": {
-                        "query": query,
-                        "fields": ["username", "email"]
-                    }
-                }
-            }
-        )
-        es_results = es_response['hits']['hits']
-
-    return render_template('index.html', users=users, es_results=es_results, query=query)
-
+def home():
+    return render_template('home1.html')

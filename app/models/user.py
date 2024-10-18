@@ -1,28 +1,19 @@
-from bson.objectid import ObjectId
+# models/user.py
+
+from flask_pymongo import PyMongo
+from werkzeug.security import generate_password_hash, check_password_hash
+
 from app.extensions import db
 
-class User:
-    def __init__(self, data):
-        self.id = str(data.get('_id', ObjectId()))
-        self.username = data.get('username')
-        self.email = data.get('email')
-    
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'username': self.username,
-            'email': self.email
-        }
-    
-    @staticmethod
-    def get_all_users():
-        users = db.users.find()
-        return [User(user) for user in users]
-    
-    @staticmethod
-    def create_user(username, email):
-        user_id = db.users.insert_one({
-            'username': username,
-            'email': email
-        }).inserted_id
-        return str(user_id)
+def create_user(username, password):
+    if db.users.find_one({'username': username}):
+        return False  # Tên người dùng đã tồn tại
+    hashed_password = generate_password_hash(password)
+    db.users.insert_one({'username': username, 'password': hashed_password})
+    return True
+
+def check_user(username, password):
+    user = db.users.find_one({'username': username})
+    if user and check_password_hash(user['password'], password):
+        return True
+    return False
