@@ -1,0 +1,28 @@
+{% extends 'base_after_login.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="header">
+    <nav class="navbar bg-body-tertiary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="">
+            </a> 
+            <a class="navbar-brand" href="#" style="display: block;">
+                Home teacher
+            </a>   
+        </div>
+    </nav>
+</div>
+
+
+{% endblock %}
+
+
+
+
