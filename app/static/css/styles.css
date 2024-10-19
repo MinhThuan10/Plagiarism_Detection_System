@@ -60,7 +60,8 @@ footer {
 }
 
 footer .footer-hcmute_link{
-    text-align: center;
+    display: flex;
+    justify-content: center;
     margin-top: 12px;
 }
 

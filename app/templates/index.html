@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base_index.html' %}
 
 {% block title %}Home{% endblock %}
 
@@ -12,7 +12,7 @@
     <div class="hero-section">
         <div class="hero-slider-wrapper">
             <div class="flexslider hero-slider">
-                <img src="{{ url_for('static', filename='images/slider_1.jpg') }}" alt="Image 1" style="width: 100%; height: auto;">
+                <img src="{{ url_for('static', filename='images/slider_1.jpg') }}" alt="Image 1" style="width: 100%; height: auto; margin-top: 50px;">
                 <div class="hero-content">     
                     <h2 class="headline">
                         <div class="text_to_html">

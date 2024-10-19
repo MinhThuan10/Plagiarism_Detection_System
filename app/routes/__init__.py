@@ -3,10 +3,11 @@ from flask import Blueprint
 
 # Import các route
 from .main import main
-from .user import user  # Import blueprint user
+from .user import user  
+from .school import school  
 
 # Tạo blueprint cho main
-blueprints = [main, user]
+blueprints = [main, user, school]
 
 def register_blueprints(app):
     for bp in blueprints:

@@ -1,5 +1,5 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify, session
-from app.models.user import create_user, check_user, send_verification_email  # Thay đổi import
+from flask import Blueprint, render_template, request, jsonify, session
+from app.models.user import create_user, check_user, send_verification_email, check_user_change_passwd, update_user  # Thay đổi import
 import random
 
 user = Blueprint('user', __name__)
@@ -18,6 +18,7 @@ def signup_api():
     
     first_name = data.get('first_name')
     last_name = data.get('last_name')
+    role = data.get('role')
     email = data.get('email')
     password = data.get('password')
     verificationCode = data.get('verificationCode')
@@ -29,7 +30,7 @@ def signup_api():
     
     if str(verificationCode) == str(stored_code):
         # Kiểm tra và tạo user
-        if create_user(first_name, last_name, email, password):  
+        if create_user(first_name, last_name, email, password, role):  
             return jsonify(success=True)
         else:
             print('looo')
@@ -41,7 +42,10 @@ def signup_api():
         return jsonify(success=False, message='Mã xác nhận không chính xác'), 400
     
     
-    
+@user.route('/logout')
+def logout():
+    session.clear()  # Xóa toàn bộ dữ liệu trong session
+    return "Logged out successfully"
 
 # API để gửi mã xác nhận
 @user.route('/api/send_verification', methods=['POST'])
@@ -73,9 +77,61 @@ def login_api():
     email = data.get('email')
     password = data.get('password')
 
-
-    if check_user(email, password):  
-        return jsonify(success=True)
+    checkuser = check_user(email, password)
+    if checkuser[0]:  
+        session['email'] = email
+        session['role'] = checkuser[1]
+        session['school_id'] = checkuser[2]
+        return jsonify(success=True, role = checkuser[1], school_id =  checkuser[2] )
     else:
         print('looo')
         return jsonify(success=False, message='Tài khoản hoặc mật khẩu không chính xác') 
+
+@user.route('/api/forgot_password', methods=['POST'])
+def forgot_password():
+    data = request.get_json()  # Nhận dữ liệu JSON từ client
+    print('call api đổi mật khẩu')
+    print(data)
+
+    
+    email = data.get('email')
+    password = data.get('password')
+    verificationCode = data.get('verificationCode')
+    stored_code = session.get('verification_code')
+
+
+    if not stored_code:
+        return jsonify(success=False, message='Mã xác nhận không tồn tại hoặc đã hết hạn'), 400
+    
+    if str(verificationCode) == str(stored_code):
+        # Kiểm tra và tạo user
+        if check_user_change_passwd(email, password):  
+            return jsonify(success=True)
+        else:
+            print('looo')
+            return jsonify(success=False, message='Email đã tồn tại, vui lòng nhập email khác') 
+    
+    else:
+        print('looob')
+
+        return jsonify(success=False, message='Mã xác nhận không chính xác'), 400
+    
+
+@user.route('/api/update_user', methods=['POST'])
+def update_user_api():
+    data = request.get_json()  # Nhận dữ liệu JSON từ client
+    print('call api update user')
+    print(data)
+
+    user_id = data.get('user_id')
+    firstname = data.get('firstname')
+    lastname = data.get('lastname')
+    email = data.get('email')
+    password = data.get('password')
+    school_id = data.get('school_id')
+    
+    if update_user(user_id,firstname,lastname, email, password, school_id):  
+            return jsonify(success=True)
+    else:
+        print('looo')
+        return jsonify(success=False, message='Email đã tồn tại, vui lòng nhập email khác') 

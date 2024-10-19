@@ -70,6 +70,7 @@ document.getElementById("verifyButton").addEventListener("click", function(event
     const verificationMessage = document.getElementById("verificationMessage");
     const firstNameInput = document.getElementById("form3Example1");
     const lastNameInput = document.getElementById("form3Example2");
+    const role = document.querySelector('input[name="userType"]:checked');
     const emailInput = document.getElementById("form3Example3");
     const passwordInput = document.getElementById("form3Example4");
 
@@ -84,6 +85,7 @@ document.getElementById("verifyButton").addEventListener("click", function(event
             body: JSON.stringify({
                 first_name: firstNameInput.value,
                 last_name: lastNameInput.value,
+                role: role.value,
                 email: emailInput.value,
                 password: passwordInput.value,
                 verificationCode: verificationCode
