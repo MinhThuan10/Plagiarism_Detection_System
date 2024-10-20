@@ -1,105 +1,113 @@
-{% extends 'base_after_login.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pikapon</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.2.0/mdb.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_signup.css') }}">
 
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/style_signup.css') }}">
-
-{% endblock %}
-
-{% block content %}
-
-<section class="">
-  <!-- Jumbotron -->
-  <div class="px-4 px-md-5 text-center text-lg-start" style="background-color: hsl(0, 0%, 100%)">
-    <div class="container">
-      <div class="row gx-lg-5 align-items-center">
-        <div class="col-lg-6 mb-5 mb-lg-0 container1">
-          <img class="logo-image" src="{{ url_for('static', filename='images/logo2.png') }}" alt="logo">
-          <h2 style="color: #1c1e21; font-size: 28px;">
-            An intelligent solution to ensure integrity and 
-            transparency in every piece of content.
-          </h2>
-        </div>
-
-        <div class="col-lg-6 mb-5 mb-lg-0 container2">
-          <div class="card">
-            <div class="card-body py-5 px-md-5">
-              <form id="signupForm">
-                <!-- 2 column grid layout with text inputs for the first and last names -->
-                <div class="row">
-                  <div class="col-md-6 mb-4">
-                    <div data-mdb-input-init class="form-outline">
-                      <input type="text" id="form3Example1" class="form-control" />
-                      <label class="form-label" for="form3Example1">First name</label>
+</head>
+<body>
+  <section class="">
+    <!-- Jumbotron -->
+    <div class="px-4 px-md-5 text-center text-lg-start" style="background-color: hsl(0, 0%, 100%)">
+      <div class="container">
+        <div class="row gx-lg-5 align-items-center">
+          <div class="col-lg-6 mb-5 mb-lg-0 container1">
+            <img class="logo-image" src="{{ url_for('static', filename='images/logo2.png') }}" alt="logo">
+            <h2 style="color: #1c1e21; font-size: 28px;">
+              An intelligent solution to ensure integrity and 
+              transparency in every piece of content.
+            </h2>
+          </div>
+  
+          <div class="col-lg-6 mb-5 mb-lg-0 container2">
+            <div class="card">
+              <div class="card-body py-5 px-md-5">
+                <form id="signupForm">
+                  <!-- 2 column grid layout with text inputs for the first and last names -->
+                  <div class="row">
+                    <div class="col-md-6 mb-4">
+                      <div data-mdb-input-init class="form-outline">
+                        <input type="text" id="form3Example1" class="form-control" />
+                        <label class="form-label" for="form3Example1">First name</label>
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                      <div data-mdb-input-init class="form-outline">
+                        <input type="text" id="form3Example2" class="form-control" required/>
+                        <label class="form-label" for="form3Example2">Last name</label>
+                      </div>
                     </div>
                   </div>
-                  <div class="col-md-6 mb-4">
-                    <div data-mdb-input-init class="form-outline">
-                      <input type="text" id="form3Example2" class="form-control" required/>
-                      <label class="form-label" for="form3Example2">Last name</label>
+  
+                  <!-- Email input -->
+                  <div data-mdb-input-init class="form-outline mb-4">
+                    <input type="email" id="form3Example3" class="form-control" required/>
+                    <label class="form-label" for="form3Example3">Email address</label>
+                  </div>
+  
+                  <!-- Password input -->
+                  <div data-mdb-input-init class="form-outline mb-4">
+                    <input type="password" id="form3Example4" class="form-control" required/>
+                    <label class="form-label" for="form3Example4">Password</label>
+                  </div>
+  
+                  <!-- Checkbox -->
+                  <div class="form-check d-flex justify-content-between mb-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="userType" id="teacher" value="Teacher">
+                        <label class="form-check-label" for="teacher">
+                            Teacher
+                        </label>
                     </div>
-                  </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="userType" id="student" value="Student" checked>
+                        <label class="form-check-label" for="student">
+                            Student
+                        </label>
+                    </div>
                 </div>
-
-                <!-- Email input -->
-                <div data-mdb-input-init class="form-outline mb-4">
-                  <input type="email" id="form3Example3" class="form-control" required/>
-                  <label class="form-label" for="form3Example3">Email address</label>
-                </div>
-
-                <!-- Password input -->
-                <div data-mdb-input-init class="form-outline mb-4">
-                  <input type="password" id="form3Example4" class="form-control" required/>
-                  <label class="form-label" for="form3Example4">Password</label>
-                </div>
-
-                <!-- Checkbox -->
-                <div class="form-check d-flex justify-content-between mb-4">
-                  <div class="form-check">
-                      <input class="form-check-input" type="radio" name="userType" id="teacher" value="Teacher">
-                      <label class="form-check-label" for="teacher">
-                          Teacher
-                      </label>
+                
+  
+                  <!-- Submit button -->
+                  <div id="signupMessage" class="text-danger mb-3"></div>
+                  <button id="signupButton" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-block fa-lg gradient-custom-2 mb-3" type="button">
+                  Sign up</button>
+                </form>
+  
+                <!-- Verification form (hidden by default) -->
+                <form id="verificationForm" style="display: none;">
+                  <p style="color: red;">Vui lòng kiểm tra Email để xác minh mã xác nhận</p>
+  
+                  <div class="form-outline mb-4">
+                    <input type="text" id="verificationCode" class="form-control" />
+                    <label class="form-label" for="verificationCode">Enter verification code</label>
                   </div>
-                  <div class="form-check">
-                      <input class="form-check-input" type="radio" name="userType" id="student" value="Student" checked>
-                      <label class="form-check-label" for="student">
-                          Student
-                      </label>
-                  </div>
+                  <div id="verificationMessage" class="text-danger mb-3"></div>
+                  <button id="verifyButton" class="btn btn-success btn-block fa-lg gradient-custom-2 mb-3" type="button">Verify</button>
+                </form>
+  
               </div>
-              
-
-                <!-- Submit button -->
-                <div id="signupMessage" class="text-danger mb-3"></div>
-                <button id="signupButton" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-block fa-lg gradient-custom-2 mb-3" type="button">
-                Sign up</button>
-              </form>
-
-              <!-- Verification form (hidden by default) -->
-              <form id="verificationForm" style="display: none;">
-                <p style="color: red;">Vui lòng kiểm tra Email để xác minh mã xác nhận</p>
-
-                <div class="form-outline mb-4">
-                  <input type="text" id="verificationCode" class="form-control" />
-                  <label class="form-label" for="verificationCode">Enter verification code</label>
-                </div>
-                <div id="verificationMessage" class="text-danger mb-3"></div>
-                <button id="verifyButton" class="btn btn-success btn-block fa-lg gradient-custom-2 mb-3" type="button">Verify</button>
-              </form>
-
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-  <!-- Jumbotron -->
-</section>
-{% endblock %}
+    <!-- Jumbotron -->
+  </section>
+   
 
-{% block extra_js %}
-<script type="module" src="{{ url_for('static', filename='js/signup.js') }}"></script>
+  <!-- Bootstrap JS and dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.2.0/mdb.min.js"></script> 
+  <script type="module" src="{{ url_for('static', filename='js/signup.js') }}"></script>
 
-{% endblock %}
-
-
+</body>
+</html>

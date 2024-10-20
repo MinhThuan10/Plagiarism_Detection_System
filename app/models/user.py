@@ -8,7 +8,7 @@ from email.mime.multipart import MIMEMultipart
 from bson.objectid import ObjectId
 
 
-def create_user(firstname, lastname, email, password, role):
+def create_user(firstname, lastname, email, password, role, avatar_base64 ):
 
     if db.users.find_one({'email': email}):
         return False  # Tên người dùng đã tồn tại
@@ -18,6 +18,7 @@ def create_user(firstname, lastname, email, password, role):
                          'role': role,
                          'email': email,
                          'password': hashed_password,
+                         'avatar': avatar_base64 ,
                          'school_id': ""})
     return True
 
