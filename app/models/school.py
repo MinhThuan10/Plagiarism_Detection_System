@@ -1,5 +1,4 @@
 # models/school.py
-from flask import Flask, jsonify
 from app.extensions import db
 
 

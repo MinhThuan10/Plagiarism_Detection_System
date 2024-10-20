@@ -110,10 +110,10 @@ def signup_api():
     
     
     
-@user.route('/logout')
+@user.route('/logout', methods=['POST'])
 def logout():
     session.clear()  # Xóa toàn bộ dữ liệu trong session
-    return "Logged out successfully"
+    return render_template('index.html')
 
 # API để gửi mã xác nhận
 @user.route('/api/send_verification', methods=['POST'])
@@ -147,10 +147,8 @@ def login_api():
 
     checkuser = check_user(email, password)
     if checkuser[0]:  
-        session['email'] = email
-        session['role'] = checkuser[1]
-        session['school_id'] = checkuser[2]
-        return jsonify(success=True, role = checkuser[1], school_id =  checkuser[2] )
+        session['user_id'] = str(checkuser[1]['_id'])
+        return jsonify(success=True, role = checkuser[1].get('role'), school_id =  checkuser[1].get('school_id'))
     else:
         print('looo')
         return jsonify(success=False, message='Tài khoản hoặc mật khẩu không chính xác') 

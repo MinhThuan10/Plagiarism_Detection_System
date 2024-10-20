@@ -16,39 +16,86 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.2.0/mdb.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/enrool.css') }}">
 
 
 </head>
 <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-light fixed-top">
+        <div class="container-fluid">
+            <div class="header-hcmute_link">
+                <img src="{{ url_for('static', filename='images/logo2.png') }}" alt="">
+            </div>
+            
 
+            <div class="header-user-info">
+                <!-- Nút đăng xuất -->
+                <form action="{{ url_for('user.logout') }}" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-link" style="color: #0369c3; margin-left: 10px;">
+                        Đăng xuất
+                    </button>
+                </form>
+                <!-- Liên kết quản lý thông tin cá nhân -->
+                <a href="#" class="navbar-brand" style="color: #0369c3; margin-left: 10px;">
+                    Quản lý thông tin cá nhân
+                </a>
 
+                <!-- Avatar -->
+                <img src="data:image/png;base64,{{ user.avatar }}" alt="User Avatar" class="user-avatar" style="width: 40px; height: 40px; border-radius: 50%;">
+                          
+            </div>
+        </div>
+    </nav>
     <div class="container">
-        <!-- Form dành cho giáo viên -->
-        <form action="/submit_teacher" method="POST">
-            <div class="form-group">
-                <label for="school_id">Mã Trường:</label>
-                <input type="text" id="school_id" name="school_id" class="form-control" placeholder="Nhập mã trường" required>
-            </div>
-            <div class="form-group">
-                <label for="school_pass">Pass Trường:</label>
-                <input type="password" id="school_pass" name="school_pass" class="form-control" placeholder="Nhập pass trường" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
-        <!-- Form dành cho sinh viên -->
-        <form action="/submit_student" method="POST">
-            <div class="form-group">
-                <label for="class_id">Mã Lớp:</label>
-                <input type="text" id="class_id" name="class_id" class="form-control" placeholder="Nhập mã lớp" required>
-            </div>
-            <div class="form-group">
-                <label for="class_pass">Mã Lớp:</label>
-                <input type="password" id="class_pass" name="class_pass" class="form-control" placeholder="Nhập mã lớp" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
+        {% if user.role == "Teacher" %}
+            <!-- Form dành cho giáo viên -->
+            <form action="/submit_teacher" method="POST">
+                <div class="form-group">
+                    <label for="school_id">Mã Trường:</label>
+                    <input type="text" id="school_id" name="school_id" class="form-control" placeholder="Nhập mã trường" required>
+                </div>
+                <div class="form-group">
+                    <label for="school_pass">Pass Trường:</label>
+                    <input type="password" id="school_pass" name="school_pass" class="form-control" placeholder="Nhập pass trường" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        {% elif user.role == "Student" %}
+            <!-- Form dành cho sinh viên -->
+            <form action="/submit_student" method="POST">
+                <div class="form-group">
+                    <label for="class_id">Mã Lớp:</label>
+                    <input type="text" id="class_id" name="class_id" class="form-control" placeholder="Nhập mã lớp" required>
+                </div>
+                <div class="form-group">
+                    <label for="class_pass">Mã Lớp:</label>
+                    <input type="password" id="class_pass" name="class_pass" class="form-control" placeholder="Nhập mã lớp" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        {% else %}
+            <p>Vai trò không hợp lệ.</p>
+        {% endif %}
     </div>
+
+
+
+    <footer class="text-center text-lg-start mt-5">
+        <div class="footer-hcmute_link">
+            <a class="navbar-brand" href="https://hcmute.edu.vn/">
+                <i class="bi bi-globe"></i>
+            </a>
+
+            <a class="navbar-brand" href="https://www.facebook.com/dhspkt.hcmute">
+                <i class="bi bi-facebook"></i>
+            </a>
+        </div>
+        <div class="text-center p-3">
+            Copyright HCMUTE © 2024
+        </div>
+    </footer>
+
+
     <script type="module" src="{{ url_for('static', filename='js/enrool.js') }}"></script>
 </body>
 </html>

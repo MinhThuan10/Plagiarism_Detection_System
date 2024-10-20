@@ -18,24 +18,17 @@ def create_user(firstname, lastname, email, password, role, avatar_base64 ):
                          'role': role,
                          'email': email,
                          'password': hashed_password,
-                         'avatar': avatar_base64 ,
+                         'avatar': avatar_base64,
                          'school_id': ""})
     return True
 
 def check_user(email, password):
     user = db.users.find_one({'email': email})
 
-    if user:
-        role = user.get('role')  # Lấy giá trị của 'role'
-        school_id = user.get('school_id')  # Lấy giá trị của 'school_id'
-    else:
-        role = None
-        school_id = None
-
     if user and check_password_hash(user['password'], password):
-        return True, role, school_id
+        return True, user
         
-    return False, role, school_id
+    return False, None
 
 def check_user_change_passwd(email, password):
     user = db.users.find_one({'email': email})
