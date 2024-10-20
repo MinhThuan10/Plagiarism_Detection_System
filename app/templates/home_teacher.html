@@ -1,2 +1,15 @@
-teacher
+{% extends 'base_teacher.html' %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/home_teacher.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 300px; font-size: 50px;">
+    Teacher
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="module" src="{{ url_for('static', filename='js/home_teacher.js') }}"></script>
+{% endblock %}

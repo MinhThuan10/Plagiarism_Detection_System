@@ -1,0 +1,13 @@
+.header .navbar .container-fluid .navbar-brand img{
+    width: 140px;
+    height: auto;
+}
+
+.header .navbar{
+    background-color: #fff !important;
+    margin-top: 60px;
+}
+
+.container-fluid{
+    padding: 0  24px;
+}
