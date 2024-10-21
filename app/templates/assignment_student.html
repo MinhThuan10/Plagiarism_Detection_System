@@ -1,0 +1,16 @@
+<!-- Page danh sách bài tập trong lớp, dành cho giảng viên -->
+{% extends 'base_teacher.html' %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/assignment_student.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 300px; font-size: 50px;">
+    Page danh sách bài tập trong lớp, dành cho giảng viên
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="module" src="{{ url_for('static', filename='js/assignment_student.js') }}"></script>
+{% endblock %}
