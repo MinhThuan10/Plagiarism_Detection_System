@@ -6,6 +6,37 @@ from app.extensions import db
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from bson.objectid import ObjectId
+import base64
+from io import BytesIO
+from PIL import Image, ImageDraw, ImageFont
+
+
+def create_avatar_image(letter):
+    # Tạo hình ảnh 100x100 với nền màu và chữ cái đầu
+    img = Image.new('RGB', (100, 100), color=(73, 109, 137))  # Nền màu xanh
+    d = ImageDraw.Draw(img)
+
+    # Chọn font và kích thước
+    try:
+        font = ImageFont.truetype("arial.ttf", 50)
+    except IOError:
+        font = ImageFont.load_default()
+
+    # Tính toán vị trí vẽ chữ cái đầu tiên
+    bbox = d.textbbox((0, 0), letter, font=font)
+    text_width, text_height = bbox[2] - bbox[0], bbox[3] - bbox[1]
+    position = ((100 - text_width) // 2, (100 - text_height) // 2)
+
+    # Vẽ chữ cái đầu tiên vào hình ảnh
+    d.text(position, letter, fill=(255, 255, 255), font=font)  # Màu chữ trắng
+
+    # Chuyển ảnh thành chuỗi base64
+    buffered = BytesIO()
+    img.save(buffered, format="PNG")
+    img_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
+
+    return img_base64  # Trả về chuỗi base64 của ảnh
+
 
 
 def create_user(firstname, lastname, email, password, role, avatar_base64 ):
@@ -57,11 +88,14 @@ def update_user(user_id, first_name, last_name, email, password, school_id):
     hashed_password = generate_password_hash(password)
     
     if user:
-        db.users.update_one(
+        result = db.users.update_one(
             { "_id": ObjectId(user_id) },
             { "$set": { "first_name": first_name,  "last_name": last_name, "email": email, "password": hashed_password, "school_id": school_id} }
         )
-        return True
+        if result.modified_count > 0:
+            return True
+        else:
+            return False
         
     return False
 

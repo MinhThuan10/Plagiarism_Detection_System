@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify, session
+from flask import Blueprint, render_template, request, jsonify, session
 from app.models.school import  load_school, create_school, update_school, delete_school
 from bson import ObjectId
 from bson.objectid import ObjectId
@@ -8,7 +8,7 @@ from app.extensions import db
 school = Blueprint('school', __name__)
 
 @school.route('/school', methods=['GET', 'POST'])
-def school_page():
+def load_school_api():
     if 'user_id' not in session:
         return render_template('login.html')
     user = db.users.find_one({'_id': ObjectId(session['user_id'])})
@@ -18,9 +18,8 @@ def school_page():
             schools = load_school()
             list_school = []
             for school in schools:
-                school_data = {key: (str(value) if isinstance(value, ObjectId) else value) for key, value in school.items() if key != '_id'}
+                school_data = {key: (str(value) if isinstance(value, ObjectId) else value) for key, value in school.items()}
                 list_school.append(school_data)
-            print(list_school)
             return jsonify(success = True, list_school = list_school)
         return jsonify(success = False, message = "sai") 
         
@@ -58,7 +57,7 @@ def create_school_api():
 def update_school_api():
     data = request.get_json()
     if not data:
-        return jsonify(success = False, message = "Email hoặc tên Trường đã tồn tại")
+        return jsonify(success = False, message = "Nhập lại dữ liệu")
 
     if 'user_id' not in session:
         return render_template('login.html')
@@ -93,7 +92,7 @@ def delete_school_api():
         if role == "Manager":
             data = request.get_json()
             if not data:
-                return jsonify(success = False, message = "Email hoặc tên Trường đã tồn tại")
+                return jsonify(success = False, message = "Trường không tồn tại")
 
             print("api update school")
 
