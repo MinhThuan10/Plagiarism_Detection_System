@@ -4,6 +4,10 @@ import random
 import base64
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
+from app.extensions import db
+from bson.objectid import ObjectId
+
+
 
 user = Blueprint('user', __name__)
 
@@ -135,6 +139,8 @@ def send_verification():
     
 @user.route('/login', methods=['GET', 'POST'])
 def login():
+    if 'user_id' not in session:
+        return render_template('login.html')
     return render_template('login.html')
 
 
@@ -185,19 +191,22 @@ def forgot_password():
 
 @user.route('/api/update_user', methods=['POST'])
 def update_user_api():
-    data = request.get_json()  # Nhận dữ liệu JSON từ client
-    print('call api update user')
-    print(data)
+    if 'user_id' not in session:
+        return render_template('login.html')
+    user = db.users.find_one({'_id': ObjectId(session['user_id'])})
+    if user:
+        
+        print('call api update user')
 
-    user_id = data.get('user_id')
-    firstname = data.get('firstname')
-    lastname = data.get('lastname')
-    email = data.get('email')
-    password = data.get('password')
-    school_id = data.get('school_id')
-    
-    if update_user(user_id,firstname,lastname, email, password, school_id):  
-            return jsonify(success=True)
-    else:
-        print('looo')
-        return jsonify(success=False, message='Email đã tồn tại, vui lòng nhập email khác') 
+        user_id = user['user_id']
+        firstname = user['firstname']
+        lastname = user['lastname']
+        email = user['email']
+        password = user['password']
+        school_id = user['school_id']
+        
+        if update_user(user_id,firstname,lastname, email, password, school_id):  
+                return jsonify(success=True)
+        else:
+            print('looo')
+            return jsonify(success=False, message='Email đã tồn tại, vui lòng nhập email khác') 
