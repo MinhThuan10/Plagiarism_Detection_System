@@ -47,8 +47,8 @@ def update_school(school_id, name, email, key):
         return False
 
 def delete_school(school_id):
-    if not db.schools.find_one({"school_id": school_id}):
+    if not db.schools.find_one({"school_id": str(school_id)}):
         return False
-    db.schools.delete_one({"school_id":school_id})
+    db.schools.delete_one({"school_id":str(school_id)})
     return True
     
