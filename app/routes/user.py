@@ -15,8 +15,6 @@ def signup():
 
 
 
-
-
 @user.route('/api/signup', methods=['POST'])
 def signup_api():
     data = request.get_json()  # Nhận dữ liệu JSON từ client
