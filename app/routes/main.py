@@ -8,7 +8,7 @@ main = Blueprint('main', __name__)
 @main.route('/')
 def index():
 
-    return render_template('base_teacher.html')
+    return render_template('TeacherClassList.html')
 
 
 
