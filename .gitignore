@@ -29,3 +29,8 @@ docker-compose.yml
 
 # Other
 *.sqlite3
+
+
+
+__pycache__/
+*.pyc
