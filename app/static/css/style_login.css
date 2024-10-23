@@ -1,37 +1,39 @@
-
+body {
+  font-family: "Roboto", sans-serif;
+}
 .logo-container {
-    text-align: center;
+  text-align: center;
 }
 
 .logo-image {
-    padding-top: 20px;
-    width: 200px;
-   
+  padding-top: 50px;
+  padding-bottom: 30px;
+  width: 200px;
 }
 body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    background: hsl(0, 0%, 100%) !important;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: hsl(0, 0%, 100%) !important;
 }
 
 .container {
-    padding-top: 20px;
-    padding-bottom: 90px;    
+  padding-top: 20px;
+  padding-bottom: 90px;
 }
 
 .text1 {
-    padding-top: 10px;
-    text-align: center;
+  padding-top: 10px;
+  text-align: center;
 }
 
 #loginButton {
-    background-color: #0369c3; /* Màu nền */
-    border: none; 
-    font-size: 1rem; /* Kích thước chữ lớn */
-    font-weight: bold;/* Bỏ viền (nếu có) */
+  background-color: #0369c3; /* Màu nền */
+  border: none;
+  font-size: 1rem; /* Kích thước chữ lớn */
+  font-weight: bold; /* Bỏ viền (nếu có) */
 }
 
 #loginButton:hover {
-    background-color: #076bb3; /* Màu nền khi di chuột qua */
+  background-color: #076bb3; /* Màu nền khi di chuột qua */
 }

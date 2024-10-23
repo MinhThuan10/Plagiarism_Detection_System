@@ -24,7 +24,8 @@ body {
 .school {
   padding-bottom: 8px;
 }
-.card-school {
+.card-school,
+.modal-title {
   color: #35509a;
   font-weight: 600;
   font-family: "Roboto", sans-serif;
@@ -51,7 +52,7 @@ body {
 
 .table {
   display: block; /* Biến bảng thành block để cho phép cuộn */
-  max-height: 400px; /* Chiều cao tối đa của bảng */
+  max-height: 800px; /* Chiều cao tối đa của bảng */
 }
 
 .table thead {
@@ -61,6 +62,30 @@ body {
   z-index: 10; /* Đảm bảo tiêu đề luôn nằm trên nội dung */
 }
 
+.custom-modal-width {
+  max-width: 650px !important;
+}
+
+.containerClassList {
+  width: 1430px;
+  height: 402px;
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 0.65rem;
+  box-shadow: 0 4px 0 0 rgba(143, 156, 173, 0.2);
+  overflow: hidden;
+  background-color: #fff !important;
+  margin: 40px;
+}
 .container {
-  max-width: 1450px !important;
+  max-width: 1656px !important;
+  padding-left: 52px;
+  background-color: #f0f8ff;
+  max-width: 1650px !important;
+  height: 578px;
+  padding: 40px;
+}
+
+.modal-backdrop.show {
+  background-color: rgba(72, 72, 72, 0.5);
 }

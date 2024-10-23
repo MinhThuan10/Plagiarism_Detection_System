@@ -1,25 +1,33 @@
-.container {  
-    padding-top: -60px; 
-    width: 1000px !important;
+body {
+  font-family: "Roboto", sans-serif;
+}
+.container {
+  padding-top: -60px;
+  width: 1200px !important;
+  padding-left: 50px;
+}
+.container1 {
+  width: 500px;
 }
 .container2 {
-    padding-top: 100px;
+  padding-top: 100px;
+  width: 600px;
 }
 .logo-image {
-    width: 200px;
-    padding-bottom: 20px;
+  width: 200px;
+  padding-bottom: 20px;
 }
 .form-check {
-    padding-right: 10px;
+  padding-right: 10px;
 }
 
 #loginButton {
-    background-color: #0369c3; /* Màu nền */
-    border: none; 
-    font-size: 1rem; /* Kích thước chữ lớn */
-    font-weight: bold;/* Bỏ viền (nếu có) */
+  background-color: #0369c3; /* Màu nền */
+  border: none;
+  font-size: 1rem; /* Kích thước chữ lớn */
+  font-weight: bold; /* Bỏ viền (nếu có) */
 }
 
 #loginButton:hover {
-    background-color: #076bb3; /* Màu nền khi di chuột qua */
+  background-color: #076bb3; /* Màu nền khi di chuột qua */
 }
