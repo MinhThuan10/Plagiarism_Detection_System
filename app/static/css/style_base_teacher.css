@@ -1,0 +1,54 @@
+/* header */
+.body {
+  font-family: "Roboto", sans-serif;
+  background-color: red !important;
+}
+.fixed-top {
+  position: fixed !important;
+  top: 0;
+  width: 100%;
+  z-index: 3;
+  background-color: #fff !important;
+}
+
+footer {
+  bottom: 0; /* Gắn footer vào đáy container */
+  left: 0; /* Gắn footer vào bên trái */
+  right: 0; /* Gắn footer vào bên phải */
+  background-color: #fff;
+  text-align: center;
+}
+
+footer .footer-hcmute_link {
+  display: flex;
+  justify-content: center;
+}
+
+footer .footer-hcmute_link a {
+  color: #35509a;
+  font-size: 18px;
+  margin: 6px;
+  margin-top: 20px;
+}
+
+div.text-center.p-3 {
+  color: #35509a;
+  padding: 0px !important;
+}
+
+.header-user-info {
+  display: flex;
+}
+
+.nav-link {
+  font-weight: bold !important;
+  font-size: 0.92rem !important;
+  color: #71869d !important;
+  padding-right: 20px !important;
+}
+.nav-link:hover {
+  color: #35509a !important;
+}
+.dropdown-menu-end {
+  margin-top: 17px !important;
+}

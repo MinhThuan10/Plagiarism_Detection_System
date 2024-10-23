@@ -7,7 +7,7 @@ main = Blueprint('main', __name__)
 
 @main.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('TeacherClassList.html')
 
 
 @main.route('/home')
@@ -17,10 +17,6 @@ def home():
     user = db.users.find_one({'_id': ObjectId(session['user_id'])})
     if user:
         role = user['role']
-        school_id = user['school_id']
-
-        if school_id == "":
-            return render_template('enrool.html', user = user)
         if role == 'Teacher':
             return render_template('home_teacher.html', user = user)
         elif role == 'Student':

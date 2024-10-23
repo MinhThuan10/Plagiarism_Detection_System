@@ -1,92 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pikapon</title>
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.2.0/mdb.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_login.css') }}">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.2.0/mdb.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style_login.css') }}"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <section class="gradient-form" style="background-color: hsl(0, 0%, 100%)">
+      <div class="logo-container">
+        <img
+          class="logo-image"
+          src="{{ url_for('static', filename='images/logo.png') }}"
+          alt="logo"
+        />
+      </div>
 
-
-</head>
-<body>
-    <section class=" gradient-form" style="background-color: hsl(0, 0%, 100%);">
-
-        <div class="logo-container">
-            <img class="logo-image" src="{{ url_for('static', filename='images/logo2.png') }}" alt="logo">
-        </div>
-    
-        <div class="container h-100 d-flex justify-content-center align-items-center">
-            <div class="card rounded-3 text-black" style="width: 100%; max-width: 580px;">
-                <div class="card-body p-md-2 mx-md-4">
-    
-                    <div class="">
-                        <h3 class="mt-1 mb-5 text1">Sign into your account</h3>
-                    </div>
-    
-                    <form id="loginForm">                      
-    
-                        <div data-mdb-input-init class="form-outline mb-4">
-                            <input type="email" id="form2Example18" class="form-control form-control-lg" />
-                            <label class="form-label" for="form2Example18">Email address</label>
-                        </div>
-                       
-                        <div data-mdb-input-init class="form-outline mb-4">
-                            <input type="password" id="form2Example28" class="form-control form-control-lg" />
-                            <label class="form-label" for="form2Example28">Password</label>
-                        </div>
-                        <div id="loginMessage" class="text-danger mb-3"></div>
-    
-                        <div class="text-center pt-1 mb-2 pb-1">
-                            <button id="loginButton" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-block fa-lg gradient-custom-2 mb-3" type="button">Log in</button>
-                        </div>
-    
-                        <div id="loadingSpinner" class="spinner-border text-primary" role="status" style="display: none;">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-    
-                        <a class="text-muted" id="forgot_passwd" >Forgot password?</a>
-                        <p class="mb-5 pb-lg-2" style="color: black;">Don't have an account? <a href="{{ url_for('user.signup') }}"
-                             style="color: #0369c3;">Register here</a></p>
-                        
-    
-                    </form>
-    
-                    <!-- Verification form (hidden by default) -->
-                    <form id="verificationForm" style="display: none;">
-    
-                        <div data-mdb-input-init class="form-outline mb-4">
-                            <input type="password" id="new_password1" class="form-control form-control-lg" />
-                            <label class="form-label" for="form2Example28">New Password</label>
-                        </div>
-    
-                        <div data-mdb-input-init class="form-outline mb-4">
-                            <input type="password" id="new_password2" class="form-control form-control-lg" />
-                            <label class="form-label" for="form2Example28">New Password</label>
-                        </div>
-    
-                        <p style="color: red;">Vui lòng kiểm tra Email để xác minh mã xác nhận</p>
-    
-                        <div class="form-outline mb-4">
-                            <input type="text" id="verificationCode" class="form-control" />
-                            <label class="form-label" for="verificationCode">Enter verification code</label>
-                        </div>
-                        <div id="verificationMessage" class="text-danger mb-3"></div>
-                        <button id="verifyButton" class="btn btn-success btn-block fa-lg gradient-custom-2 mb-3" type="button">Verify</button>
-                    </form>
-                </div>
+      <div
+        class="container h-100 d-flex justify-content-center align-items-center"
+      >
+        <div
+          class="card rounded-3 text-black"
+          style="width: 100%; max-width: 580px"
+        >
+          <div class="card-body p-md-2 mx-md-4">
+            <div class="">
+              <h3 class="mt-1 mb-5 text1">Sign into your account</h3>
             </div>
-        </div>
-    </section>
 
+            <form id="loginForm">
+              <div data-mdb-input-init class="form-outline mb-4">
+                <input
+                  type="email"
+                  id="form2Example18"
+                  class="form-control form-control-lg"
+                />
+                <label class="form-label" for="form2Example18"
+                  >Email address</label
+                >
+              </div>
+
+              <div data-mdb-input-init class="form-outline mb-4">
+                <input
+                  type="password"
+                  id="form2Example28"
+                  class="form-control form-control-lg"
+                />
+                <label class="form-label" for="form2Example28">Password</label>
+              </div>
+              <div id="loginMessage" class="text-danger mb-3"></div>
+
+              <div class="text-center pt-1 mb-2 pb-1">
+                <button
+                  id="loginButton"
+                  data-mdb-button-init
+                  data-mdb-ripple-init
+                  class="btn btn-primary btn-block fa-lg gradient-custom-2 mb-3"
+                  type="button"
+                >
+                  Log in
+                </button>
+              </div>
+
+              <div
+                id="loadingSpinner"
+                class="spinner-border text-primary"
+                role="status"
+                style="display: none"
+              >
+                <span class="visually-hidden">Loading...</span>
+              </div>
+
+              <a class="text-muted" id="forgot_passwd">Forgot password?</a>
+              <p class="mb-5 pb-lg-2" style="color: black">
+                Don't have an account?
+                <a href="{{ url_for('user.signup') }}" style="color: #0369c3"
+                  >Register here</a
+                >
+              </p>
+            </form>
+
+            <!-- Verification form (hidden by default) -->
+            <form id="verificationForm" style="display: none">
+              <div data-mdb-input-init class="form-outline mb-4">
+                <input
+                  type="password"
+                  id="new_password1"
+                  class="form-control form-control-lg"
+                />
+                <label class="form-label" for="form2Example28"
+                  >New Password</label
+                >
+              </div>
+
+              <div data-mdb-input-init class="form-outline mb-4">
+                <input
+                  type="password"
+                  id="new_password2"
+                  class="form-control form-control-lg"
+                />
+                <label class="form-label" for="form2Example28"
+                  >New Password</label
+                >
+              </div>
+
+              <p style="color: red">
+                Vui lòng kiểm tra Email để xác minh mã xác nhận
+              </p>
+
+              <div class="form-outline mb-4">
+                <input type="text" id="verificationCode" class="form-control" />
+                <label class="form-label" for="verificationCode"
+                  >Enter verification code</label
+                >
+              </div>
+              <div id="verificationMessage" class="text-danger mb-3"></div>
+              <button
+                id="verifyButton"
+                class="btn btn-success btn-block fa-lg gradient-custom-2 mb-3"
+                type="button"
+              >
+                Verify
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- Bootstrap JS and dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.2.0/mdb.min.js"></script> 
-    <script type="module" src="{{ url_for('static', filename='js/login.js') }}"></script>
-
-</body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.2.0/mdb.min.js"></script>
+    <script
+      type="module"
+      src="{{ url_for('static', filename='js/login.js') }}"
+    ></script>
+  </body>
 </html>
