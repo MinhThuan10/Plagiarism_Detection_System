@@ -52,3 +52,6 @@ div.text-center.p-3 {
 .dropdown-menu-end {
   margin-top: 17px !important;
 }
+footer {
+  box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.05); /* Adjust the values to suit your needs */
+}
