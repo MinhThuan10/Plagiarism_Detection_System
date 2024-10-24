@@ -6,6 +6,7 @@ def load_school():
     schools = db.schools.find({})
     return schools 
 
+
 def create_school(name, email, key):
     if db.schools.find_one({'school_email': email}) or db.schools.find_one({'school_name': name}):
         return False   

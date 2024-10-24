@@ -1,5 +1,17 @@
 # models/class.py
 from app.extensions import db
+from bson.objectid import ObjectId
+
+
+
+def load_school_id(school_id):
+    school_cursor = db.schools.find({'school_id':school_id})
+    list_school = []
+    for school in school_cursor:
+        class_data = {key: (str(value) if isinstance(value, ObjectId) else value) for key, value in school.items()}
+        list_school.append(class_data)
+    return list_school
+
 
 def load_class_teacher(school_id):
     classs = db.classs.find({"school_id":school_id})

@@ -1,13 +1,92 @@
-.header .navbar .container-fluid .navbar-brand img{
-    width: 140px;
-    height: auto;
-}
-
-.header .navbar{
+body {
+    background-color: #eee;
+    font-family: "Roboto", sans-serif;
+  }
+  .table tbody tr {
+    border-bottom: 1px solid #e0e0e0; /* Thay đổi #ccc thành mã màu bạn muốn */
+  }
+  
+  .table tbody tr:last-child {
+    border-bottom: none; /* Không có đường ngăn cách cho hàng cuối cùng */
+  }
+  
+  .table thead th {
+    border-bottom: 1px solid #e0e0e0; /* Đường viền màu xám dưới tiêu đề */
+    border-top: 1px solid #e0e0e0;
+    color: #1a1a1a;
+    font-weight: bolder;
+  }
+  
+  .table tbody tr:first-child td {
+    border-top: 1px solid #e0e0e0; /* Đường viền màu xám trên hàng đầu tiên */
+  }
+  
+  .school {
+    padding-bottom: 8px;
+  }
+  .card-school,
+  .modal-title {
+    color: #35509a;
+    font-weight: 600;
+    font-family: "Roboto", sans-serif;
+  }
+  .table-responsive::-webkit-scrollbar {
+    width: 8px; /* Đặt chiều rộng của thanh cuộn */
+  }
+  
+  .table-responsive::-webkit-scrollbar-thumb {
+    background-color: #ccc9c9; /* Màu sắc của thanh cuộn */
+    border-radius: 10px; /* Bo tròn các góc */
+  }
+  
+  .table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Màu nền cho track */
+    border-radius: 10px; /* Bo tròn track */
+  }
+  
+  .table-responsive {
+    border-radius: 0.65rem; /* Bo tròn góc cho phần tử table-responsive */
+    position: relative; /* Để hỗ trợ cho thuộc tính tuyệt đối của tiêu đề */
+    overflow: hidden; /* Ngăn không cho nội dung tràn ra ngoài */
+  }
+  
+  .table {
+    display: block; /* Biến bảng thành block để cho phép cuộn */
+    max-height: 800px; /* Chiều cao tối đa của bảng */
+  }
+  
+  .table thead {
+    position: sticky; /* Ghim tiêu đề */
+    top: 0; /* Ghim ở đầu */
+    background: white; /* Nền cho tiêu đề */
+    z-index: 10; /* Đảm bảo tiêu đề luôn nằm trên nội dung */
+  }
+  
+  .custom-modal-width {
+    max-width: 650px !important;
+  }
+  
+  .containerClassList {
+    width: 1430px;
+    height: 402px;
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 0.65rem;
+    box-shadow: 0 4px 0 0 rgba(143, 156, 173, 0.2);
+    overflow: hidden;
     background-color: #fff !important;
-    margin-top: 60px;
-}
-
-.container-fluid{
-    padding: 0  24px;
-}
+    margin: 40px;
+  }
+  .container {
+    max-width: 1656px !important;
+    padding-left: 52px;
+    background-color: #e8f2ff;
+    max-width: 1650px !important;
+    height: 578px;
+    padding: 40px;
+  }
+  
+  .modal-backdrop.show {
+    background-color: rgba(72, 72, 72, 0.5);
+  }
+  

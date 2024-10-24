@@ -39,7 +39,7 @@ def create_avatar_image(letter):
 
 
 
-def create_user(firstname, lastname, email, password, role, avatar_base64 ):
+def create_user(firstname, lastname, email, password, role, avatar_base64,school_id ):
 
     if db.users.find_one({'email': email}):
         return False  # Tên người dùng đã tồn tại
@@ -50,7 +50,7 @@ def create_user(firstname, lastname, email, password, role, avatar_base64 ):
                          'email': email,
                          'password': hashed_password,
                          'avatar': avatar_base64,
-                         'school_id': ""})
+                         'school_id': school_id})
     return True
 
 def check_user(email, password):

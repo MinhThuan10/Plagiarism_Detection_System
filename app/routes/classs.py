@@ -1,20 +1,22 @@
 from flask import Blueprint, render_template, request, jsonify, session
-from app.models.classs import  load_class_teacher, load_class_student, create_class, update_class, delete_school
+from app.models.classs import  load_class_teacher, load_class_student, create_class, update_class, delete_school, load_school_id
 from bson import ObjectId
 from bson.objectid import ObjectId
 from app.extensions import db
 
 classs = Blueprint('class', __name__)
 
-@classs.route('/api/school=<school_id>', methods=['GET', 'POST'])
-def load_class_api(school_id):
+@classs.route('/api/school', methods=['GET', 'POST'])
+def load_class_api():
     if 'user_id' not in session:
         return render_template('login.html')
     user = db.users.find_one({'_id': ObjectId(session['user_id'])})
     if user:
         role = user['role']
-        user_id = str(user['_id'])
+        school_id = user['school_id']
 
+        user_id = str(user['_id'])
+        school_data = load_school_id(school_id)
         if role == "Teacher":
             if school_id == user['school_id']:
                 classs = load_class_teacher(school_id)
@@ -22,7 +24,7 @@ def load_class_api(school_id):
                 for clas in classs:
                     class_data = {key: (str(value) if isinstance(value, ObjectId) else value) for key, value in clas.items()}
                     list_classs.append(class_data)
-                return jsonify(success = True, list_classs = list_classs)
+                return jsonify(success = True, school_data = school_data, list_classs = list_classs)
             return jsonify(success = False, message = "sai") 
 
         elif role == "Student":
@@ -33,7 +35,7 @@ def load_class_api(school_id):
                     class_data = {key: (str(value) if isinstance(value, ObjectId) else value) for key, value in clas.items()}
 
                     list_classs.append(class_data)
-                return jsonify(success = True, list_classs = list_classs)
+                return jsonify(success = True, school_data = school_data, list_classs = list_classs)
             return jsonify(success = False, message = "sai") 
             
         else:
@@ -54,8 +56,8 @@ def create_class_api(school_id):
         role = user['role']
         if role == "Teacher":
             if school_id == user['school_id']:
+                print("Them class")
                 teacher_id = session['user_id']
-
                 class_name = data.get('class_name')
                 class_key = data.get('class_key')
                 start_day = data.get('start_day')
