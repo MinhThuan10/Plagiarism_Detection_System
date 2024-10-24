@@ -44,6 +44,27 @@ def load_class_api():
     return jsonify(success = False, message = "sai") 
 
 
+@classs.route('/class=<class_id>', methods=['GET', 'POST'])
+def reder_page_class(class_id):
+    if 'user_id' not in session:
+        return render_template('login.html')
+    user = db.users.find_one({'_id': ObjectId(session['user_id'])})
+    clas = db.classs.find_one({'class_id': class_id})
+    if user and clas:
+        if user['school_id'] == clas['school_id']:
+            role = user['role']
+            if role == 'Teacher':
+
+                return render_template('assignment_teacher.html', user = user)
+            elif role == 'Student' and user['school_id'] in clas['student_ids']:
+                return render_template('assignment_student.html', user = user)
+            else:
+                return render_template('error.html')
+        else:
+            return render_template('error.html')
+    else:
+        return render_template('error.html')
+
 @classs.route('/api/create_class@school=<school_id>', methods=['POST'])
 def create_class_api(school_id):
     data = request.get_json()
@@ -64,7 +85,7 @@ def create_class_api(school_id):
                 end_day = data.get('end_day')
 
                 if create_class(school_id, class_name, class_key, teacher_id, start_day, end_day):
-                    return jsonify(success = True)
+                    return jsonify(success = True,message = "Tạo lớp mới thành công")
                 else:
                     return jsonify(success = False, message = "Tên lớp đã tồn tại")
             return jsonify(success = False, message = "sai") 
