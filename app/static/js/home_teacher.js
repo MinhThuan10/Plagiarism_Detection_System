@@ -1,4 +1,5 @@
-const school_id = ""
+let  school_id = ''
+
 document.addEventListener("DOMContentLoaded", function() {
     fetch(`/api/school`, {
         method: 'GET',
@@ -10,9 +11,9 @@ document.addEventListener("DOMContentLoaded", function() {
     .then(data => {
         if (data.success) {
             const schoolName = data.school_data[0].school_name;
-            school_id = data.school_data[0].school_id
+            school_id = data.school_data[0].school_id;
             document.getElementById('school_name').innerText = schoolName;
-
+            console.log(schoolName)
             const tbody = document.getElementById('class_table_body');
             data.list_classs.forEach(classInfo => {
                 const row = document.createElement('tr');
@@ -116,13 +117,15 @@ document.getElementById("button_create_class").addEventListener("click", functio
             },
             body: JSON.stringify({ class_name: className.value,
                 class_key: enrollmentKey.value,
-                start_day: startDay,
+                start_day: startDay.value,
                 end_day:convertedEndDay
              })
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
+                messageDiv.textContent = data.message; 
+                location.reload()
                 
             } else {
                 messageDiv.textContent = data.message; 
