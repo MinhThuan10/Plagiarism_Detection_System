@@ -256,8 +256,17 @@
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const startDayInput = document.getElementById("startDay");
-    const today = new Date().toISOString().split("T")[0]; // Get today's date in 'YYYY-MM-DD' format
-    startDayInput.value = today; // Auto-fill the start day field
+    const today = new Date();
+
+    // Lấy ngày hiện tại và định dạng theo mm/dd/yyyy
+    const formattedDate =
+      ("0" + (today.getMonth() + 1)).slice(-2) +
+      "/" +
+      ("0" + today.getDate()).slice(-2) +
+      "/" +
+      today.getFullYear();
+
+    startDayInput.value = formattedDate; // Tự động điền ngày đã định dạng
   });
 </script>
 
