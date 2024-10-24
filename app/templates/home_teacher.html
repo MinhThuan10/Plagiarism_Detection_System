@@ -1,15 +1,190 @@
-{% extends 'base_teacher.html' %}
+{% extends 'base_teacher.html' %} {% block extra_css %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/home_teacher.css') }}">
-{% endblock %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/home_teacher.css') }}"
+/>
 
-{% block content %}
-<div class="container" style="margin-top: 300px; font-size: 50px;">
-    Teacher
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.2.0/mdb.min.css"
+/>
+
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/boxicons/2.1.0/css/boxicons.min.css"
+  integrity="sha512-pVCM5+SN2+qwj36KonHToF2p1oIvoU3bsqxphdOIWMYmgr4ZqD3t5DjKvvetKhXGc/ZG5REYTT6ltKfExEei/Q=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.css"
+  integrity="sha256-NAxhqDvtY0l4xn+YVa6WjAcmd94NNfttjNsDmNatFVc="
+  crossorigin="anonymous"
+/>
+
+{% endblock %} {% block content %}
+
+<div class="container">
+  <div class="containerClassList">
+    <div class="row align-items-center school">
+      <div class="col-md-6">
+        <div class="mb-3">
+          <h5 class="card-school" id="school_name">
+          </h5>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div
+          class="d-flex flex-wrap align-items-center justify-content-end gap-2 mb-3"
+        >
+          <div>
+            <!-- Button to trigger modal -->
+            <a
+              href="#"
+              data-bs-toggle="modal"
+              data-bs-target="#addNewModal"
+              class="btn btn-primary"
+            >
+              <i class="bx bx-plus me-1"></i> Add New
+            </a>
+
+            <!-- Modal structure -->
+            <div
+              class="modal fade"
+              id="addNewModal"
+              tabindex="-1"
+              aria-labelledby="addNewModalLabel"
+              aria-hidden="true"
+            >
+              <div
+                class="modal-dialog modal-dialog-centered custom-modal-width"
+              >
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="addNewModalLabel">
+                      Add New Class
+                    </h5>
+                    <button
+                      type="button"
+                      class="btn-close"
+                      data-bs-dismiss="modal"
+                      aria-label="Close"
+                    ></button>
+                  </div>
+                  <div class="modal-body">
+                    <!-- Form inside the modal -->
+                    <form>
+                      <!-- Class Name field -->
+                      <div class="mb-3">
+                        <label for="className" class="form-label"
+                          >Class Name</label
+                        >
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="className"
+                          required
+                        />
+                      </div>
+
+                      <!-- Enrollment Key field -->
+                      <div class="mb-3">
+                        <label for="enrollmentKey" class="form-label"
+                          >Enrollment Key</label
+                        >
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="enrollmentKey"
+                          required
+                        />
+                      </div>
+
+                      <!-- Start Day field (auto-filled with current date) -->
+                      <div class="mb-3">
+                        <label for="startDay" class="form-label"
+                          >Start Day</label
+                        >
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="startDay"
+                          readonly
+                        />
+                      </div>
+
+                      <!-- End Day field (date picker) -->
+                      <div class="mb-3">
+                        <label for="endDay" class="form-label">End Day</label>
+                        <input
+                          type="date"
+                          class="form-control"
+                          id="endDay"
+                          required
+                        />
+                      </div>
+                    </form>
+                  </div>
+                  <div id="signupMessage" class="text-danger mb-3"></div>
+                  <div class="modal-footer">
+                    <button
+                      type="button"
+                      class="btn btn-secondary"
+                      data-bs-dismiss="modal"
+                    >
+                      Cancel
+                    </button>
+                    <button id="button_create_class" type="button" class="btn btn-primary">
+                      Create
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-{% endblock %}
+    <div class="row">
+      <div class="col-lg-12">
+        <div>
+          <div
+            class="table-responsive"
+            style="max-height: 400px; overflow-y: auto"
+          >
+            <table
+              class="table project-list-table table-nowrap align-middle table-borderless"
+            >
+              <thead>
+                <tr>
+                  <th scope="col" class="ps-4" style="width: 150px">
+                    Class ID
+                  </th>
+                  <th scope="col" style="width: 1000px">Class name</th>
+                  <th scope="col" style="width: 400px">Start day</th>
+                  <th scope="col" style="width: 400px">End day</th>
+                  <th scope="col" style="width: 200px; padding-left: 36px">
+                    Action
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="class_table_body">
+                <!-- Rows will be inserted here -->
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
 
-{% block extra_js %}
-<script type="module" src="{{ url_for('static', filename='js/home_teacher.js') }}"></script>
+    <script
+      type="module"
+      src="{{ url_for('static', filename='js/home_teacher.js') }}"
+    ></script>
+
 {% endblock %}

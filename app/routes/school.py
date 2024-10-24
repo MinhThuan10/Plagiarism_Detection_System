@@ -7,23 +7,15 @@ from app.extensions import db
 
 school = Blueprint('school', __name__)
 
-@school.route('/api/school', methods=['GET', 'POST'])
+@school.route('/api/list_school', methods=['GET', 'POST'])
 def load_school_api():
-    if 'user_id' not in session:
-        return render_template('login.html')
-    user = db.users.find_one({'_id': ObjectId(session['user_id'])})
-    if user:
-        role = user['role']
-        if role == "Manager":
-            schools = load_school()
-            list_school = []
-            for school in schools:
-                school_data = {key: (str(value) if isinstance(value, ObjectId) else value) for key, value in school.items()}
-                list_school.append(school_data)
-            return jsonify(success = True, list_school = list_school)
-        return jsonify(success = False, message = "sai") 
-        
-    return jsonify(success = False, message = "sai") 
+    schools = load_school()
+    list_school = []
+    for school in schools:
+        school_data = {key: (str(value) if isinstance(value, ObjectId) else value) for key, value in school.items()}
+        list_school.append(school_data)
+    return jsonify(success = True, list_school = list_school)
+
 
 @school.route('/api/create_school', methods=['POST'])
 def create_school_api():

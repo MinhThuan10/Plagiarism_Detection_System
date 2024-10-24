@@ -27,6 +27,8 @@ def signup_api():
     role = data.get('role')
     email = data.get('email')
     password = data.get('password')
+    school_id = data.get('school_id')
+
     verificationCode = data.get('verificationCode')
     stored_code = session.get('verification_code')
     # Lấy chữ cái đầu tiên của first_name làm avatar
@@ -40,7 +42,7 @@ def signup_api():
         # Tạo hình ảnh avatar từ chữ cái đầu tiên
         avatar_base64  = create_avatar_image(avatar_letter)
 
-        if create_user(first_name, last_name, email, password, role, avatar_base64 ):  
+        if create_user(first_name, last_name, email, password, role, avatar_base64, school_id ):  
             return jsonify(success=True)
         else:
             print('looo')
@@ -53,7 +55,7 @@ def signup_api():
     
     
     
-@user.route('/logout', methods=['POST'])
+@user.route('/logout')
 def logout():
     session.clear()  # Xóa toàn bộ dữ liệu trong session
     return render_template('index.html')
@@ -78,9 +80,7 @@ def send_verification():
     
 @user.route('/login', methods=['GET', 'POST'])
 def login():
-    if 'user_id' not in session:
         return render_template('login.html')
-    return render_template('error.html')
 
 
 @user.route('/api/login', methods=['POST'])
