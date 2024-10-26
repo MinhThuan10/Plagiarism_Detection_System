@@ -9,7 +9,7 @@ from bson.objectid import ObjectId
 
 user = Blueprint('user', __name__)
 
-@user.route('/signup', methods=['GET', 'POST'])
+@user.route('/signup')
 def signup():
     return render_template('signup.html')
 
@@ -78,7 +78,7 @@ def send_verification():
     else:
         return jsonify(success=False, message='Không thể gửi email xác nhận')
     
-@user.route('/login', methods=['GET', 'POST'])
+@user.route('/login')
 def login():
         return render_template('login.html')
 
@@ -128,7 +128,7 @@ def forgot_password():
         return jsonify(success=False, message='Mã xác nhận không chính xác'), 400
     
 
-@user.route('/api/update_user', methods=['POST'])
+@user.route('/api/update_user', methods=['PUST'])
 def update_user_api():
     if 'user_id' not in session:
         return render_template('login.html')

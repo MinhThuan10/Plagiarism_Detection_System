@@ -14,12 +14,21 @@ def load_school_id(school_id):
 
 
 def load_class_teacher(school_id):
-    classs = db.classs.find({"school_id":school_id})
-    return classs 
+    classs_cursor = db.classs.find({"school_id":school_id})
+    list_classs = []
+    for classs in classs_cursor:
+        class_data = {key: (str(value) if isinstance(value, ObjectId) else value) for key, value in classs.items()}
+        list_classs.append(class_data)
+    return list_classs 
 
 def load_class_student(student_id):
-    classs = db.classs.find({"student_ids": {"$in": [student_id]}})
+    classs_cursor = db.classs.find({"student_ids": {"$in": [student_id]}})
+    list_classs = []
+    for classs in classs_cursor:
+        class_data = {key: (str(value) if isinstance(value, ObjectId) else value) for key, value in classs.items()}
+        list_classs.append(class_data)
     return classs
+
 
 
 def create_class(school_id, class_name, class_key, teacher_id, start_day, end_day):
@@ -40,7 +49,7 @@ def create_class(school_id, class_name, class_key, teacher_id, start_day, end_da
                          })
     return True
 
-def update_class(school_id, class_id, class_name, class_key, start_day, end_day, student_ids):
+def update_class(school_id, class_id, class_name, class_key, end_day):
     if  db.classs.find_one({
             '$or': [
                 {'school_id': school_id, 'class_name': class_name},
@@ -55,9 +64,7 @@ def update_class(school_id, class_id, class_name, class_key, start_day, end_day,
             "$set": {
                 "class_name": class_name,
                 "class_key": class_key,
-                "start_day": start_day,
-                "end_day": end_day,
-                "student_ids": student_ids
+                "end_day": end_day
             }
         }
     )

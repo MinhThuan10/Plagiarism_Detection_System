@@ -7,8 +7,9 @@ from app.extensions import db
 
 school = Blueprint('school', __name__)
 
-@school.route('/api/list_school', methods=['GET', 'POST'])
+@school.route('/api/list_school', methods=['GET'])
 def load_school_api():
+    print("load list school")
     schools = load_school()
     list_school = []
     for school in schools:
@@ -35,6 +36,7 @@ def create_school_api():
             school_key = data.get('school_key')
 
 
+            print(school_email)
             if create_school(school_name, school_email, school_key):
                 return jsonify(success = True)
             else:
@@ -43,7 +45,7 @@ def create_school_api():
         
     return jsonify(success = False, message = "sai") 
 
-@school.route('/api/update_school@school=<school_id>', methods=['POST'])
+@school.route('/api/update_school@school=<school_id>', methods=['PUT'])
 def update_school_api(school_id):
     data = request.get_json()
     if not data:
@@ -71,8 +73,9 @@ def update_school_api(school_id):
         
     return jsonify(success = False, message = "sai") 
 
-@school.route('/api/delete_school?school=<school_id>', methods=['GET'])
+@school.route('/api/delete_school@school=<school_id>', methods=['DELETE'])
 def delete_school_api(school_id):
+    print('Xoa school')
     if 'user_id' not in session:
         return render_template('login.html')
     user = db.users.find_one({'_id': ObjectId(session['user_id'])})
