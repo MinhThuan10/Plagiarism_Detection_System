@@ -36,7 +36,7 @@ def load_class_api():
 
 
 @classs.route('/class=<class_id>')
-def reder_page_class(class_id):
+def render_page_class(class_id):
     if 'user_id' not in session:
         return render_template('login.html')
     user = db.users.find_one({'_id': ObjectId(session['user_id'])})

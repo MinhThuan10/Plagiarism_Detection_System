@@ -6,11 +6,10 @@ from bson.objectid import ObjectId
 
 def find_class_id(class_id):
     classs_cursor = db.classs.find_one({'class_id':class_id})
-    list_classs= []
     for classs in classs_cursor:
         class_data = {key: (str(value) if isinstance(value, ObjectId) else value) for key, value in classs.items()}
-        list_classs.append(class_data)
-    return list_classs
+        return class_data
+
 
 def load_assigment(class_id):
     assignments_cursor = db.assignments.find({"class_id": class_id})
@@ -19,6 +18,20 @@ def load_assigment(class_id):
         class_data = {key: (str(value) if isinstance(value, ObjectId) else value) for key, value in assignment.items()}
         list_assignments.append(class_data)
     return list_assignments
+    
+
+def load_student_in_class(class_id):
+    list_class = find_class_id(class_id)
+    list_student = []
+    for student_id in list_class['student_ids']:
+        student_cursor = db.users.find_one({'user_id': student_id})
+        
+        for student in student_cursor:
+            student_data = {key: (str(value) if isinstance(value, ObjectId) else value) for key, value in student.items()}
+            list_student.append(student_data)
+    
+    return list_student
+
 
 def create_assignment(school_id, class_id, assignment_name, start_day, end_day, create_day):
     if db.assignments.find_one({'class_id': class_id, "assignment_name": assignment_name}):
