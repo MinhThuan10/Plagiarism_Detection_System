@@ -13,11 +13,12 @@ document.addEventListener("DOMContentLoaded", function() {
             const schoolName = data.school_data[0].school_name;
             school_id = data.school_data[0].school_id;
             document.getElementById('school_name').innerText = schoolName;
-            console.log(schoolName)
+            console.log(schoolName);
             const tbody = document.getElementById('class_table_body');
-            data.list_classs.forEach(classInfo => {
+
+            data.classs.forEach(classInfo => {
                 const row = document.createElement('tr');
-        
+
                 // Thêm các ô vào hàng
                 row.innerHTML = `
                     <td class="ps-4">${classInfo.class_id}</td>
@@ -29,20 +30,97 @@ document.addEventListener("DOMContentLoaded", function() {
                     <td>
                         <ul class="list-inline mb-0">
                             <li class="list-inline-item">
-                                <a href="javascript:void(0);" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" class="px-2 text-primary">
+                                <a href="#" data-mdb-toggle="modal" data-mdb-target="#editModal" title="Edit" class_id="${classInfo.class_id}" class="px-2 text-primary edit">
                                     <i class="bx bx-pencil font-size-18"></i>
                                 </a>
                             </li>
                             <li class="list-inline-item">
-                                <a href="javascript:void(0);" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" class="px-2 text-danger">
+                                <a href="#" data-mdb-toggle="modal" data-mdb-target="#deleteModal" title="Delete" class_id="${classInfo.class_id}" class="px-2 text-danger delete">
                                     <i class="bx bx-trash-alt font-size-18"></i>
                                 </a>
                             </li>
                         </ul>
                     </td>
                 `;
-                                // Thêm hàng vào tbody
+
                 tbody.appendChild(row);
+
+                const deleteicon = row.querySelector('.delete');
+                deleteicon.addEventListener('click', function() {
+                    const class_id = this.getAttribute('class_id');
+                    console.log('Đã nhấn xóa lớp có ID:', class_id);
+                    const deletebutton = document.getElementById('submit_delete');
+                    deletebutton.addEventListener('click', function(){
+                        fetch(`/api/delete_class@school=${school_id}-class=${class_id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                console.log(data.message); 
+                                location.reload()
+                                
+                            } else {
+                                console.log(data.message); 
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                    })
+                    
+
+                });
+
+                const editicon = row.querySelector('.edit');
+                editicon.addEventListener('click', function() {
+                    const class_id = this.getAttribute('class_id');
+                    console.log('Đã nhấn chỉnh sửa lớp có ID:', class_id);
+                    document.getElementById('class-name-replace').value = classInfo.class_name
+                    document.getElementById('enrollment-key-replace').value = classInfo.class_key
+                    // Chuyển đổi định dạng ngày sang YYYY-MM-DD
+                    const [month, day, year] = classInfo.end_day.split('/'); // Tách chuỗi
+                    const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`; // Định dạng lại
+                    document.getElementById('end-day-replace').value = formattedDate; 
+
+                    const deletebutton = document.getElementById('update_btn');
+                    deletebutton.addEventListener('click', function(){
+                        const class_name_replace = document.getElementById('class-name-replace');
+                        const class_key_replace = document.getElementById('enrollment-key-replace');
+                        const end_day_replace = document.getElementById('end-day-replace');
+
+                        const convertedEndDay = convertDateFormat(end_day_replace.value  );
+                        fetch(`/api/update_class@school=${school_id}-class=${class_id}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ 
+                                class_name: class_name_replace.value,
+                                class_key: class_key_replace.value,
+                                end_day: convertedEndDay
+                             })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                console.log(data.message); 
+                                location.reload()
+                                
+                            } else {
+                                console.log(data.message); 
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                    })
+                    
+
+                });
             });
         } else {
             console.error("Không thể tải dữ liệu trường học");
@@ -133,7 +211,7 @@ document.getElementById("button_create_class").addEventListener("click", functio
         })
         .catch(error => {
             console.error('Error:', error);
-            messageDiv.textContent = "Đã xảy ra lỗi khi đăng ký. Vui lòng thử lại.";
+            messageDiv.textContent = "Đã xảy ra lỗi. Vui lòng thử lại.";
         });
     }
 });
