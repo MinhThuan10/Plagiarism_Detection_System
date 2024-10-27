@@ -1,16 +1,396 @@
-<!-- Page chi tiết bài tập, xem được các bài đã nộp, danh sách sinh viên, dành cho giảng viên -->
-{% extends 'base_teacher.html' %}
+{% extends 'base_teacher.html' %} {% block extra_css %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/assignment_detail_teacher.css') }}">
-{% endblock %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/assignment_detail_teacher.css') }}"
+/>
 
-{% block content %}
-<div class="container" style="margin-top: 300px; font-size: 50px;">
-    Page chi tiết bài tập, xem được các bài đã nộp, danh sách sinh viên, dành cho giảng viên
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.2.0/mdb.min.css"
+/>
+
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/boxicons/2.1.0/css/boxicons.min.css"
+  integrity="sha512-pVCM5+SN2+qwj36KonHToF2p1oIvoU3bsqxphdOIWMYmgr4ZqD3t5DjKvvetKhXGc/ZG5REYTT6ltKfExEei/Q=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.css"
+  integrity="sha256-NAxhqDvtY0l4xn+YVa6WjAcmd94NNfttjNsDmNatFVc="
+  crossorigin="anonymous"
+/>
+
+{% endblock %} {% block content %}
+<div class="container">
+  <div class="content">
+    <h2 class="name-tab">Assignment Inbox</h2>
+    <p class="info"><strong>About this page</strong></p>
+    <p class="info">
+      This is your assignment inbox. To view a paper, select the paper's title.
+      To view a Similarity Report , see in the similarity column.
+    </p>
+  </div>
+  <div class="containerClassList">
+    <div class="row align-items-center school">
+      <div class="col-md-6">
+        <div class="mb-3">
+          <h5 class="card-school">Lab 6: Security</h5>
+        </div>
+      </div>
     </div>
-{% endblock %}
+    <div class="row">
+      <div class="col-lg-12">
+        <div>
+          <div
+            class="table-responsive"
+            style="max-height: 400px; overflow-y: auto"
+          >
+            <table
+              class="table project-list-table table-nowrap align-middle table-borderless"
+            >
+              <thead>
+                <tr>
+                  <th scope="col" class="ps-4" style="width: 190px">
+                    Student ID
+                  </th>
+                  <th scope="col" style="width: 600px">Student Name</th>
+                  <th scope="col" style="width: 200px">Submission ID</th>
+                  <th scope="col" style="max-width: 350px">Title</th>
+                  <th scope="col" style="width: 120px">Submit Day</th>
+                  <th scope="col" style="width: 100px">Similarity</th>
+                  <th scope="col" style="width: 100px">Status</th>
+                  <th scope="col" style="width: 200px; text-align: center">
+                    Action
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="ps-4">S123</td>
+                  <td>John Doe</td>
+                  <td>SUB456</td>
+                  <td class="wrap-text">
+                    <a
+                      href="#"
+                      class="text-body"
+                      style="color: #35509a !important"
+                      title="Math Assignment ewiuerhtierhrnkrtnytioyjuiojui6ojio6jo6jlnbkjgfnhjkgn"
+                      >Math Assignment
+                      ewiuerhtierhrnkrtnytioyjuiojui6ojio6jo6jlnbkjgfnhjkgn</a
+                    >
+                  </td>
+                  <td>10/25/2024</td>
+                  <td style="text-align: center">85%</td>
+                  <td style="text-align: center">
+                    <i
+                      class="bx bx-check text-success font-size-18"
+                      title="Pass"
+                    ></i>
+                  </td>
+                  <td style="text-align: center">
+                    <ul class="list-inline mb-0">
+                      <li class="list-inline-item">
+                        <a
+                          href="javascript:void(0);"
+                          data-bs-toggle="modal"
+                          data-bs-target="#uploadModal"
+                          class="text-primary"
+                          title="Upload"
+                        >
+                          <i class="bx bx-upload font-size-18"></i>
+                        </a>
+                      </li>
+                      <li class="list-inline-item">
+                        <a
+                          href="javascript:void(0);"
+                          data-mdb-toggle="modal"
+                          data-mdb-target="#editModal"
+                          class="text-primary"
+                          title="Download"
+                        >
+                          <i class="bx bx-download font-size-18"></i>
+                        </a>
+                      </li>
+                      <li class="list-inline-item">
+                        <a
+                          href="javascript:void(0);"
+                          data-mdb-toggle="modal"
+                          data-mdb-target="#deleteModal"
+                          class="text-danger"
+                          title="Delete"
+                        >
+                          <i class="bx bx-trash-alt font-size-18"></i>
+                        </a>
+                      </li>
+                    </ul>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="ps-4">S124</td>
+                  <td>Jane Smith</td>
+                  <td>SUB789</td>
+                  <td class="wrap-text">
+                    <a
+                      href="#"
+                      class="text-body"
+                      style="color: #35509a !important"
+                      title="Science Project"
+                      >Science Project</a
+                    >
+                  </td>
+                  <td>10/26/2024</td>
+                  <td style="text-align: center">65%</td>
+                  <td style="text-align: center">
+                    <i
+                      class="bx bx-x text-danger font-size-18"
+                      title="Fail"
+                    ></i>
+                  </td>
+                  <td style="text-align: center">
+                    <ul class="list-inline mb-0">
+                      <li class="list-inline-item">
+                        <a
+                          href="javascript:void(0);"
+                          data-bs-toggle="modal"
+                          data-bs-target="#uploadModal"
+                          class="text-primary"
+                          title="Upload"
+                        >
+                          <i class="bx bx-upload font-size-18"></i>
+                        </a>
+                      </li>
 
-{% block extra_js %}
-<script type="module" src="{{ url_for('static', filename='js/assignment_detail_teacher.js') }}"></script>
+                      <li class="list-inline-item">
+                        <a
+                          href="javascript:void(0);"
+                          data-mdb-toggle="modal"
+                          data-mdb-target="#editModal"
+                          class="text-primary"
+                          title="Download"
+                        >
+                          <i class="bx bx-download font-size-18"></i>
+                        </a>
+                      </li>
+                      <li class="list-inline-item">
+                        <a
+                          href="javascript:void(0);"
+                          data-mdb-toggle="modal"
+                          data-mdb-target="#deleteModal"
+                          class="text-danger"
+                          title="Delete"
+                        >
+                          <i class="bx bx-trash-alt font-size-18"></i>
+                        </a>
+                      </li>
+                    </ul>
+                  </td>
+                </tr>
+                <!-- Add additional rows for other students' submissions as needed -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal structure for Upload -->
+<div
+  class="modal fade"
+  id="uploadModal"
+  tabindex="-1"
+  aria-labelledby="uploadModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered custom-modal-width">
+    <div class="modal-content dialog-upload-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="uploadModalLabel">Upload Submission</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <!-- Form inside the modal -->
+        <form>
+          <!-- Submission Title field -->
+          <div class="mb-3">
+            <label for="submissionTitle" class="form-label"
+              >Submission Title</label
+            >
+            <input
+              type="text"
+              class="form-control"
+              id="submissionTitle"
+              required
+            />
+          </div>
+
+          <!-- Combobox field -->
+          <div class="mb-3">
+            <label for="storageOption" class="form-label">Storage Option</label>
+            <select class="form-select" id="storageOption" required>
+              <option value="do_not_store">
+                Do not store the submitted paper
+              </option>
+              <option value="standard_repository">
+                Standard paper repository
+              </option>
+            </select>
+          </div>
+
+          <!-- Submission File field -->
+          <div class="mb-3">
+            <label for="submissionFile" class="form-label"
+              >Submission File</label
+            >
+            <div class="d-flex align-items-center">
+              <!-- Choose File button -->
+              <input
+                type="file"
+                class="form-control-file d-none"
+                id="submissionFile"
+                onchange="updateFileName()"
+              />
+              <button
+                type="button"
+                class="btn btn-secondary"
+                onclick="document.getElementById('submissionFile').click()"
+              >
+                Choose File
+              </button>
+
+              <!-- Display selected file name with a close button at the end -->
+              <div class="position-relative ms-2" style="flex: 1">
+                <input
+                  type="text"
+                  class="form-control pe-4"
+                  id="fileName"
+                  placeholder="No file chosen"
+                  readonly
+                />
+                <!-- Close button, initially hidden -->
+                <span
+                  class="position-absolute end-0 top-50 translate-middle-y me-2 text-danger"
+                  style="cursor: pointer; display: none"
+                  id="removeFileBtn"
+                  onclick="removeFile()"
+                >
+                  &times;
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Day (Current Date) field -->
+          <div class="mb-3">
+            <label for="submitDay" class="form-label">Submit Day</label>
+            <input
+              type="text"
+              class="form-control"
+              id="submitDay"
+              value=""
+              readonly
+            />
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-primary">Submit</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Delete Modal -->
+<div
+  class="modal fade"
+  id="deleteModal"
+  tabindex="-1"
+  aria-labelledby="deleteModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="delete-title" id="deleteModalLabel">Delete file?</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-mdb-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body delete-body">
+        Are you sure you want to delete this file?
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          data-mdb-dismiss="modal"
+        >
+          Cancel
+        </button>
+        <button type="button" class="btn btn-primary">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %} {% block extra_js %}
+<script
+  type="module"
+  src="{{ url_for('static', filename='js/assignment_detail_teacher.js') }}"
+></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.0/mdb.min.js"></script>
+<!-- JavaScript to Set Current Date in Submit Day Field -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const submitDayField = document.getElementById("submitDay");
+    const currentDate = new Date();
+    const formattedDate = `${
+      currentDate.getMonth() + 1
+    }/${currentDate.getDate()}/${currentDate.getFullYear()}`;
+    submitDayField.value = formattedDate;
+  });
+</script>
+
+<!-- JavaScript -->
+<script>
+  function updateFileName() {
+    const fileInput = document.getElementById("submissionFile");
+    const fileNameField = document.getElementById("fileName");
+    const removeFileBtn = document.getElementById("removeFileBtn");
+
+    if (fileInput.files.length > 0) {
+      fileNameField.value = fileInput.files[0].name;
+      removeFileBtn.style.display = "inline"; // Show the "x" button
+    } else {
+      fileNameField.value = "No file chosen";
+      removeFileBtn.style.display = "none"; // Hide the "x" button
+    }
+  }
+
+  function removeFile() {
+    const fileInput = document.getElementById("submissionFile");
+    const fileNameField = document.getElementById("fileName");
+    const removeFileBtn = document.getElementById("removeFileBtn");
+
+    fileInput.value = ""; // Clear the file input
+    fileNameField.value = "No file chosen"; // Reset the file name display
+    removeFileBtn.style.display = "none"; // Hide the "x" button
+  }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
 {% endblock %}
