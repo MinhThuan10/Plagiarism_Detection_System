@@ -108,3 +108,46 @@ def add_student_submit(school_id, assignment_id, student_id):
         else:
             return False
     return False
+
+
+def delete_student_submit(school_id, assignment_id, student_id):
+    assignment = db.assignments.find_one({"assignment_id": assignment_id})
+    if assignment:
+        student_ids = assignment['student_ids']
+        if student_id in student_ids:
+            student_ids.remove(student_id)
+            result =  db.assignments.update_one(
+                {'school_id': school_id, 'assignment_id': assignment_id},
+                {
+                    "$set": {
+                        "student_ids": student_ids,
+                    }
+                }
+            )
+            if result.modified_count > 0:
+                return True
+            else:
+                return False
+        return False
+        
+    return False
+
+def delete_student(student_id):
+    assignments = db.assignments.find({"student_ids": {"$in": student_id}})
+    if assignments:
+        for assignment in assignments:
+            student_ids = assignment['student_ids']
+            assignment_id = assignment["assignment_id"]
+            if student_id in student_ids:
+                student_ids.remove(student_id)
+                result =  db.assignments.update_one(
+                    {'assignment_id': assignment_id},
+                    {
+                        "$set": {
+                            "student_ids": student_ids,
+                        }
+                    }
+                )
+            
+        return True
+    return False

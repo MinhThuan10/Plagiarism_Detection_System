@@ -41,3 +41,18 @@ def add_file(school_id, class_id, assignment_id, title, author_id, submit_day, f
         "storage": storage_option
     })
     return True
+
+def delete_file(file_id):
+    if db.files.find_one({"file_id": file_id}):
+        return False
+    
+    db.files.delete_many({"file_id": file_id})
+    return True
+
+
+def delete_file_for_user(student_id):
+    if db.files.find_one({"author_id": student_id}):
+        return False
+    db.files.delete_many({"author_id": student_id})
+    return True
+    
