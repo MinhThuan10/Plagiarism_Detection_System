@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 row.innerHTML = `
                     <td class="ps-4">${classInfo.class_id}</td>
                     <td>
-                        <a href="#" class="text-body" style="color: #35509a !important">${classInfo.class_name}</a>
+                        <a href="class=${classInfo.class_id}" class="text-body" style="color: #35509a !important">${classInfo.class_name}</a>
                     </td>
                     <td>${classInfo.start_day}</td>
                     <td>${classInfo.end_day}</td>
