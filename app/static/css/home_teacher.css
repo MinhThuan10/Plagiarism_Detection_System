@@ -103,4 +103,19 @@ body {
     font-family: "Roboto", sans-serif;
   }
 
+  .modal-title2 {
+    color: #35509a;
+    font-weight: 600;
+    font-family: "Roboto", sans-serif;
+    font-size: 20px;
+  }
   
+  .divider {
+    border: none;
+    border-top: 1px solid rgba(0, 0, 0, 0.2); /* Màu xám mờ */
+    margin: 20px 0; /* Khoảng cách giữa h2 và p */
+  }
+  
+  .btn-continue {
+    margin-left: 500px;
+  }

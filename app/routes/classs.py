@@ -74,9 +74,11 @@ def create_class_api(school_id):
                 class_key = data.get('class_key')
                 start_day = data.get('start_day')
                 end_day = data.get('end_day')
+                
+                created_class = create_class(school_id, class_name, class_key, teacher_id, start_day, end_day)
 
-                if create_class(school_id, class_name, class_key, teacher_id, start_day, end_day):
-                    return jsonify(success = True,message = "Tạo lớp mới thành công")
+                if created_class[0]:
+                    return jsonify(success = True, class_id = created_class[1],message = "Tạo lớp mới thành công")
                 else:
                     return jsonify(success = False, message = "Tên lớp đã tồn tại")
             return jsonify(success = False, message = "sai") 

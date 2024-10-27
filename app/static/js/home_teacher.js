@@ -203,8 +203,18 @@ document.getElementById("button_create_class").addEventListener("click", functio
         .then(data => {
             if (data.success) {
                 messageDiv.textContent = data.message; 
-                location.reload()
-                
+                console.log("thanh cong tao lop")
+                document.getElementById("modal_add_class").style.display = "none";
+
+                // Hiển thị phần thông báo thành công
+                document.getElementById('new_class_name').textContent  =className.value
+                document.getElementById('new_class_id').textContent  =data.class_id
+                document.getElementById('new_class_key').textContent  =enrollmentKey.value
+
+                document.getElementById("success_add_class").style.display = "block";
+                document.getElementById("continue").addEventListener("click", function() {
+                    location.reload()
+                });
             } else {
                 messageDiv.textContent = data.message; 
             }
