@@ -49,7 +49,7 @@ def render_page_assignment(class_id, assignment_id):
     
 
 @assignment.route('/api/create_assignment@school=<school_id>-class=<class_id>', methods=['POST'])
-def create_class_api(school_id, class_id):
+def create_assignment_api(school_id, class_id):
     data = request.get_json()
     if not data:
         return jsonify(success = False, message = "Nhập lại dữ liệu")
@@ -60,10 +60,10 @@ def create_class_api(school_id, class_id):
         role = user['role']
         if role == "Teacher":
             if school_id == user['school_id']:
-                assignment_name = data.get('class_name')
-                start_day = data.get('start_day')
-                end_day = data.get('end_day')
-                create_day = data.get('create_day')
+                assignment_name = data.get('assignmentName')
+                start_day = data.get('startDay')
+                end_day = data.get('dueDay')
+                create_day = data.get('createDay')
 
                 if create_assignment(school_id, class_id, assignment_name, start_day, end_day, create_day):
                     return jsonify(success = True,message = "Tạo lớp mới thành công")
@@ -77,7 +77,7 @@ def create_class_api(school_id, class_id):
 
 
 @assignment.route('/api/update_assignment@school=<school_id>-class=<class_id>-assignment=<assignment_id>', methods=['PUT'])
-def update_class_api(school_id, class_id, assignment_id):
+def update_assignment_api(school_id, class_id, assignment_id):
     data = request.get_json()
     if not data:
         return jsonify(success = False, message = "Nhập lại dữ liệu")
@@ -91,9 +91,8 @@ def update_class_api(school_id, class_id, assignment_id):
                 assignment_name = data.get('class_name')
                 start_day = data.get('start_day')
                 end_day = data.get('end_day')
-                create_day = data.get('create_day')
 
-                if update_assignment(school_id, class_id, assignment_id, assignment_name, start_day, end_day, create_day):
+                if update_assignment(school_id, class_id, assignment_id, assignment_name, start_day, end_day):
                     return jsonify(success = True,message = "Cập nhật lớp  thành công")
                 else:
                     return jsonify(success = False, message = "Cập nhật không thành công")
@@ -104,19 +103,18 @@ def update_class_api(school_id, class_id, assignment_id):
     return jsonify(success = False, message = "sai") 
 
 
-@assignment.route('/api/update_assignment@school=<school_id>-class=<class_id>-assignment=<assignment_id>', methods=['DELETE'])
-def delete_class_api(school_id, class_id, assignment_id):
-    data = request.get_json()
-    if not data:
-        return jsonify(success = False, message = "Nhập lại dữ liệu")
+@assignment.route('/api/delete_assignment@school=<school_id>-class=<class_id>-assignment=<assignment_id>', methods=['DELETE'])
+def delete_assignment_api(school_id, class_id, assignment_id):
     if 'user_id' not in session:
         return render_template('login.html')
     user = db.users.find_one({'_id': ObjectId(session['user_id'])})
     if user:
+
         role = user['role']
         if role == "Teacher":
             if school_id == user['school_id']:
-                if delete_assignment(school_id, assignment_id):
+                if delete_assignment(school_id, class_id, assignment_id):
+                    
                     return jsonify(success = True,message = "Xóa lớp thành công")
                 else:
                     return jsonify(success = False, message = "Xóa lớp không thành công")

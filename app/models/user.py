@@ -43,8 +43,12 @@ def create_user(firstname, lastname, email, password, role, avatar_base64,school
 
     if db.users.find_one({'email': email}):
         return False  # Tên người dùng đã tồn tại
+    max_user = db.users.find_one(sort=[('user_id', -1)])
+    max_user = max_user['user_id'] if max_user else 0
+
     hashed_password = generate_password_hash(password)
-    db.users.insert_one({'firs_tname': firstname, 
+    db.users.insert_one({'user_id':str(int(max_user) + 1),
+                        'firs_tname': firstname, 
                          'last_name': lastname,
                          'role': role,
                          'email': email,
