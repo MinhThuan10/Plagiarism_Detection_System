@@ -31,7 +31,7 @@ def render_page_assignment(class_id, assignment_id):
     
     user = db.users.find_one({'_id': ObjectId(session['user_id'])})
     clas = db.classs.find_one({'class_id': class_id})
-    assignment = db.classs.find_one({'assignment_id': assignment_id})
+    assignment = db.assignments.find_one({'assignment_id': assignment_id})
 
     if user and clas and assignment:
         if user['school_id'] == clas['school_id']:

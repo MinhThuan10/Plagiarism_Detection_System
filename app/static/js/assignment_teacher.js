@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
 
-let  school_id = '1'
+let  school_id = ''
 let class_id = ''
 
 // Lấy URL hiện tại
@@ -40,7 +40,7 @@ function formatDate(dateString) {
 
 
 document.addEventListener("DOMContentLoaded", function() {
-    fetch(`api/assignments@class=${class_id}`, {
+    fetch(`/api/assignments@class=${class_id}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 row.innerHTML = `
                     <td class="ps-4">${assignmentInfo.assignment_id}</td>
                     <td>
-                        <a href="#" class="text-body" style="color: #35509a !important">${assignmentInfo.assignment_name}</a>
+                        <a href="class=${class_id}/assignment=${assignmentInfo.assignment_id}" class="text-body" style="color: #35509a !important">${assignmentInfo.assignment_name}</a>
                     </td>
                     <td>${assignmentInfo.create_day}</td>
                     <td>${assignmentInfo.start_day}</td>
