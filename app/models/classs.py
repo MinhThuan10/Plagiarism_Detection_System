@@ -32,7 +32,7 @@ def load_class_student(student_id):
 
 def create_class(school_id, class_name, class_key, teacher_id, start_day, end_day):
     if db.classs.find_one({'school_id': school_id, "class_name": class_name}):
-        return False   
+        return False, None   
     
     max_class = db.classs.find_one(sort=[('class_id', -1)])
     max_class = max_class['class_id'] if max_class else 0 
@@ -46,7 +46,7 @@ def create_class(school_id, class_name, class_key, teacher_id, start_day, end_da
                          'end_day': end_day,
                          'student_ids': []
                          })
-    return True
+    return True, str(int(max_class) + 1)
 
 def update_class(school_id, class_id, class_name, class_key, end_day):
     if  db.classs.find_one({
