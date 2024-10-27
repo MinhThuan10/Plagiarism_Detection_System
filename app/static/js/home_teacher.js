@@ -10,8 +10,8 @@ document.addEventListener("DOMContentLoaded", function() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            const schoolName = data.school_data[0].school_name;
-            school_id = data.school_data[0].school_id;
+            const schoolName = data.school_data.school_name;
+            school_id = data.school_data.school_id;
             document.getElementById('school_name').innerText = schoolName;
             console.log(schoolName);
             const tbody = document.getElementById('class_table_body');

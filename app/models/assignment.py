@@ -5,10 +5,12 @@ from bson.objectid import ObjectId
 
 
 def find_class_id(class_id):
-    classs_cursor = db.classs.find_one({'class_id':class_id})
-    for classs in classs_cursor:
+    classs = db.classs.find_one({'class_id': class_id})
+    if classs:
+        # Chuyển ObjectId sang chuỗi (nếu có)
         class_data = {key: (str(value) if isinstance(value, ObjectId) else value) for key, value in classs.items()}
         return class_data
+    return None
 
 
 def load_assigment(class_id):
@@ -23,22 +25,26 @@ def load_assigment(class_id):
 def load_student_in_class(class_id):
     list_class = find_class_id(class_id)
     list_student = []
-    for student_id in list_class['student_ids']:
-        student_cursor = db.users.find_one({'user_id': student_id})
+    for student in list_class['student_ids']:
+        print(student)
+        student_cursor = db.users.find_one({'user_id': student[0]})
         
-        for student in student_cursor:
-            student_data = {key: (str(value) if isinstance(value, ObjectId) else value) for key, value in student.items()}
+        if student_cursor:
+            student_data = {key: (str(value) if isinstance(value, ObjectId) else value) for key, value in student_cursor.items()}
             list_student.append(student_data)
-    
     return list_student
 
 
 def create_assignment(school_id, class_id, assignment_name, start_day, end_day, create_day):
     if db.assignments.find_one({'class_id': class_id, "assignment_name": assignment_name}):
         return False  
-     
+    
+    max_assignment = db.assignments.find_one(sort=[('assignment_id', -1)])
+    max_assignment = max_assignment['assignment_id'] if max_assignment else 0 
+
     db.assignments.insert_one({'school_id': school_id,
                         'class_id': class_id,
+                        'assignment_id': str(int(max_assignment) + 1),
                          'assignment_name': assignment_name,
                          'start_day': start_day,
                          'end_day': end_day,
@@ -48,7 +54,7 @@ def create_assignment(school_id, class_id, assignment_name, start_day, end_day, 
     return True
 
 
-def update_assignment(school_id, class_id, assignment_id, assignment_name, start_day, end_day, student_ids, create_day):
+def update_assignment(school_id, class_id, assignment_id, assignment_name, start_day, end_day):
     if  db.assignments.find_one({
             '$or': [
                 {'class_id': class_id, 'assignment_name': assignment_name},
@@ -64,8 +70,6 @@ def update_assignment(school_id, class_id, assignment_id, assignment_name, start
                 "assignment_name": assignment_name,
                 "start_day": start_day,
                 "end_day": end_day,
-                "student_ids": student_ids, 
-                "create_day": create_day
             }
         }
     )
@@ -76,12 +80,12 @@ def update_assignment(school_id, class_id, assignment_id, assignment_name, start
     
 
 
-def delete_assignment(school_id, assignment_id):
-    assignment =  db.assignments.find_one({"_id": assignment_id})
+def delete_assignment(school_id, class_id, assignment_id):
+    assignment =  db.assignments.find_one({"assignment_id": assignment_id})
     if not assignment:
         return False
     
-    if assignment['school_id'] == school_id:
-        db.assignments.delete_one({"_id": assignment_id})
+    if assignment['school_id'] == school_id and assignment['class_id'] == class_id:
+        db.assignments.delete_one({"assignment_id": assignment_id})
         return True
     return False

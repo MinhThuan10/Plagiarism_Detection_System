@@ -1,16 +1,17 @@
 # models/class.py
 from app.extensions import db
 from bson.objectid import ObjectId
-
+from datetime import datetime
 
 
 def load_school_id(school_id):
-    school_cursor = db.schools.find({'school_id':school_id})
-    list_school = []
-    for school in school_cursor:
-        class_data = {key: (str(value) if isinstance(value, ObjectId) else value) for key, value in school.items()}
-        list_school.append(class_data)
-    return list_school
+    school = db.schools.find_one({'school_id': school_id})
+    if school:
+        # Chuyển ObjectId sang chuỗi (nếu có)
+        school_data = {key: (str(value) if isinstance(value, ObjectId) else value) for key, value in school.items()}
+        return school_data
+    return None
+
 
 
 def load_class_teacher(school_id):
@@ -28,8 +29,6 @@ def load_class_student(student_id):
         class_data = {key: (str(value) if isinstance(value, ObjectId) else value) for key, value in classs.items()}
         list_classs.append(class_data)
     return classs
-
-
 
 def create_class(school_id, class_name, class_key, teacher_id, start_day, end_day):
     if db.classs.find_one({'school_id': school_id, "class_name": class_name}):
@@ -72,6 +71,34 @@ def update_class(school_id, class_id, class_name, class_key, end_day):
         return True
     else:
         return False
+
+def add_user_to_class(user_id, class_id, class_key):
+    classs =  db.classs.find_one({'class_id': class_id})
+    if not classs:
+        return False
+    if any(student[0] == user_id for student in classs['student_ids']):
+        return False
+    if class_key == classs['class_key']:
+        day = datetime.now().strftime('%m/%d/%Y')
+        classs['student_ids'].append([user_id, day])
+        db.classs.update_one({'class_id': class_id}, {'$set': {'student_ids': classs['student_ids']}})
+        return True
+
+    return False
+
+
+def delete_user_to_class(user_id, class_id):
+    classs = db.classs.find_one({'class_id': class_id})
+    if not classs:
+        return False
+    
+    if any(student[0] == user_id for student in classs['student_ids']):
+        classs['student_ids'] = [student for student in classs['student_ids'] if student[0] != user_id]
+        db.classs.update_one({'class_id': class_id}, {'$set': {'student_ids': classs['student_ids']}})
+        return True
+    
+    return False
+
 
 def delete_school(school_id, class_id):
     classs =  db.classs.find_one({"class_id": class_id})
