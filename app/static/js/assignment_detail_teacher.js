@@ -86,19 +86,26 @@ document.addEventListener("DOMContentLoaded", function() {
             const tbody = document.getElementById('file_table_body');
 
             data.list_students.forEach((studentInfo, index) => {
-                let submissionID, title, submitDay, similarity, status
+                let submissionID, title, submitDay, similarity, status, modal_upload, modal_download, link
                 if (student_submited.includes(studentInfo.user_id)) {
                     submissionID = data.list_files[index].file_id;
                     title = data.list_files[index].title;
                     submitDay = data.list_files[index].submit_day;
+                    link = `/api/download_pdf@school=${school_id}-class=${class_id}-assignment=${assignment_id}-student=${studentInfo.user_id}`
                     similarity = "0";
                     status = "bx-check text-success";
+                    modal_upload = "";
+                    modal_download = "modal";
                 } else {
                     submissionID = "--";
                     title = "--";
                     submitDay = "--";
+                    link = "#"
                     similarity = "0";
                     status = "bx-x text-danger";
+                    modal_upload = "modal";
+                    modal_download = "";
+
 
                 }
                     
@@ -130,43 +137,38 @@ document.addEventListener("DOMContentLoaded", function() {
 
                     <td style="text-align: center">
                         <ul class="list-inline mb-0">
-                        <li class="list-inline-item">
-                            <a
-                            href="javascript:void(0);"
-                            data-bs-toggle="modal"
-                            data-bs-target="#uploadModal"
-                            class="text-primary upload"
-                            student_id = "${studentInfo.user_id}"
-                            title="Upload"
-                            >
-                            <i class="bx bx-upload font-size-18"></i>
-                            </a>
-                        </li>
+                            <li class="list-inline-item">
+                                <a
+                                href="javascript:void(0);"
+                                data-bs-toggle="${modal_upload}"
+                                data-bs-target="#uploadModal"
+                                class="text-primary upload"
+                                student_id = "${studentInfo.user_id}"
+                                title="Upload"
+                                >
+                                <i class="bx bx-upload font-size-18"></i>
+                                </a>
+                            </li>
 
-                        <li class="list-inline-item">
-                            <a
-                            href="javascript:void(0);"
-                            data-mdb-toggle="modal"
-                            data-mdb-target="#editModal"
-                            class="text-primary download"
-                            student_id = "${studentInfo.user_id}"
-                            title="Download"
-                            >
-                            <i class="bx bx-download font-size-18"></i>
-                            </a>
-                        </li>
-                        <li class="list-inline-item">
-                            <a
-                            href="javascript:void(0);"
-                            data-mdb-toggle="modal"
-                            data-mdb-target="#deleteModal"
-                            class="text-danger delete"
-                            student_id = "${studentInfo.user_id}"
-                            title="Delete"
-                            >
-                            <i class="bx bx-trash-alt font-size-18"></i>
-                            </a>
-                        </li>
+                            <li class="list-inline-item">
+                                <a
+                                href="${link}"
+                                >
+                                <i class="bx bx-download font-size-18"></i>
+                                </a>
+                            </li>
+                            <li class="list-inline-item">
+                                <a
+                                href="javascript:void(0);"
+                                data-mdb-toggle="${modal_download}"
+                                data-mdb-target="#deleteModal"
+                                class="text-danger delete"
+                                student_id = "${studentInfo.user_id}"
+                                title="Delete"
+                                >
+                                <i class="bx bx-trash-alt font-size-18"></i>
+                                </a>
+                            </li>
                         </ul>
                     </td>
                     `;
@@ -213,6 +215,7 @@ document.addEventListener("DOMContentLoaded", function() {
                         .then(response => response.json())
                         .then(data => {
                             console.log(data); // Kiểm tra phản hồi từ máy chủ
+                            location.reload()
                         })
                         .catch(error => {
                             console.error("Error:", error);
@@ -222,7 +225,35 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 });
 
+                const deleteicon = row.querySelector('.delete');
+                deleteicon.addEventListener('click', function() {
+                    const student_id = this.getAttribute('student_id');
+                    console.log('Đã nhấn xóa lớp có ID:', student_id);
+                    const deletebutton = document.getElementById('delete_file');
+                    deletebutton.addEventListener('click', function(){
+                        fetch(`/api/delete_file@school=${school_id}-class=${class_id}-assignment=${assignment_id}-student=${student_id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                console.log(data.message); 
+                                location.reload()
+                                
+                            } else {
+                                console.log(data.message); 
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                    })
+                    
 
+                });
 
 
             });
