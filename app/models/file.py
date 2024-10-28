@@ -38,6 +38,34 @@ def add_file(school_id, class_id, assignment_id, title, author_id, submit_day, f
         "author_id": author_id,
         "submit_day": submit_day,
         "content_file": Binary(file.read()),
-        "storage": storage_option
+        "storage": storage_option,
+        "type": "raw"
     })
     return True
+
+def delete_file_teacher(school_id, class_id, assignment_id, student_id):
+    file =  db.files.find_one({"author_id": student_id})
+    if not file:
+        return False
+    if school_id == file['school_id'] and class_id == file['class_id'] and assignment_id == file['assignment_id']:
+        db.files.delete_many({"assignment_id": assignment_id,"author_id": student_id})
+        return True
+    return False
+    
+def delete_file_student(user_id, school_id, class_id, assignment_id, student_id):
+    file =  db.files.find_one({"author_id": student_id})
+    if not file:
+        return False
+    if user_id == file['author_id'] and school_id == file['school_id'] and class_id == file['class_id'] and assignment_id == file['assignment_id']:
+        db.files.delete_many({"assignment_id": assignment_id,"author_id": student_id})
+        return True
+    return False
+
+
+
+def delete_file_for_user(student_id):
+    if db.files.find_one({"author_id": student_id}):
+        return False
+    db.files.delete_many({"author_id": student_id})
+    return True
+    

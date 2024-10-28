@@ -3,7 +3,6 @@ from app.extensions import db
 from bson.objectid import ObjectId
 from datetime import datetime
 
-
 def load_school_id(school_id):
     school = db.schools.find_one({'school_id': school_id})
     if school:

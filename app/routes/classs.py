@@ -1,5 +1,8 @@
 from flask import Blueprint, render_template, request, jsonify, session
 from app.models.classs import  load_class_teacher, load_class_student, create_class, update_class, delete_school, load_school_id, add_user_to_class, delete_user_to_class
+from app.models.file import delete_file_for_user
+from app.models.assignment import delete_student
+
 from bson import ObjectId
 from bson.objectid import ObjectId
 from app.extensions import db
@@ -186,7 +189,7 @@ def delete_user_to_class_api():
             classs = db.classs.find_one({'class_id': class_id})
             if classs:
                 if classs['school_id'] == user['school_id']:
-                    if delete_user_to_class(student_id, class_id):
+                    if delete_user_to_class(student_id, class_id) and delete_file_for_user(student_id) and delete_student(student_id):
                         return jsonify(success = True)
                     else:
                         return jsonify(success = False, message = "Không thể cập nhật lớp")
