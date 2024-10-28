@@ -159,7 +159,7 @@
                           </div>
                         </form>
                       </div>
-                    <div id="signupMessage" class="text-danger mb-3"></div>
+                      <div id="signupMessage" class="text-danger mb-3"></div>
 
                       <div class="modal-footer">
                         <button
@@ -169,7 +169,11 @@
                         >
                           Cancel
                         </button>
-                        <button type="button" id="button_create_asignment" class="btn btn-primary">
+                        <button
+                          type="button"
+                          id="button_create_asignment"
+                          class="btn btn-primary"
+                        >
                           Create
                         </button>
                       </div>
@@ -192,22 +196,58 @@
                 >
                   <thead>
                     <tr>
-                      <th scope="col" class="ps-4" style="width: 200px">
+                      <th
+                        scope="col"
+                        class="ps-4"
+                        style="max-width: 150px; min-width: 150px"
+                      >
                         Assignment ID
                       </th>
-                      <th scope="col" style="width: 1000px">Assignment Name</th>
-                      <th scope="col" style="width: 400px">Create Day</th>
-                      <th scope="col" style="width: 400px">Start Day</th>
-                      <th scope="col" style="width: 400px">Due Day</th>
-                      <th scope="col" style="width: 200px">Status</th>
-                      <th scope="col" style="width: 200px; padding-left: 36px">
+                      <th
+                        scope="col"
+                        style="max-width: 510px; min-width: 510px"
+                      >
+                        Assignment Name
+                      </th>
+                      <th
+                        scope="col"
+                        style="max-width: 150px; min-width: 150px"
+                      >
+                        Create Day
+                      </th>
+                      <th
+                        scope="col"
+                        style="max-width: 150px; min-width: 150px"
+                      >
+                        Start Day
+                      </th>
+                      <th
+                        scope="col"
+                        style="max-width: 150px; min-width: 150px"
+                      >
+                        Due Day
+                      </th>
+                      <th
+                        scope="col"
+                        style="max-width: 120px; min-width: 120px"
+                      >
+                        Status
+                      </th>
+                      <th
+                        scope="col"
+                        style="
+                          max-width: 130px;
+                          min-width: 130px;
+                          padding-left: 36px;
+                        "
+                      >
                         Action
                       </th>
                     </tr>
                   </thead>
                   <tbody id="assignment_table_body">
                     <!-- Rows will be inserted here -->
-                </tbody>
+                  </tbody>
                 </table>
               </div>
             </div>
@@ -317,7 +357,13 @@
                 >
                   Cancel
                 </button>
-                <button type="button" id="submit_delete" class="btn btn-primary">Delete</button>
+                <button
+                  type="button"
+                  id="submit_delete"
+                  class="btn btn-primary"
+                >
+                  Delete
+                </button>
               </div>
             </div>
           </div>
@@ -369,7 +415,7 @@
                   </thead>
                   <tbody id="students_table_body">
                     <!-- Rows will be inserted here -->
-                </tbody>
+                  </tbody>
                 </table>
               </div>
             </div>
@@ -408,7 +454,13 @@
                 >
                   Cancel
                 </button>
-                <button type="button" id="delete_student" class="btn btn-primary">Delete</button>
+                <button
+                  type="button"
+                  id="delete_student"
+                  class="btn btn-primary"
+                >
+                  Delete
+                </button>
               </div>
             </div>
           </div>
