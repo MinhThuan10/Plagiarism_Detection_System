@@ -17,23 +17,17 @@ footer {
   right: 0; /* Gắn footer vào bên phải */
   background-color: #fff;
   text-align: center;
-}
-
-footer .footer-hcmute_link {
-  display: flex;
-  justify-content: center;
-}
-
-footer .footer-hcmute_link a {
-  color: #35509a;
-  font-size: 18px;
-  margin: 6px;
-  margin-top: 20px;
+  height: 60px;
 }
 
 div.text-center.p-3 {
   color: #35509a;
   padding: 0px !important;
+}
+.text-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .header-user-info {
