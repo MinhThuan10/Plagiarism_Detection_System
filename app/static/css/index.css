@@ -1,113 +1,90 @@
-
-
-.container-fluid{
-    padding: 0  24px;
+body {
+  font-family: "Roboto", sans-serif;
+}
+.container-fluid {
+  padding: 0 24px;
 }
 
 /* Slider */
 
 .hero-slider {
-    position: relative;
+  position: relative;
 }
 
 .hero-content {
-    position: absolute;
-    top: 45%;
-    left: 37%;
-    transform: translate(-50%, -50%);
-    color: #454545;
-    text-align: left;
-    z-index: 2;
-    max-width: 700px;
+  position: absolute;
+  top: 45%;
+  left: 37%;
+  transform: translate(-50%, -50%);
+  color: #454545;
+  text-align: left;
+  z-index: 2;
+  max-width: 700px;
 }
 
-.headline, .tagline {
-    margin: 0;
+.headline,
+.tagline {
+  margin: 0;
 }
-
 
 /* section */
 
 .section {
-    display: flex;
-    align-items: center;
-    margin: 50px 0; /* Thêm khoảng cách giữa các section */
+  display: flex;
+  align-items: center;
+  margin: 50px 0; /* Thêm khoảng cách giữa các section */
 }
 
 .section img {
-    width: 100%; 
-    height: auto;
+  width: 100%;
+  height: auto;
 }
 
 .section .slogan {
-    padding: 20px; /* Thêm khoảng cách cho slogan */
-    flex: 1; /* Đảm bảo slogan chiếm không gian còn lại */
+  padding: 20px; /* Thêm khoảng cách cho slogan */
+  flex: 1; /* Đảm bảo slogan chiếm không gian còn lại */
 }
 
-.section img{
-    width: 50%;
-    height: auto;
+.section img {
+  width: 50%;
+  height: auto;
 }
 
-.container .headline{
-    color: rgb(59, 116, 231);
+.container .headline {
+  color: rgb(59, 116, 231);
 }
-
 
 /* header */
 .body {
-font-family: "Roboto", sans-serif;
-background-color: red !important;
+  font-family: "Roboto", sans-serif;
+  background-color: red !important;
 }
 .fixed-top {
-position: fixed !important;
-top: 0;
-width: 100%;
-z-index: 3;
-background-color: #fff !important;
+  position: fixed !important;
+  top: 0;
+  width: 100%;
+  z-index: 3;
+  background-color: #fff !important;
 }
 
 footer {
-bottom: 0; /* Gắn footer vào đáy container */
-left: 0; /* Gắn footer vào bên trái */
-right: 0; /* Gắn footer vào bên phải */
-background-color: #fff;
-text-align: center;
-}
-
-footer .footer-hcmute_link {
-display: flex;
-justify-content: center;
-}
-
-footer .footer-hcmute_link a {
-color: #35509a;
-font-size: 18px;
-margin: 6px;
-margin-top: 20px;
+  bottom: 0; /* Gắn footer vào đáy container */
+  left: 0; /* Gắn footer vào bên trái */
+  right: 0; /* Gắn footer vào bên phải */
+  background-color: #fff;
+  text-align: center;
+  height: 60px;
 }
 
 div.text-center.p-3 {
-color: #35509a;
-padding: 0px !important;
+  color: #35509a;
+  padding: 0px !important;
+  text-align: center;
+  padding-top: 18px !important;
 }
 
-.header-user-info {
-display: flex;
-}
-
-.nav-link {
-font-weight: bold !important;
-font-size: 0.92rem !important;
-color: #71869d !important;
-padding-right: 20px !important;
-}
-.nav-link:hover {
-color: #35509a !important;
-}
-.dropdown-menu-end {
-margin-top: 17px !important;
-}
 footer {
-box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.05); /* Adjust the values to suit your needs */
+  box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.05); /* Adjust the values to suit your needs */
+}
+.header-login {
 }

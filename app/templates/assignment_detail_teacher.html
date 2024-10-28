@@ -54,147 +54,47 @@
             >
               <thead>
                 <tr>
-                  <th scope="col" class="ps-4" style="width: 190px">
+                  <th
+                    scope="col"
+                    class="ps-4"
+                    style="max-width: 120px; min-width: 120px"
+                  >
                     Student ID
                   </th>
-                  <th scope="col" style="width: 600px">Student Name</th>
-                  <th scope="col" style="width: 200px">Submission ID</th>
-                  <th scope="col" style="max-width: 350px">Title</th>
-                  <th scope="col" style="width: 120px">Submit Day</th>
-                  <th scope="col" style="width: 100px">Similarity</th>
-                  <th scope="col" style="width: 100px">Status</th>
-                  <th scope="col" style="width: 200px; text-align: center">
+                  <th scope="col" style="max-width: 330px; min-width: 330px">
+                    Student Name
+                  </th>
+                  <th scope="col" style="max-width: 140px; min-width: 140px">
+                    Submission ID
+                  </th>
+                  <th scope="col" style="max-width: 350px; min-width: 350px">
+                    Title
+                  </th>
+                  <th scope="col" style="max-width: 120px; min-width: 120px">
+                    Submit Day
+                  </th>
+                  <th scope="col" style="max-width: 110px; min-width: 110px">
+                    Similarity
+                  </th>
+                  <th scope="col" style="max-width: 90px; min-width: 90px">
+                    Status
+                  </th>
+                  <th
+                    scope="col"
+                    style="
+                      max-width: 130px;
+                      min-width: 130px;
+                      text-align: center;
+                    "
+                  >
                     Action
                   </th>
                 </tr>
               </thead>
-              <tbody style="display: none;">
-                <tr>
-                  <td class="ps-4">S123</td>
-                  <td>John Doe</td>
-                  <td>SUB456</td>
-                  <td class="wrap-text">
-                    <a
-                      href="#"
-                      class="text-body"
-                      style="color: #35509a !important"
-                      title="Math Assignment ewiuerhtierhrnkrtnytioyjuiojui6ojio6jo6jlnbkjgfnhjkgn"
-                      >Math Assignment
-                      ewiuerhtierhrnkrtnytioyjuiojui6ojio6jo6jlnbkjgfnhjkgn</a
-                    >
-                  </td>
-                  <td>10/25/2024</td>
-                  <td style="text-align: center">85%</td>
-                  <td style="text-align: center">
-                    <i
-                      class="bx bx-check text-success font-size-18"
-                      title="Pass"
-                    ></i>
-                  </td>
-                  <td style="text-align: center">
-                    <ul class="list-inline mb-0">
-                      <li class="list-inline-item">
-                        <a
-                          href="javascript:void(0);"
-                          data-bs-toggle="modal"
-                          data-bs-target="#uploadModal"
-                          class="text-primary"
-                          title="Upload"
-                        >
-                          <i class="bx bx-upload font-size-18"></i>
-                        </a>
-                      </li>
-                      <li class="list-inline-item">
-                        <a
-                          href="javascript:void(0);"
-                          data-mdb-toggle="modal"
-                          data-mdb-target="#editModal"
-                          class="text-primary"
-                          title="Download"
-                        >
-                          <i class="bx bx-download font-size-18"></i>
-                        </a>
-                      </li>
-                      <li class="list-inline-item">
-                        <a
-                          href="javascript:void(0);"
-                          data-mdb-toggle="modal"
-                          data-mdb-target="#deleteModal"
-                          class="text-danger"
-                          title="Delete"
-                        >
-                          <i class="bx bx-trash-alt font-size-18"></i>
-                        </a>
-                      </li>
-                    </ul>
-                  </td>
-                </tr>
-                <tr>
-                  <td class="ps-4">S124</td>
-                  <td>Jane Smith</td>
-                  <td>SUB789</td>
-                  <td class="wrap-text">
-                    <a
-                      href="#"
-                      class="text-body"
-                      style="color: #35509a !important"
-                      title="Science Project"
-                      >Science Project</a
-                    >
-                  </td>
-                  <td>10/26/2024</td>
-                  <td style="text-align: center">65%</td>
-                  <td style="text-align: center">
-                    <i
-                      class="bx bx-x text-danger font-size-18"
-                      title="Fail"
-                    ></i>
-                  </td>
-                  <td style="text-align: center">
-                    <ul class="list-inline mb-0">
-                      <li class="list-inline-item">
-                        <a
-                          href="javascript:void(0);"
-                          data-bs-toggle="modal"
-                          data-bs-target="#uploadModal"
-                          class="text-primary"
-                          title="Upload"
-                        >
-                          <i class="bx bx-upload font-size-18"></i>
-                        </a>
-                      </li>
-
-                      <li class="list-inline-item">
-                        <a
-                          href="javascript:void(0);"
-                          data-mdb-toggle="modal"
-                          data-mdb-target="#editModal"
-                          class="text-primary"
-                          title="Download"
-                        >
-                          <i class="bx bx-download font-size-18"></i>
-                        </a>
-                      </li>
-                      <li class="list-inline-item">
-                        <a
-                          href="javascript:void(0);"
-                          data-mdb-toggle="modal"
-                          data-mdb-target="#deleteModal"
-                          class="text-danger"
-                          title="Delete"
-                        >
-                          <i class="bx bx-trash-alt font-size-18"></i>
-                        </a>
-                      </li>
-                    </ul>
-                  </td>
-                </tr>
-                <!-- Add additional rows for other students' submissions as needed -->
-              </tbody>
 
               <tbody id="file_table_body">
                 <!-- Rows will be inserted here -->
-            </tbody>
+              </tbody>
             </table>
           </div>
         </div>
@@ -312,7 +212,9 @@
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
           Cancel
         </button>
-        <button type="button" id="submit_button" class="btn btn-primary">Submit</button>
+        <button type="button" id="submit_button" class="btn btn-primary">
+          Submit
+        </button>
       </div>
     </div>
   </div>
@@ -347,15 +249,15 @@
         >
           Cancel
         </button>
-        <button type="button" id="delete_file" class="btn btn-primary">Delete</button>
+        <button type="button" id="delete_file" class="btn btn-primary">
+          Delete
+        </button>
       </div>
     </div>
   </div>
 </div>
 
 {% endblock %} {% block extra_js %}
-<script
-  src="{{ url_for('static', filename='js/assignment_detail_teacher.js') }}"
-></script>
+<script src="{{ url_for('static', filename='js/assignment_detail_teacher.js') }}"></script>
 
 {% endblock %}
