@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, jsonify, session, send_fi
 from bson import ObjectId
 from bson.objectid import ObjectId
 from app.extensions import db
-from app.models.file import  find_assignment_id, load_files, add_file, delete_file_teacher, delete_file_student
+from app.models.file import  find_assignment_id, load_files, add_file, add_file_quick_submit, delete_file_teacher, delete_file_student, load_files_quick_submit
 from app.models.assignment import  load_student_in_class, add_student_submit, delete_student_submit
 import base64
 import io
@@ -23,6 +23,18 @@ def load_files_api(class_id, assignment_id):
         return jsonify(success = False, message = "sai") 
         
     return jsonify(success = False, message = "sai")
+
+@file.route('/api/quick_submit', methods=['GET'])
+def load_files_quick_submit_api():
+    if 'user_id' not in session:
+        return render_template('login.html')
+    user = db.users.find_one({'_id': ObjectId(session['user_id'])})
+    if user:
+        school = db.schools.find_one({'school_id': user['school_id']})
+        list_files = load_files_quick_submit(user['school_id'])
+        return jsonify(success = True, list_files = list_files, school_name = school['school_name'], school_id = school['school_id'])
+    return jsonify(success = False, message = "sai")
+
 
 @file.route('/api/upload_file@school=<school_id>-class=<class_id>-assignment=<assignment_id>', methods=['POST'])
 def create_file_api(school_id, class_id, assignment_id):
@@ -48,6 +60,29 @@ def create_file_api(school_id, class_id, assignment_id):
     return jsonify(success = False, message = "sai") 
 
 
+@file.route('/api/upload_file_quick_submit@school=<school_id>', methods=['POST'])
+def create_file_quick_submit_api(school_id):
+    if 'user_id' not in session:
+        return render_template('login.html')
+    user = db.users.find_one({'_id': ObjectId(session['user_id'])})
+    if user:
+        if school_id == user['school_id']:
+            print("Them file")
+            author_name = request.form.get('author_name')
+            submission_title = request.form.get('submissionTitle')
+            storage_option = request.form.get('storageOption')
+            submit_day = request.form.get('submitDay')
+            file = request.files.get('file')
+            author_id = user['user_id']
+            if file:
+                if add_file_quick_submit(school_id, author_name, author_id, submission_title, submit_day, file, storage_option):     
+                    return jsonify(success = True, message = "Dung")
+                return jsonify(success = False, message = "sai") 
+            return jsonify(success = False, message = "sai") 
+
+        return jsonify(success = False, message = "sai") 
+        
+    return jsonify(success = False, message = "sai") 
 @file.route('/api/delete_file@school=<school_id>-class=<class_id>-assignment=<assignment_id>-student=<student_id>', methods=['DELETE'])
 def delete_file_api(school_id, class_id, assignment_id, student_id):
     if 'user_id' not in session:
