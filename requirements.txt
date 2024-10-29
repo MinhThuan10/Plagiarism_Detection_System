@@ -2,3 +2,5 @@ Flask==2.3.2
 Flask-PyMongo==2.3.0
 Flask-Elasticsearch==0.6.0
 python-dotenv==1.0.0
+
+# waitress-serve --listen=127.0.0.1:8000 run:app
