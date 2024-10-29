@@ -22,6 +22,16 @@ def load_files(assignment_id):
         list_files.append(file_data)
     return list_files
 
+def load_files_quick_submit(school_id):
+    files_cursor = db.files.find({"school_id": school_id, "quick_submit": "yes"})
+    list_files = []
+    for file in files_cursor:
+        file_data = {key: (str(value) if isinstance(value, ObjectId) else value) for key, value in file.items()}
+        file_data.pop('content_file', None)
+        list_files.append(file_data)
+    return list_files
+
+
 
 def add_file(school_id, class_id, assignment_id, title, author_id, submit_day, file, storage_option):
     if db.files.find_one({"assignment_id": assignment_id, "author_id": author_id}):
@@ -43,6 +53,23 @@ def add_file(school_id, class_id, assignment_id, title, author_id, submit_day, f
     })
     return True
 
+
+def add_file_quick_submit(school_id, author_name, author_id, submission_title, submit_day, file, storage_option):
+    max_file = db.files.find_one(sort=[('file_id', -1)])
+    max_file = max_file['file_id'] if max_file else 0 
+    db.files.insert_one({
+        "school_id": school_id,
+        "file_id": str(int(max_file) + 1),
+        "title": submission_title,
+        "author_id": author_id,
+        "author_name": author_name,
+        "submit_day": submit_day,
+        "content_file": Binary(file.read()),
+        "storage": storage_option,
+        "type": "raw",
+        "quick_submit": "yes"
+    })
+    return True
 def delete_file_teacher(school_id, class_id, assignment_id, student_id):
     file =  db.files.find_one({"author_id": student_id})
     if not file:

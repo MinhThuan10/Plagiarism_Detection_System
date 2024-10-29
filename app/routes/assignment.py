@@ -48,6 +48,22 @@ def render_page_assignment(class_id, assignment_id):
         return render_template('error.html')
     
 
+@assignment.route('/quick_submit')
+def render_page_quick_submit():
+    if 'user_id' not in session:
+        return render_template('login.html')
+    
+    user = db.users.find_one({'_id': ObjectId(session['user_id'])})
+
+    if user:
+        role = user['role']
+        if role == 'Teacher':
+            return render_template('quick_submit.html', user = user)
+        else:
+            return render_template('error.html')
+    else:
+        return render_template('error.html')
+
 @assignment.route('/api/create_assignment@school=<school_id>-class=<class_id>', methods=['POST'])
 def create_assignment_api(school_id, class_id):
     data = request.get_json()
