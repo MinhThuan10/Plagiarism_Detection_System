@@ -10,9 +10,6 @@ def index():
 
     return render_template('index.html')
 
-
-
-
 @main.route('/home')
 def home():
     if 'user_id' not in session:

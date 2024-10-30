@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", function () {
             title = data.list_files[index].title;
             submitDay = data.list_files[index].submit_day;
             link = `/api/download_pdf@school=${school_id}-class=${class_id}-assignment=${assignment_id}-student=${studentInfo.user_id}`;
-            similarity = "0";
+            similarity = data.list_files[index].plagiarism || 0;
             status = "bx-check text-success";
             modal_upload = "";
             modal_download = "modal";

@@ -4,6 +4,8 @@ from bson.objectid import ObjectId
 from app.extensions import db
 from app.models.file import  find_assignment_id, load_files, add_file, add_file_quick_submit, delete_file_teacher, delete_file_student, delete_file_quick_submit, load_files_quick_submit
 from app.models.assignment import  load_student_in_class, add_student_submit, delete_student_submit
+from app.models.search_system.main import main
+
 import base64
 import io
 
@@ -36,8 +38,33 @@ def load_files_quick_submit_api():
     return jsonify(success = False, message = "sai")
 
 
+# @file.route('/api/upload_file@school=<school_id>-class=<class_id>-assignment=<assignment_id>', methods=['POST'])
+# def create_file_api(school_id, class_id, assignment_id):
+#     if 'user_id' not in session:
+#         return render_template('login.html')
+#     user = db.users.find_one({'_id': ObjectId(session['user_id'])})
+#     if user:
+#         if school_id == user['school_id']:
+#             print("Them file")
+#             student_id = request.form.get('student_id')
+#             submission_title = request.form.get('submissionTitle')
+#             storage_option = request.form.get('storageOption')
+#             submit_day = request.form.get('submitDay')
+#             file = request.files.get('file')
+#             if file:
+#                 if add_file(school_id, class_id, assignment_id, submission_title, student_id, submit_day, file, storage_option) and add_student_submit(school_id, assignment_id, student_id):     
+#                     return jsonify(success = True, message = "Dung")
+#                 return jsonify(success = False, message = "sai") 
+#             return jsonify(success = False, message = "sai") 
+
+#         return jsonify(success = False, message = "sai") 
+        
+#     return jsonify(success = False, message = "sai") 
+
+
 @file.route('/api/upload_file@school=<school_id>-class=<class_id>-assignment=<assignment_id>', methods=['POST'])
 def create_file_api(school_id, class_id, assignment_id):
+    
     if 'user_id' not in session:
         return render_template('login.html')
     user = db.users.find_one({'_id': ObjectId(session['user_id'])})
@@ -50,7 +77,10 @@ def create_file_api(school_id, class_id, assignment_id):
             submit_day = request.form.get('submitDay')
             file = request.files.get('file')
             if file:
-                if add_file(school_id, class_id, assignment_id, submission_title, student_id, submit_day, file, storage_option) and add_student_submit(school_id, assignment_id, student_id):     
+                insert_file = add_file(school_id, class_id, assignment_id, submission_title, student_id, submit_day, file, storage_option)
+                if insert_file[0] and add_student_submit(school_id, assignment_id, student_id):
+                    call_test_function_async(insert_file[1])
+                    print("Chạy luôn")
                     return jsonify(success = True, message = "Dung")
                 return jsonify(success = False, message = "sai") 
             return jsonify(success = False, message = "sai") 
@@ -58,6 +88,13 @@ def create_file_api(school_id, class_id, assignment_id):
         return jsonify(success = False, message = "sai") 
         
     return jsonify(success = False, message = "sai") 
+
+from threading import Thread
+from flask import jsonify
+def call_test_function_async(file_id):
+    # Khởi tạo và chạy luồng để gọi hàm main với file_id
+    thread = Thread(target=main, args=(file_id,))
+    thread.start()
 
 
 @file.route('/api/upload_file_quick_submit@school=<school_id>', methods=['POST'])

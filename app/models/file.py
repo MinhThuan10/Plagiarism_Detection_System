@@ -14,7 +14,7 @@ def find_assignment_id(assignment_id):
 
 
 def load_files(assignment_id):
-    files_cursor = db.files.find({"assignment_id": assignment_id})
+    files_cursor = db.files.find({"assignment_id": assignment_id, "quick_submit": "no", "type": "raw"})
     list_files = []
     for file in files_cursor:
         file_data = {key: (str(value) if isinstance(value, ObjectId) else value) for key, value in file.items()}
@@ -23,7 +23,7 @@ def load_files(assignment_id):
     return list_files
 
 def load_files_quick_submit(school_id):
-    files_cursor = db.files.find({"school_id": school_id, "quick_submit": "yes"})
+    files_cursor = db.files.find({"school_id": school_id, "quick_submit": "yes", "type": "raw"})
     list_files = []
     for file in files_cursor:
         file_data = {key: (str(value) if isinstance(value, ObjectId) else value) for key, value in file.items()}
@@ -49,9 +49,11 @@ def add_file(school_id, class_id, assignment_id, title, author_id, submit_day, f
         "submit_day": submit_day,
         "content_file": Binary(file.read()),
         "storage": storage_option,
+        "quick_submit": "no",
+        "plagiarism": 0,
         "type": "raw"
     })
-    return True
+    return True, str(int(max_file) + 1)
 
 
 def add_file_quick_submit(school_id, author_name, author_id, submission_title, submit_day, file, storage_option):
