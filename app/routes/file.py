@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, jsonify, session, send_fi
 from bson import ObjectId
 from bson.objectid import ObjectId
 from app.extensions import db
-from app.models.file import  find_assignment_id, load_files, add_file, add_file_quick_submit, delete_file_teacher, delete_file_student, load_files_quick_submit
+from app.models.file import  find_assignment_id, load_files, add_file, add_file_quick_submit, delete_file_teacher, delete_file_student, delete_file_quick_submit, load_files_quick_submit
 from app.models.assignment import  load_student_in_class, add_student_submit, delete_student_submit
 import base64
 import io
@@ -83,6 +83,8 @@ def create_file_quick_submit_api(school_id):
         return jsonify(success = False, message = "sai") 
         
     return jsonify(success = False, message = "sai") 
+
+
 @file.route('/api/delete_file@school=<school_id>-class=<class_id>-assignment=<assignment_id>-student=<student_id>', methods=['DELETE'])
 def delete_file_api(school_id, class_id, assignment_id, student_id):
     if 'user_id' not in session:
@@ -99,6 +101,22 @@ def delete_file_api(school_id, class_id, assignment_id, student_id):
                 if delete_file_student(user['user_id'], school_id, class_id, assignment_id, student_id) and delete_student_submit(school_id, assignment_id, student_id):
                     return jsonify(success = True, message = "Dung")
                 return jsonify(success = False, message = "sai") 
+        return jsonify(success = False, message = "sai") 
+        
+    return jsonify(success = False, message = "sai") 
+
+
+@file.route('/api/delete_file@file_id=<file_id>', methods=['DELETE'])
+def delete_file_quick_submit_api(file_id):
+    if 'user_id' not in session:
+        return render_template('login.html')
+    user = db.users.find_one({'_id': ObjectId(session['user_id'])})
+    if user:
+        if user['role'] == "Teacher":
+            print("Xoa file")
+            if delete_file_quick_submit(user['school_id'], file_id):
+                return jsonify(success = True, message = "Dung")
+            return jsonify(success = False, message = "sai") 
         return jsonify(success = False, message = "sai") 
         
     return jsonify(success = False, message = "sai") 
@@ -147,4 +165,33 @@ def download_pdf_raw(school_id, class_id, assignment_id, student_id):
         return jsonify(success=False, message="Unauthorized school.")  # sai 3
     
     return jsonify(success=False, message="User not authenticated.")  # sai 4
+
+
+
+@file.route('/api/download_pdf@file_id=<file_id>', methods=['GET'])
+def download_pdf_quick_submit_raw(file_id):
+    if 'user_id' not in session:
+        return render_template('login.html')
+    user = db.users.find_one({'_id': ObjectId(session['user_id'])})
+    if user:
+        pdf_record = db.files.find_one({
+            "file_id": file_id,
+            "type": "raw"
+        })
+        if user['role'] == "Teacher" and pdf_record['school_id'] == user['school_id']:
+            pdf_bytes = bytes(pdf_record['content_file'])
+            pdf_io = io.BytesIO(pdf_bytes)
+            file_name = pdf_record['title']
+            file_name += '.pdf'
+            return send_file(
+                pdf_io, 
+                download_name=file_name, 
+                as_attachment=True, 
+                mimetype='application/pdf'
+            )
+            
+        return jsonify(success=False, message="Unauthorized school.")  # sai 3
+    return jsonify(success=False, message="User not authenticated.")  # sai 4
+
+
 
