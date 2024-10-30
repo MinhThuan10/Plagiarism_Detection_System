@@ -88,7 +88,14 @@ def delete_file_student(user_id, school_id, class_id, assignment_id, student_id)
         return True
     return False
 
-
+def delete_file_quick_submit(school_id, file_id):
+    file =  db.files.find_one({"file_id": file_id, "quick_submit": "yes", "type": "raw"})
+    if not file:
+        return False
+    if school_id == file['school_id']:
+        db.files.delete_many({"file_id": file_id})
+        return True
+    return False
 
 def delete_file_for_user(student_id):
     if db.files.find_one({"author_id": student_id}):

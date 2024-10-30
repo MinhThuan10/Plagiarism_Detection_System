@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                     data-mdb-toggle="modal"
                                     data-mdb-target="#deleteModal"
                                     class="text-danger delete"
-                                    student_id = "${fileInfo.author_id}"
+                                    file_id = "${fileInfo.file_id}"
                                     title="Delete"
                                     >
                                     <i class="bx bx-trash-alt font-size-18"></i>
@@ -67,6 +67,38 @@ document.addEventListener("DOMContentLoaded", function () {
     
               tbody.appendChild(row);
     
+
+              const deleteicon = row.querySelector(".delete");
+              deleteicon.addEventListener("click", function () {
+                const file_id = this.getAttribute("file_id");
+                console.log("Đã nhấn xóa file có ID:", file_id);
+                const deletebutton = document.getElementById("submit_delete");
+                deletebutton.addEventListener("click", function () {
+                  fetch(
+                    `/api/delete_file@file_id=${file_id}`,
+                    {
+                      method: "DELETE",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                    }
+                  )
+                    .then((response) => response.json())
+                    .then((data) => {
+                      if (data.success) {
+                        console.log(data.message);
+                        location.reload();
+                      } else {
+                        console.log(data.message);
+                      }
+                    })
+                    .catch((error) => {
+                      console.error("Error:", error);
+                    });
+                });
+              });
+
+              
             });
           } else {
             console.error("Không thể tải dữ liệu trường học");
