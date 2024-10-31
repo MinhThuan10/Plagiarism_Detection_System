@@ -46,6 +46,7 @@ def add_file(school_id, class_id, assignment_id, title, author_id, submit_day, f
         "file_id": str(int(max_file) + 1),
         "title": title,
         "author_id": author_id,
+        "author_name": "",
         "submit_day": submit_day,
         "content_file": Binary(file.read()),
         "storage": storage_option,
@@ -61,6 +62,8 @@ def add_file_quick_submit(school_id, author_name, author_id, submission_title, s
     max_file = max_file['file_id'] if max_file else 0 
     db.files.insert_one({
         "school_id": school_id,
+        "class_id": "",
+        'assignment_id': "",
         "file_id": str(int(max_file) + 1),
         "title": submission_title,
         "author_id": author_id,
@@ -68,10 +71,11 @@ def add_file_quick_submit(school_id, author_name, author_id, submission_title, s
         "submit_day": submit_day,
         "content_file": Binary(file.read()),
         "storage": storage_option,
+        "quick_submit": "yes",
+        "plagiarism": 0,
         "type": "raw",
-        "quick_submit": "yes"
     })
-    return True
+    return True, str(int(max_file) + 1)
 def delete_file_teacher(school_id, class_id, assignment_id, student_id):
     file =  db.files.find_one({"author_id": student_id})
     if not file:
