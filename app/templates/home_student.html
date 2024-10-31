@@ -1,10 +1,263 @@
-{% extends 'base_teacher.html' %} {% block extra_css %}
+{% extends 'base_student.html' %} {% block extra_css %}
 <link
   rel="stylesheet"
-  href="{{ url_for('static', filename='css/style_base_teacher.css') }}"
+  href="{{ url_for('static', filename='css/home_student.css') }}"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.2.0/mdb.min.css"
 />
 {% endblock %} {% block content %}
-<div class="container" style="margin-top: 300px; font-size: 50px">Student</div>
+<div class="container">
+  <div class="content">
+    <h2 class="name-tab">HOME</h2>
+    <p class="info"><strong>About this page</strong></p>
+    <p class="info">
+      This is your student homepage. The homepage shows the classes you are
+      enrolled in. To enroll in a new class, click the enroll in a class button.
+      Click a class name to open your class homepage for the class. From your
+      homepage, you can submit a paper.
+    </p>
+  </div>
+  <div class="containerClassList">
+    <div class="row align-items-center school">
+      <div class="col-md-6">
+        <div class="mb-3">
+          <h5 class="card-school">
+            Ho Chi Minh University of Technology and Education
+          </h5>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div
+          class="d-flex flex-wrap align-items-center justify-content-end gap-2 mb-3"
+        >
+          <div>
+            <!-- Button to trigger modal -->
+            <a
+              href="#"
+              data-bs-toggle="modal"
+              data-bs-target="#addNewModal"
+              class="btn btn-primary"
+            >
+              <i class="bx bx-plus me-1"></i> Enroll in a class
+            </a>
+            <!-- Modal structure -->
+            <div
+              class="modal fade"
+              id="addNewModal"
+              tabindex="-1"
+              aria-labelledby="addNewModalLabel"
+              aria-hidden="true"
+            >
+              <div
+                class="modal-dialog modal-dialog-centered custom-modal-width"
+              >
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="addNewModalLabel">
+                      Enroll in a class
+                    </h5>
+                    <button
+                      type="button"
+                      class="btn-close"
+                      data-bs-dismiss="modal"
+                      aria-label="Close"
+                    ></button>
+                  </div>
+                  <div class="modal-body">
+                    <!-- Form inside the modal -->
+                    <form>
+                      <!-- Class ID field -->
+                      <div class="mb-3">
+                        <label for="classId" class="form-label">Class ID</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="classId"
+                          required
+                        />
+                      </div>
+                      <!-- Enrollment Key field -->
+                      <div class="mb-3">
+                        <label for="enrollmentKey" class="form-label"
+                          >Enrollment Key</label
+                        >
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="enrollmentKey"
+                          required
+                        />
+                      </div>
+                    </form>
+                  </div>
+                  <div class="modal-footer">
+                    <button
+                      type="button"
+                      class="btn btn-secondary"
+                      data-bs-dismiss="modal"
+                    >
+                      Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary">
+                      Enroll
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-12">
+        <div>
+          <div
+            class="table-responsive"
+            style="max-height: 400px; overflow-y: auto"
+          >
+            <table
+              class="table project-list-table table-nowrap align-middle table-borderless"
+            >
+              <thead>
+                <tr>
+                  <th
+                    scope="col"
+                    class="ps-4"
+                    style="max-width: 150px; min-width: 150px"
+                  >
+                    Class ID
+                  </th>
+                  <th scope="col" style="max-width: 490px; min-width: 490px">
+                    Class Name
+                  </th>
+                  <th scope="col" style="max-width: 300pxl; min-width: 300px">
+                    Instructor
+                  </th>
+                  <th scope="col" style="max-width: 150pxl; min-width: 150px">
+                    Start Day
+                  </th>
+                  <th scope="col" style="max-width: 150px; min-width: 150px">
+                    End Day
+                  </th>
+                  <th
+                    scope="col"
+                    style="
+                      max-width: 150pxl;
+                      min-width: 150px;
+                      text-align: center;
+                    "
+                  >
+                    Action
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="ps-4">C101</td>
+                  <td>
+                    <a
+                      href="#"
+                      class="text-body"
+                      style="color: #35509a !important"
+                      >Physics 101</a
+                    >
+                  </td>
+                  <td>Dr. John Doe</td>
+                  <td>10/01/2024</td>
+                  <td>12/20/2024</td>
+                  <td style="text-align: center">
+                    <ul class="list-inline mb-0">
+                      <li class="list-inline-item">
+                        <a
+                          href="javascript:void(0);"
+                          data-mdb-toggle="modal"
+                          data-mdb-target="#deleteModal"
+                          class="text-danger"
+                          title="Delete"
+                        >
+                          <i class="bx bx-trash-alt font-size-18"></i>
+                        </a>
+                      </li>
+                    </ul>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="ps-4">C102</td>
+                  <td>
+                    <a
+                      href="#"
+                      class="text-body"
+                      style="color: #35509a !important"
+                      >Chemistry 101</a
+                    >
+                  </td>
+                  <td>Prof. Jane Smith</td>
+                  <td>10/15/2024</td>
+                  <td>12/22/2024</td>
+                  <td style="text-align: center">
+                    <ul class="list-inline mb-0">
+                      <li class="list-inline-item">
+                        <a
+                          href="javascript:void(0);"
+                          data-mdb-toggle="modal"
+                          data-mdb-target="#deleteModal"
+                          class="text-danger"
+                          title="Delete"
+                        >
+                          <i class="bx bx-trash-alt font-size-18"></i>
+                        </a>
+                      </li>
+                    </ul>
+                  </td>
+                </tr>
+                <!-- Thêm các dòng mới cho các lớp khác theo định dạng tương tự -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div
+  class="modal fade"
+  id="deleteModal"
+  tabindex="-1"
+  aria-labelledby="deleteModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="delete-title" id="deleteModalLabel">Delete class?</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-mdb-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body delete-body">
+        Are you sure you want to delete this class?
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          data-mdb-dismiss="modal"
+        >
+          Cancel
+        </button>
+        <button type="button" class="btn btn-primary">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %} {% block extra_js %}
 <script
   type="module"

@@ -1,0 +1,234 @@
+/* header */
+.body {
+  font-family: "Roboto", sans-serif;
+}
+.fixed-top {
+  position: fixed !important;
+  top: 0;
+  width: 100%;
+  z-index: 3;
+  background-color: #fff !important;
+}
+
+footer {
+  bottom: 0; /* Gắn footer vào đáy container */
+  left: 0; /* Gắn footer vào bên trái */
+  right: 0; /* Gắn footer vào bên phải */
+  background-color: #fff;
+  text-align: center;
+  height: 60px;
+}
+
+div.text-center.p-3 {
+  color: #35509a;
+  padding: 0px !important;
+}
+.text-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.header-user-info {
+  display: flex;
+}
+
+.nav-link {
+  font-weight: bold !important;
+  font-size: 0.92rem !important;
+  color: #71869d !important;
+  padding-right: 20px !important;
+}
+.nav-link:hover {
+  color: #35509a !important;
+}
+.dropdown-menu-end {
+  margin-top: 17px !important;
+}
+footer {
+  box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.05); /* Adjust the values to suit your needs */
+}
+body {
+  background-color: #eee;
+  font-family: "Roboto", sans-serif;
+}
+.table tbody tr {
+  border-bottom: 1px solid #e0e0e0; /* Thay đổi #ccc thành mã màu bạn muốn */
+}
+
+.table tbody tr:last-child {
+  border-bottom: none; /* Không có đường ngăn cách cho hàng cuối cùng */
+}
+
+.table thead th {
+  border-bottom: 0.8px solid #e0e0e0; /* Đường viền màu xám dưới tiêu đề */
+  border-top: 0.8px solid #e0e0e0;
+  color: #1a1a1a;
+  font-weight: bolder;
+}
+
+table.project-list-table tbody tr {
+  line-height: 0.5; /* Điều chỉnh chiều cao dòng */
+}
+table.project-list-table thead th {
+  line-height: 0.6;
+}
+.school {
+  padding-bottom: 8px;
+}
+.card-school,
+.modal-title {
+  color: #35509a;
+  font-weight: 600;
+  font-family: "Roboto", sans-serif;
+}
+.table-responsive::-webkit-scrollbar {
+  width: 8px; /* Đặt chiều rộng của thanh cuộn */
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background-color: #ccc9c9; /* Màu sắc của thanh cuộn */
+  border-radius: 10px; /* Bo tròn các góc */
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Màu nền cho track */
+  border-radius: 10px; /* Bo tròn track */
+}
+
+.table-responsive {
+  border-radius: 0.65rem; /* Bo tròn góc cho phần tử table-responsive */
+  position: relative; /* Để hỗ trợ cho thuộc tính tuyệt đối của tiêu đề */
+  overflow: hidden; /* Ngăn không cho nội dung tràn ra ngoài */
+}
+
+.table {
+  display: block; /* Biến bảng thành block để cho phép cuộn */
+  max-height: 800px; /* Chiều cao tối đa của bảng */
+}
+
+.table thead {
+  position: sticky; /* Ghim tiêu đề */
+  top: 0; /* Ghim ở đầu */
+  background: white; /* Nền cho tiêu đề */
+  z-index: 10; /* Đảm bảo tiêu đề luôn nằm trên nội dung */
+}
+
+.custom-modal-width {
+  max-width: 650px !important;
+}
+
+.containerClassList {
+  width: 95%;
+  height: 410px;
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 0.65rem;
+  box-shadow: 0 4px 0 0 rgba(143, 156, 173, 0.2);
+  overflow: hidden;
+  background-color: #fff !important;
+  margin-top: 25px;
+}
+.container {
+  max-width: 1656px !important;
+  background-color: #e8f2ff;
+  height: 601px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column; /* Đảm bảo các phần tử con nằm theo chiều dọc */
+}
+
+.modal-backdrop.show {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* dia log thông báo class id, enrollment key */
+.dialog {
+  display: none;
+  position: fixed;
+  z-index: 100;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+}
+
+.dialog-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  width: 700px;
+}
+
+.btn {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.modal-title2 {
+  color: #35509a;
+  font-weight: 600;
+  font-family: "Roboto", sans-serif;
+  font-size: 20px;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.2); /* Màu xám mờ */
+  margin: 20px 0; /* Khoảng cách giữa h2 và p */
+}
+
+.btn-continue {
+  margin-left: 553px;
+}
+.name-tab {
+  font-weight: 600;
+  margin-left: -717px;
+}
+.info {
+  margin-bottom: 0 !important;
+  margin-left: -717px;
+}
+
+/* Center modal */
+.modal-dialog {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+}
+.edit-title {
+  color: #35509a;
+  font-weight: 600;
+  font-family: "Roboto", sans-serif;
+}
+
+.delete-title {
+  color: #35509a;
+  font-weight: 600;
+  font-family: "Roboto", sans-serif;
+}
+.list-inline {
+  padding-left: 9px !important;
+}
+
+.bx-pencil {
+  margin-right: 15px;
+}
+
+.btn-students {
+  background-color: #f0f8ff !important;
+  color: #35509a !important;
+  font-weight: 700 !important;
+}
