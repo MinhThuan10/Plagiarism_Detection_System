@@ -93,7 +93,7 @@ from threading import Thread
 from flask import jsonify
 def call_test_function_async(file_id):
     # Khởi tạo và chạy luồng để gọi hàm main với file_id
-    thread = Thread(target=main, args=(file_id,))
+    thread = Thread(target=main, args=(file_id))
     thread.start()
 
 
@@ -112,7 +112,10 @@ def create_file_quick_submit_api(school_id):
             file = request.files.get('file')
             author_id = user['user_id']
             if file:
-                if add_file_quick_submit(school_id, author_name, author_id, submission_title, submit_day, file, storage_option):     
+                insert_file =  add_file_quick_submit(school_id, author_name, author_id, submission_title, submit_day, file, storage_option)
+                if insert_file[0]: 
+                    call_test_function_async(insert_file[1])
+                    print("Chạy luôn")
                     return jsonify(success = True, message = "Dung")
                 return jsonify(success = False, message = "sai") 
             return jsonify(success = False, message = "sai") 

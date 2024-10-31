@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             </a>
                         </td>
                         <td>${fileInfo.submit_day}</td>
-                        <td style="text-align: center"0%</td>
+                        <td style="text-align: center">${fileInfo.plagiarism}%</td>
 
                         <td style="text-align: center">
                             <ul class="list-inline mb-0">
