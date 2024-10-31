@@ -225,3 +225,6 @@ def fetch_url(url):
         return fetch_csv(response)
     else:
         return extract_text_from_html(response)
+
+
+
