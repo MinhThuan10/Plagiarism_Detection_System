@@ -155,7 +155,7 @@ def compare_sentences(sentence, all_snippets):
     similarity_scores = calculate_similarity(embeddings[0:1], embeddings[1:]) 
     # Sắp xếp điểm số tương đồng và chỉ số của các snippet
     sorted_indices = similarity_scores[0].argsort()[::-1]
-    top_indices = sorted_indices[:3]
+    top_indices = sorted_indices[:1]
     top_scores = similarity_scores[0][top_indices]
     # Trả về ba điểm số độ tương đồng cao nhất và các chỉ số tương ứng
     top_similarities = [(top_scores[i], top_indices[i]) for i in range(len(top_indices))]
