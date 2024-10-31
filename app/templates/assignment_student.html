@@ -1,16 +1,287 @@
-<!-- Page danh sách bài tập trong lớp, dành cho giảng viên -->
-{% extends 'base_teacher.html' %}
+<!-- Page danh sách bài tập trong lớp, dành cho sinh viên -->
+{% extends 'base_student.html' %} {% block extra_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/assignment_student.css') }}"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.2.0/mdb.min.css"
+/>
 
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/assignment_student.css') }}">
-{% endblock %}
-
-{% block content %}
-<div class="container" style="margin-top: 300px; font-size: 50px;">
-    Page danh sách bài tập trong lớp, dành cho học sinh
+{% endblock %} {% block content %}
+<div class="container">
+  <div class="content">
+    <h2 class="name-tab">Class homepage</h2>
+    <p class="info"><strong>About this page</strong></p>
+    <p class="info">
+      This is your Class Homepage. To submit the assignment, click the "submit"
+      icon.
+    </p>
+  </div>
+  <div class="containerClassList">
+    <div class="row align-items-center school">
+      <div class="col-md-6">
+        <div class="mb-3">
+          <h5 class="card-school">Lớp Big data</h5>
+        </div>
+      </div>
     </div>
-{% endblock %}
+    <div class="row">
+      <div class="col-lg-12">
+        <div>
+          <div
+            class="table-responsive"
+            style="max-height: 400px; overflow-y: auto"
+          >
+            <table
+              class="table project-list-table table-nowrap align-middle table-borderless"
+            >
+              <thead>
+                <tr>
+                  <th
+                    scope="col"
+                    class="ps-4"
+                    style="max-width: 340px; min-width: 340px"
+                  >
+                    Assignment Title
+                  </th>
+                  <th scope="col" style="max-width: 130px; min-width: 130px">
+                    Start Day
+                  </th>
+                  <th scope="col" style="max-width: 130px; min-width: 130px">
+                    Due Day
+                  </th>
+                  <th scope="col" style="max-width: 400px; min-width: 400px">
+                    Paper Title
+                  </th>
+                  <th scope="col" style="max-width: 130px; min-width: 130px">
+                    Upload Day
+                  </th>
+                  <th
+                    scope="col"
+                    style="
+                      max-width: 130px;
+                      min-width: 130px;
+                      text-align: center;
+                    "
+                  >
+                    Similarly
+                  </th>
+                  <th
+                    scope="col"
+                    style="
+                      max-width: 130px;
+                      min-width: 130px;
+                      text-align: center;
+                    "
+                  >
+                    Action
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="ps-4">Chemistry Assignment</td>
+                  <td>10/15/2024</td>
+                  <td>10/30/2024</td>
+                  <td>
+                    <a
+                      href="link-to-lab-report"
+                      class="text-body"
+                      style="color: #35509a !important"
+                    >
+                      Lab_Report.docx
+                    </a>
+                  </td>
+                  <td>10/20/2024</td>
+                  <td style="text-align: center">82%</td>
+                  <td style="text-align: center">
+                    <ul class="list-inline mb-0">
+                      <li class="list-inline-item">
+                        <a
+                          href="javascript:void(0);"
+                          data-mdb-toggle="modal"
+                          data-mdb-target="#uploadModal"
+                          class="text-primary upload"
+                          title="Upload"
+                        >
+                          <i class="bx bx-upload font-size-18"></i>
+                        </a>
+                      </li>
+                      <li class="list-inline-item">
+                        <a href="${link}">
+                          <i class="bx bx-download font-size-18"></i>
+                        </a>
+                      </li>
+                      <li class="list-inline-item">
+                        <a
+                          href="javascript:void(0);"
+                          data-mdb-toggle="modal"
+                          data-mdb-target="#deleteModal"
+                          class="text-danger"
+                          title="Delete"
+                        >
+                          <i class="bx bx-trash-alt font-size-18"></i>
+                        </a>
+                      </li>
+                    </ul>
+                  </td>
+                </tr>
+                <!-- Thêm các dòng mới cho các bài tập khác theo định dạng tương tự -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal structure for Upload -->
+<div
+  class="modal fade"
+  id="uploadModal"
+  tabindex="-1"
+  aria-labelledby="uploadModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered custom-modal-width">
+    <div class="modal-content dialog-upload-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="uploadModalLabel">Upload Submission</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-mdb-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <!-- Form inside the modal -->
+        <form>
+          <!-- Combobox field -->
+          <div class="mb-3">
+            <label for="storageOption" class="form-label">Storage Option</label>
+            <select class="form-select" id="storageOption" required>
+              <option value="do_not_store">
+                Do not store the submitted paper
+              </option>
+              <option value="standard_repository">
+                Standard paper repository
+              </option>
+            </select>
+          </div>
 
-{% block extra_js %}
-<script type="module" src="{{ url_for('static', filename='js/assignment_student.js') }}"></script>
+          <!-- Submission File field -->
+          <div class="mb-3">
+            <label for="submissionFile" class="form-label"
+              >Submission File</label
+            >
+            <div class="d-flex align-items-center">
+              <!-- Choose File button -->
+              <input
+                type="file"
+                class="form-control-file d-none"
+                id="submissionFile"
+                onchange="updateFileName()"
+              />
+              <button
+                type="button"
+                class="btn btn-secondary"
+                onclick="document.getElementById('submissionFile').click()"
+              >
+                Choose File
+              </button>
+
+              <!-- Display selected file name with a close button at the end -->
+              <div class="position-relative ms-2" style="flex: 1">
+                <input
+                  type="text"
+                  class="form-control pe-4"
+                  id="fileName"
+                  placeholder="No file chosen"
+                  readonly
+                />
+                <!-- Close button, initially hidden -->
+                <span
+                  class="position-absolute end-0 top-50 translate-middle-y me-2 text-danger"
+                  style="cursor: pointer; display: none"
+                  id="removeFileBtn"
+                  onclick="removeFile()"
+                >
+                  &times;
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Day (Current Date) field -->
+          <div class="mb-3">
+            <label for="submitDay" class="form-label">Submit Day</label>
+            <input
+              type="text"
+              class="form-control"
+              id="submitDay"
+              value=""
+              readonly
+            />
+          </div>
+        </form>
+      </div>
+      <div id="signupMessage" class="text-danger mb-3"></div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          data-mdb-dismiss="modal"
+        >
+          Cancel
+        </button>
+        <button type="button" class="btn btn-primary">Submit</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Delete Modal -->
+<div
+  class="modal fade"
+  id="deleteModal"
+  tabindex="-1"
+  aria-labelledby="deleteModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="delete-title" id="deleteModalLabel">Delete file?</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-mdb-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body delete-body">
+        Are you sure you want to delete this file?
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          data-mdb-dismiss="modal"
+        >
+          Cancel
+        </button>
+        <button type="button" class="btn btn-primary">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script
+  type="module"
+  src="{{ url_for('static', filename='js/assignment_student.js') }}"
+></script>
+
 {% endblock %}

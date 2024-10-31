@@ -15,7 +15,7 @@
     />
     <link
       rel="stylesheet"
-      href="{{ url_for('static', filename='css/style_base_teacher.css') }}"
+      href="{{ url_for('static', filename='css/base_teacher.css') }}"
     />
     <link
       rel="stylesheet"
@@ -51,7 +51,6 @@
     {% block extra_css %}
     <!-- Block cho CSS riêng -->
     {% endblock %}
-
   </head>
   <body>
     <!-- Navbar -->
@@ -61,7 +60,10 @@
         <!-- Collapsible wrapper -->
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <!-- Navbar brand -->
-          <a class="navbar-brand mt-2 mt-lg-0" href="{{ url_for('main.home') }}">
+          <a
+            class="navbar-brand mt-2 mt-lg-0"
+            href="{{ url_for('main.home') }}"
+          >
             <img
               src="{{ url_for('static', filename='images/logo.png') }}"
               height="30"
@@ -77,7 +79,11 @@
         </ul>
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('assignment.render_page_quick_submit') }}">Quick Submit</a>
+            <a
+              class="nav-link"
+              href="{{ url_for('assignment.render_page_quick_submit') }}"
+              >Quick Submit</a
+            >
           </li>
         </ul>
         <!-- Collapsible wrapper -->
@@ -94,7 +100,6 @@
               data-mdb-toggle="dropdown"
               role="button"
               aria-expanded="false"
-              
             >
               <img
                 src="https://mdbcdn.b-cdn.net/img/new/avatars/2.webp"
@@ -113,7 +118,9 @@
                 <a class="dropdown-item" href="#">My profile</a>
               </li>
               <li>
-                <a class="dropdown-item" href="{{ url_for('user.logout') }}">Logout</a>
+                <a class="dropdown-item" href="{{ url_for('user.logout') }}"
+                  >Logout</a
+                >
               </li>
             </ul>
           </div>
@@ -123,9 +130,8 @@
       <!-- Container wrapper -->
     </nav>
     <!-- Navbar -->
-    
+
     {% block content %}{% endblock %}
-    </div>
 
     <footer class="text-center text-lg-start">
       <div class="text-center p-3">Copyright Pikabon © 2024</div>
@@ -151,7 +157,7 @@
       const dropdownInstance = new bootstrap.Dropdown(dropdownElement);
     </script>
     {% block extra_js %}
-        <!-- Block cho CSS riêng -->
+    <!-- Block cho CSS riêng -->
 
     {% endblock %}
   </body>
