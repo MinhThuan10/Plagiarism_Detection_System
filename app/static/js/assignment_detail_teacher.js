@@ -102,7 +102,7 @@ document.addEventListener("DOMContentLoaded", function () {
             title = "--";
             submitDay = "--";
             link = "#";
-            similarity = "0";
+            similarity = "--";
             status = "bx-x text-danger";
             modal_upload = "modal";
             modal_download = "";

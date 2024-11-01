@@ -34,6 +34,16 @@ def load_student_in_class(class_id):
             list_student.append(student_data)
     return list_student
 
+def load_file_in_class(class_id, student_id):
+    list_assignments = load_assigment(class_id)
+    for assignment in list_assignments:
+        file = db.files.find_one({"assignment_id": assignment['assignment_id'], "author_id": student_id, "type": "raw"})
+        if file:
+            assignment['title'] = file['title']
+            assignment['submit_day'] = file['submit_day']
+            assignment['plagiarism'] = file['plagiarism']
+
+    return list_assignments
 
 def create_assignment(school_id, class_id, assignment_name, start_day, end_day, create_day):
     if db.assignments.find_one({'class_id': class_id, "assignment_name": assignment_name}):
@@ -87,6 +97,9 @@ def delete_assignment(school_id, class_id, assignment_id):
     
     if assignment['school_id'] == school_id and assignment['class_id'] == class_id:
         db.assignments.delete_one({"assignment_id": assignment_id})
+        db.files.delete_many({"assignment_id": assignment_id})
+        db.sentences.delete_many({"assignment_id": assignment_id})
+
         return True
     return False
 
@@ -132,22 +145,26 @@ def delete_student_submit(school_id, assignment_id, student_id):
         
     return False
 
-def delete_student(student_id):
-    assignments = db.assignments.find({"student_ids": {"$in": student_id}})
+def delete_student_in_assignments(student_id, class_id):
+    # Tìm các tài liệu có chứa student_id trong student_ids và có class_id cụ thể
+    assignments = db.assignments.find({"student_ids": student_id, "class_id": class_id})
+    
     if assignments:
         for assignment in assignments:
             student_ids = assignment['student_ids']
             assignment_id = assignment["assignment_id"]
+            
+            # Kiểm tra và xóa student_id nếu có trong student_ids
             if student_id in student_ids:
                 student_ids.remove(student_id)
-                result =  db.assignments.update_one(
+                db.assignments.update_one(
                     {'assignment_id': assignment_id},
                     {
                         "$set": {
                             "student_ids": student_ids,
                         }
                     }
-                )
-            
-        return True
-    return False
+                )   
+                     
+    return True
+

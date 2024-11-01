@@ -23,7 +23,7 @@
     <div class="row align-items-center school">
       <div class="col-md-6">
         <div class="mb-3">
-          <h5 class="card-school">Lớp Big data</h5>
+          <h5 class="card-school" id="class_name"></h5>
         </div>
       </div>
     </div>
@@ -80,56 +80,9 @@
                   </th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td class="ps-4">Chemistry Assignment</td>
-                  <td>10/15/2024</td>
-                  <td>10/30/2024</td>
-                  <td>
-                    <a
-                      href="link-to-lab-report"
-                      class="text-body"
-                      style="color: #35509a !important"
-                    >
-                      Lab_Report.docx
-                    </a>
-                  </td>
-                  <td>10/20/2024</td>
-                  <td style="text-align: center">82%</td>
-                  <td style="text-align: center">
-                    <ul class="list-inline mb-0">
-                      <li class="list-inline-item">
-                        <a
-                          href="javascript:void(0);"
-                          data-mdb-toggle="modal"
-                          data-mdb-target="#uploadModal"
-                          class="text-primary upload"
-                          title="Upload"
-                        >
-                          <i class="bx bx-upload font-size-18"></i>
-                        </a>
-                      </li>
-                      <li class="list-inline-item">
-                        <a href="${link}">
-                          <i class="bx bx-download font-size-18"></i>
-                        </a>
-                      </li>
-                      <li class="list-inline-item">
-                        <a
-                          href="javascript:void(0);"
-                          data-mdb-toggle="modal"
-                          data-mdb-target="#deleteModal"
-                          class="text-danger"
-                          title="Delete"
-                        >
-                          <i class="bx bx-trash-alt font-size-18"></i>
-                        </a>
-                      </li>
-                    </ul>
-                  </td>
-                </tr>
-                <!-- Thêm các dòng mới cho các bài tập khác theo định dạng tương tự -->
-              </tbody>
+              <TBody id="assignment_table_body">
+
+              </TBody>
             </table>
           </div>
         </div>
@@ -238,7 +191,7 @@
         >
           Cancel
         </button>
-        <button type="button" class="btn btn-primary">Submit</button>
+        <button type="button" id="submit_button" class="btn btn-primary">Submit</button>
       </div>
     </div>
   </div>
@@ -273,15 +226,18 @@
         >
           Cancel
         </button>
-        <button type="button" class="btn btn-primary">Delete</button>
+        <button type="button" id="delete_file" class="btn btn-primary">Delete</button>
       </div>
     </div>
   </div>
 </div>
+<div id="user-info" data-user-id="{{ user_id }}" style="display: none;"></div>
 {% endblock %} {% block extra_js %}
 <script
-  type="module"
   src="{{ url_for('static', filename='js/assignment_student.js') }}"
 ></script>
-
+<script>
+  // Lấy user_id từ data attribute
+  const userId = document.getElementById('user-info').getAttribute('data-user-id');
+</script>
 {% endblock %}

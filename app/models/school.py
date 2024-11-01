@@ -51,5 +51,9 @@ def delete_school(school_id):
     if not db.schools.find_one({"school_id": str(school_id)}):
         return False
     db.schools.delete_one({"school_id":str(school_id)})
+    db.classs.delete_one({"school_id": school_id})
+    db.assignments.delete_many({"school_id": school_id})
+    db.files.delete_many({"school_id": school_id})
+    db.sentences.delete_many({"school_id": school_id})
     return True
     

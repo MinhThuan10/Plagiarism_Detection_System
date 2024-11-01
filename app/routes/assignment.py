@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, jsonify, session
 from bson import ObjectId
 from bson.objectid import ObjectId
 from app.extensions import db
-from app.models.assignment import  find_class_id, load_assigment, load_student_in_class, create_assignment, update_assignment, delete_assignment
+from app.models.assignment import  find_class_id, load_assigment, load_student_in_class, create_assignment, update_assignment, delete_assignment, load_file_in_class
 
 assignment = Blueprint('assignment', __name__)
 
@@ -14,13 +14,19 @@ def load_assignments_api(class_id):
         return render_template('login.html')
     user = db.users.find_one({'_id': ObjectId(session['user_id'])})
     if user:
-        classs = find_class_id(class_id)
-        assignments = load_assigment(class_id)
-        list_students = load_student_in_class(class_id)
-        if user['school_id'] == classs['school_id']:
-            return jsonify(success = True, classs = classs, list_students = list_students, assignments = assignments)
-        return jsonify(success = False, message = "sai") 
-        
+        if user['role'] == "Teacher":
+            classs = find_class_id(class_id)
+            assignments = load_assigment(class_id)
+            list_students = load_student_in_class(class_id)
+            if user['school_id'] == classs['school_id']:
+                return jsonify(success = True, classs = classs, list_students = list_students, assignments = assignments)
+            return jsonify(success = False, message = "sai") 
+        if user['role'] == "Student":
+            classs = find_class_id(class_id)
+            assignments = load_file_in_class(class_id, user['user_id'])
+            if user['school_id'] == classs['school_id']:
+                return jsonify(success = True, classs = classs, assignments = assignments)
+            return jsonify(success = False, message = "sai") 
     return jsonify(success = False, message = "sai")
 
 

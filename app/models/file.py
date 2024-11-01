@@ -81,6 +81,8 @@ def delete_file_teacher(school_id, class_id, assignment_id, student_id):
     if not file:
         return False
     if school_id == file['school_id'] and class_id == file['class_id'] and assignment_id == file['assignment_id']:
+        file_cursor = db.files.find_one({"assignment_id": assignment_id,"author_id": student_id, "type": "raw"})
+        db.sentences.delete_many({"file_id": file_cursor['file_id']})
         db.files.delete_many({"assignment_id": assignment_id,"author_id": student_id})
         return True
     return False
@@ -90,6 +92,9 @@ def delete_file_student(user_id, school_id, class_id, assignment_id, student_id)
     if not file:
         return False
     if user_id == file['author_id'] and school_id == file['school_id'] and class_id == file['class_id'] and assignment_id == file['assignment_id']:
+        file_cursor = db.files.find({"assignment_id": assignment_id,"author_id": student_id})
+        for file in file_cursor:
+            db.sentences.delete_many({"file_id": file['file_id']})
         db.files.delete_many({"assignment_id": assignment_id,"author_id": student_id})
         return True
     return False
@@ -100,12 +105,16 @@ def delete_file_quick_submit(school_id, file_id):
         return False
     if school_id == file['school_id']:
         db.files.delete_many({"file_id": file_id})
+        db.sentences.delete_many({"file_id": file_id})
         return True
     return False
 
-def delete_file_for_user(student_id):
-    if db.files.find_one({"author_id": student_id}):
-        return False
-    db.files.delete_many({"author_id": student_id})
+def delete_file_for_user(student_id, class_id):
+    file_cursor = db.files.find({"author_id": student_id, "class_id": class_id})
+    if file_cursor:
+        for file in file_cursor:
+            db.sentences.delete_many({"file_id": file['file_id'], "class_id": class_id})
+        db.files.delete_many({"author_id": student_id, "class_id": class_id})
+        
     return True
     

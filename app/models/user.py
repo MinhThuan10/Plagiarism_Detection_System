@@ -48,7 +48,7 @@ def create_user(firstname, lastname, email, password, role, avatar_base64,school
 
     hashed_password = generate_password_hash(password)
     db.users.insert_one({'user_id':str(int(max_user) + 1),
-                        'firs_tname': firstname, 
+                        'first_name': firstname, 
                          'last_name': lastname,
                          'role': role,
                          'email': email,

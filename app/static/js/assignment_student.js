@@ -27,3 +27,193 @@ document.addEventListener("DOMContentLoaded", function () {
     removeFileBtn.style.display = "none"; // Ẩn nút 'x'
   });
 });
+
+let school_id = "";
+let class_id = "";
+
+// Lấy URL hiện tại
+const url = window.location.href;
+
+// Sử dụng regex để tìm giá trị của 'class'
+const match = url.match(/class=(\d+)/);
+
+if (match) {
+  class_id = match[1];
+}
+let userId = document.getElementById('user-info').getAttribute('data-user-id');
+
+
+document.addEventListener("DOMContentLoaded", function () {
+  fetch(`/api/assignments@class=${class_id}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        const className = data.classs.class_name;
+        school_id = data.classs.school_id;
+        document.getElementById("class_name").innerText = className;
+        const tbody = document.getElementById("assignment_table_body");
+        data.assignments.forEach((assignmentInfo) => {
+          let student_submited = assignmentInfo.student_ids;
+          let title,
+            submitDay,
+            similarity,
+            modal_upload,
+            modal_download,
+            link;
+          if (student_submited.includes(userId)) {
+            title = assignmentInfo.title;
+            submitDay = assignmentInfo.submit_day;
+            link = `/api/download_pdf@school=${school_id}-class=${class_id}`;
+            similarity = assignmentInfo.plagiarism || 0;
+            modal_upload = "";
+            modal_download = "modal";
+          } else {
+            title = "--";
+            submitDay = "--";
+            link = "#";
+            similarity = "--";
+            modal_upload = "modal";
+            modal_download = "";
+          }
+
+          const row = document.createElement("tr");
+          // Thêm các ô vào hàng
+          row.innerHTML = `
+                    <td class="ps-4">${assignmentInfo.assignment_name}</td>
+                    <td>${assignmentInfo.start_day}</td>
+                    <td>${assignmentInfo.end_day}</td>
+                    <td>
+                        <a href="class=${class_id}/assignment=${assignmentInfo.assignment_id}" class="text-body" style="color: #35509a !important">${title}</a>
+                    </td>
+                    <td>${submitDay}</td>
+                    <td>${similarity}%</td>
+                    <td>
+                        <ul class="list-inline mb-0">
+                            <li class="list-inline-item">
+                                <a
+                                href="javascript:void(0);"
+                                data-bs-toggle="${modal_upload}"
+                                data-bs-target="#uploadModal"
+                                class="text-primary upload"
+                                assignment_id = "${assignmentInfo.assignment_id}"
+                                title="Upload"
+                                >
+                                <i class="bx bx-upload font-size-18"></i>
+                                </a>
+                            </li>
+
+                            <li class="list-inline-item">
+                                <a
+                                href="${link}"
+                                >
+                                <i class="bx bx-download font-size-18"></i>
+                                </a>
+                            </li>
+                            <li class="list-inline-item">
+                                <a
+                                href="javascript:void(0);"
+                                data-mdb-toggle="${modal_download}"
+                                data-mdb-target="#deleteModal"
+                                class="text-danger delete"
+                                assignment_id = "${assignmentInfo.assignment_id}"
+                                title="Delete"
+                                >
+                                <i class="bx bx-trash-alt font-size-18"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </td>
+                `;
+
+          tbody.appendChild(row);
+
+
+          const uploadIcon = row.querySelector(".upload");
+          uploadIcon.addEventListener("click", function () {
+            let assignment_id = this.getAttribute("assignment_id");
+            console.log("Đã nhấn upload cho bài tập có ID:", assignment_id);
+            const submit_button = document.getElementById("submit_button");
+
+            submit_button.addEventListener("click", function () {
+              const messageDiv = document.getElementById("signupMessage");
+              const submissionFile = document.getElementById("submissionFile");
+              const storageOption = document.getElementById("storageOption");
+              const submitDay = document.getElementById("submitDay");
+
+              messageDiv.textContent = "";
+
+              if (!submissionFile.value) {
+                messageDiv.textContent += "Please chose File! ";
+                allFilled = false;
+              }
+
+              const file = submissionFile.files[0];
+              const formData = new FormData();
+              formData.append("file", file);
+              formData.append("student_id", userId);
+              formData.append("storageOption", storageOption.value);
+              formData.append("submitDay", submitDay.value);
+
+              fetch(
+                `/api/upload_file@school=${school_id}-class=${class_id}-assignment=${assignment_id}`,
+                {
+                  method: "POST",
+                  body: formData,
+                }
+              )
+                .then((response) => response.json())
+                .then((data) => {
+                  console.log(data); // Kiểm tra phản hồi từ máy chủ
+                  location.reload();
+                })
+                .catch((error) => {
+                  console.error("Error:", error);
+                });
+            });
+          });
+
+
+          const deleteicon = row.querySelector(".delete");
+          deleteicon.addEventListener("click", function () {
+            const assignment_id = this.getAttribute("assignment_id");
+            console.log("Đã nhấn xóa bài tập có ID:", assignment_id);
+            const deletebutton = document.getElementById("delete_file");
+            deletebutton.addEventListener("click", function () {
+              fetch(
+                `/api/delete_file@school=${school_id}-class=${class_id}-assignment=${assignment_id}-student=${userId}`,
+                {
+                  method: "DELETE",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                }
+              )
+                .then((response) => response.json())
+                .then((data) => {
+                  if (data.success) {
+                    console.log(data.message);
+                    location.reload();
+                  } else {
+                    console.log(data.message);
+                  }
+                })
+                .catch((error) => {
+                  console.error("Error:", error);
+                });
+            });
+          });
+
+
+        });
+
+      } else {
+        console.error("Không thể tải dữ liệu trường học");
+      }
+    })
+    .catch((error) => console.error("Lỗi:", error));
+});

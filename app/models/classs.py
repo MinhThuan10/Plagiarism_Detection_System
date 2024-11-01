@@ -22,12 +22,14 @@ def load_class_teacher(school_id):
     return list_classs 
 
 def load_class_student(student_id):
-    classs_cursor = db.classs.find({"student_ids": {"$in": [student_id]}})
+    classs_cursor = db.classs.find({"student_ids": {"$elemMatch": {"0": student_id}}})
     list_classs = []
     for classs in classs_cursor:
+        teacher_cursor = db.users.find_one({"user_id": classs['teacher_id']})
         class_data = {key: (str(value) if isinstance(value, ObjectId) else value) for key, value in classs.items()}
+        class_data['teacher_name'] = teacher_cursor['first_name'] + " " + teacher_cursor['last_name']
         list_classs.append(class_data)
-    return classs
+    return list_classs
 
 def create_class(school_id, class_name, class_key, teacher_id, start_day, end_day):
     if db.classs.find_one({'school_id': school_id, "class_name": class_name}):
@@ -99,11 +101,15 @@ def delete_user_to_class(user_id, class_id):
     return False
 
 
-def delete_school(school_id, class_id):
+def delete_class(school_id, class_id):
     classs =  db.classs.find_one({"class_id": class_id})
     if not classs:
         return False
     if classs['school_id'] == school_id:
         db.classs.delete_one({"class_id": class_id})
+        db.assignments.delete_many({"class_id": class_id})
+        db.files.delete_many({"class_id": class_id})
+        db.sentences.delete_many({"class_id": class_id})
+
         return True
     return False
