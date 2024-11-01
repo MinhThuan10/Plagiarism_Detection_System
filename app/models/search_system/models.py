@@ -5,7 +5,11 @@ def find_file(file_id):
     return files_cursor
 
 def insert_sentence(file_id,title, page_num, sentence_index, sentence, references, quotation_marks, sources):
+    file_cursor = db.files.find_one({"file_id": file_id, "type": "raw"})
     result = {
+                "school_id": file_cursor['school_id'],
+                "class_id": file_cursor['class_id'],
+                "assignment_id": file_cursor['assignment_id'],
                 "file_id": file_id,
                 "title": title,
                 "page": page_num,
