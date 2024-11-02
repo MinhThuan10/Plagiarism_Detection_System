@@ -1,0 +1,368 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Lexend Deca", sans-serif;
+  background-color: #f0f0f0;
+}
+
+.container {
+  padding: 0;
+  max-width: 1550px !important;
+  display: flex;
+  height: 100vh;
+  border: 1px solid rgba(128, 128, 128, 0.5); /* Đường viền xám mờ */
+  border-radius: 5px; /* Thêm góc bo tròn cho viền (tuỳ chọn) */
+}
+
+.pdf-viewer {
+  width: 66.66%; /* 2/3 width */
+  height: 100%;
+  overflow-y: auto;
+  border-right: 1px solid #ddd;
+}
+
+.pdf-viewer iframe {
+  width: 100%;
+  height: 100%;
+}
+.report {
+  max-width: 50%;
+  min-width: 33.34%;
+}
+.header1 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #283041;
+  background-color: white;
+  height: 85px;
+  padding: 10px 20px 20px 10px;
+}
+.count {
+  display: flex;
+}
+.page {
+  margin-right: 20px;
+}
+.header2 {
+  background-color: white;
+  height: 150px;
+  box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1),
+    /* Bóng cạnh trên */ 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 10px 20px 20px 10px;
+}
+.text1 {
+  font-size: 28px;
+  color: #000000;
+  font-weight: 700;
+  display: flex;
+}
+.btn-filter {
+  font-size: 20px;
+  color: #000000;
+  font-weight: 700;
+  margin-left: 50px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  display: flex;
+  height: 35px;
+  width: 90px;
+  background-color: #d8dfeb;
+}
+.btn-ex {
+  font-size: 20px;
+  color: #000000;
+  font-weight: 700;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  height: 30px;
+  width: 200px;
+  background-color: #d8dfeb;
+  margin-left: 20px;
+}
+.source-ex {
+  margin: 10px 0px 10px 0px;
+  display: flex;
+}
+.icon-filter {
+  padding-top: 6px;
+  margin-right: 10px;
+  padding-left: 5px;
+}
+.text2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #283041;
+}
+.text3 {
+  font-size: 14px;
+  display: flex;
+}
+.toggle-switch {
+  margin-left: 20px;
+}
+/* Make the background red when checked */
+
+.check-input1:checked[type="checkbox"]:after {
+  background-color: #eee !important;
+}
+
+.source {
+  margin-left: 10px;
+  margin-top: 15px;
+  justify-content: center;
+  align-items: center;
+  max-height: 524px; /* Adjust this value as needed */
+  overflow-y: auto;
+}
+
+/* Style for each section */
+.section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 15px 10px 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+  background-color: white;
+  width: 475px;
+}
+.fa-ban {
+  margin-left: 390px;
+  font-size: 20px;
+  cursor: pointer;
+}
+.fa-angle-down {
+  margin-left: 20px;
+  cursor: pointer;
+}
+/* Style for source details */
+.source-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.source-name {
+  font-weight: 600;
+  color: #000000 !important;
+  font-size: 18px !important;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.number-matched {
+  color: #000000 !important;
+  font-weight: 600;
+  font-size: 14px;
+}
+.matched {
+  display: flex;
+}
+.matched1 {
+  width: 408px;
+}
+.matched-words {
+  font-size: 10px;
+  color: #888;
+  font-weight: 500;
+}
+/* Style for the percentage */
+.percentage {
+  margin-top: -5px;
+  font-size: 20px !important;
+  font-weight: bold;
+  color: #333;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.source-title {
+  font-weight: 300;
+  font-size: 12px !important;
+  color: #2d2d2d;
+  display: flex;
+  margin-top: -15px;
+  font-family: "Noto Sans", sans-serif; /* Ensure these sections use Noto Sans */
+}
+/* Style for the tag */
+.tag {
+  padding: 3px 8px;
+  border-radius: 12px;
+  background-color: #f8d7da;
+  font-weight: bold;
+  margin-bottom: 5px;
+  display: inline-block;
+}
+/* Style for the tag */
+.number {
+  margin-right: 10px;
+  font-size: 12px;
+  border-radius: 50%;
+  background-color: #f8d7da;
+  font-weight: bold;
+  width: 25px;
+  height: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Define the slide-in animation */
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Custom style to align the modal on the right and apply the animation */
+.modal.right .modal-dialog {
+  position: fixed;
+  top: 0;
+  right: 0;
+  margin: 0;
+  margin-right: 15px;
+  height: 100%;
+  animation: slideInFromRight 0.1s ease-out forwards;
+}
+
+.modal-content {
+  height: 100%;
+  border-radius: 0;
+  width: 520px;
+  font-family: "Lexend Deca", sans-serif !important;
+}
+.modal-backdrop {
+  background-color: transparent !important;
+}
+.hidden {
+  display: none;
+}
+.modal-title {
+  color: #2d2d2d;
+  font-weight: 600;
+  font-size: 24px;
+}
+.modal-body {
+  background-color: #f9f9f9f9;
+}
+.text4 {
+  font-weight: 600;
+}
+.text5 {
+  font-size: 14px;
+}
+
+.check1 {
+  margin-left: 20px;
+  margin-top: 10px;
+}
+.exclusion-filter {
+  margin-top: 20px;
+}
+.input-group {
+  margin-left: 48px;
+  width: 320px;
+  margin-top: 5px;
+}
+.compare {
+  margin-top: 15px;
+}
+.text-filter {
+  height: 70px;
+  border-bottom: 1px solid #d3d3d3; /* màu xám nhạt */
+  padding-bottom: 5px; /* khoảng cách dưới đường kẻ */
+}
+.text6 {
+  font-weight: 600;
+  font-size: 20px;
+  margin-right: 10px;
+}
+.btn-source {
+  font-size: 16px;
+  color: #000000;
+  font-weight: 600;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  height: 30px;
+  width: 200px;
+  background-color: #d8dfeb;
+}
+.btn-text {
+  font-size: 16px;
+  color: #000000;
+  font-weight: 600;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  height: 30px;
+  width: 200px;
+  background-color: #d8dfeb;
+}
+.container-source {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  height: 150px;
+  overflow-y: auto;
+}
+.section-source {
+  max-width: 470px;
+  min-width: 470px;
+  border: 2px solid #eee; /* Thay đổi độ dày, kiểu và màu của viền theo ý muốn */
+  margin-bottom: 10px;
+  background-color: white;
+  padding: 10px; /* Thêm khoảng cách giữa nội dung và khung */
+  border-radius: 10px; /* Làm tròn góc khung nếu muốn */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.section-link {
+  display: inline-block;
+  width: 92%; /* Đặt chiều rộng đầy đủ để văn bản tự xuống dòng */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+.fas.fa-xmark {
+  margin-left: auto;
+  cursor: pointer;
+}
+.container-text {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  height: 350px;
+  overflow-y: auto;
+}
+.section-text {
+  display: inline-block;
+  width: 92%; /* Đặt chiều rộng đầy đủ để văn bản tự xuống dòng */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  white-space: normal;
+}
+.section-link2 {
+  display: inline-block;
+  width: 92%; /* Đặt chiều rộng đầy đủ để văn bản tự xuống dòng */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  white-space: normal;
+  font-weight: 600;
+}
+.contai {
+  margin-top: 10px;
+  display: flex;
+}
+.header-icon {
+  display: flex;
+}
+.fa-circle-down {
+  margin-left: 300px;
+  margin-top: 5px;
+  font-size: 20px;
+  cursor: pointer;
+}
