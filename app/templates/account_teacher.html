@@ -1,0 +1,39 @@
+{% extends 'base_teacher.html' %} {% block extra_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/account_teacher.css') }}"
+/>
+
+{% endblock %} {% block content %}
+<div class="container">
+  <div class="section">
+    <div class="title">Personal information</div>
+    <div class="input-group">
+      <div class="input-field">
+        <label for="first-name">First Name</label>
+        <input type="text" id="first-name" />
+      </div>
+      <div class="input-field">
+        <label for="last-name">Last Name</label>
+        <input type="text" id="last-name" />
+      </div>
+      <div class="input-field">
+        <label for="email">Email</label>
+        <input type="text" id="email" />
+      </div>
+      <div class="input-field">
+        <label for="password">Password</label>
+        <input type="text" id="password" />
+      </div>
+    </div>
+    <button type="button" class="btn btn-primary btn-save" data-mdb-ripple-init>
+      Save changes
+    </button>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script
+  type="module"
+  src="{{ url_for('static', filename='js/account_teacher.js') }}"
+></script>
+{% endblock %}
