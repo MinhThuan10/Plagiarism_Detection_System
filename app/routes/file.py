@@ -2,7 +2,8 @@ from flask import Blueprint, render_template, request, jsonify, session, send_fi
 from bson import ObjectId
 from bson.objectid import ObjectId
 from app.extensions import db
-from app.models.file import  find_assignment_id, load_files, add_file, add_file_quick_submit, delete_file_teacher, delete_file_student, delete_file_quick_submit, load_files_quick_submit
+from app.models.file import  find_assignment_id, load_files, add_file, add_file_quick_submit, delete_file_teacher, delete_file_student, delete_file_quick_submit, load_files_quick_submit, \
+get_file_report 
 from app.models.assignment import  load_student_in_class, add_student_submit, delete_student_submit
 from app.models.search_system.main import main, run_concurrently
 
@@ -107,7 +108,7 @@ def create_file_api(school_id, class_id, assignment_id):
     return jsonify(success = False, message = "sai") 
 
 from threading import Thread
-from flask import jsonify
+from flask import jsonify, Response
 def call_test_function_async(file_id):
     # Khởi tạo và chạy luồng để gọi hàm main với file_id
     thread = Thread(target=run_concurrently, args=(file_id))
@@ -140,7 +141,6 @@ def create_file_quick_submit_api(school_id):
         return jsonify(success = False, message = "sai") 
         
     return jsonify(success = False, message = "sai") 
-
 
 @file.route('/api/delete_file@school=<school_id>-class=<class_id>-assignment=<assignment_id>-student=<student_id>', methods=['DELETE'])
 def delete_file_api(school_id, class_id, assignment_id, student_id):
@@ -225,8 +225,6 @@ def download_pdf_raw(school_id, class_id, assignment_id, student_id):
     
     return jsonify(success=False, message="User not authenticated.")  # sai 4
 
-
-
 @file.route('/api/download_pdf@file_id=<file_id>', methods=['GET'])
 def download_pdf_quick_submit_raw(file_id):
     if 'user_id' not in session:
@@ -251,6 +249,47 @@ def download_pdf_quick_submit_raw(file_id):
             
         return jsonify(success=False, message="Unauthorized school.")  # sai 3
     return jsonify(success=False, message="User not authenticated.")  # sai 4
+
+
+@file.route('/api/load_file_checked@file_id=<file_id>', methods=['GET'])
+def load_file_checked(file_id):
+    if 'user_id' not in session:
+        return render_template('login.html')
+    
+    user = db.users.find_one({'_id': ObjectId(session['user_id'])})
+    file = db.files.find_one({'file_id': file_id, "type": "checked"})
+    if user and file:
+        if file['school_id'] == user['school_id']: 
+            pdf_bytes = file['content']    
+            if user['role'] == "Teacher":
+                return Response(pdf_bytes, mimetype='application/pdf')
+            if user['role'] == "Student":
+                return Response(pdf_bytes, mimetype='application/pdf')
+            return jsonify(success=False, message="Unauthorized role.")  # sai 2
+        return jsonify(success=False, message="Unauthorized school.")  # sai 3
+    return jsonify(success=False, message="User not authenticated.")  # sai 4
+
+@file.route('/report/file_id=<file_id>')
+def get_file_report_api(file_id):
+    if 'user_id' not in session:
+        return render_template('login.html')
+    user = db.users.find_one({'_id': ObjectId(session['user_id'])})
+    if user:
+        file_data_checked = db.files.find_one({"file_id": file_id, "type": 'checked'})
+        if user['role'] == "Teacher":
+            if user['school_id'] == file_data_checked['school_id']:
+                return render_template('report.html', file_id = file_id, user_id = user['user_id'])
+            else:
+                return render_template('error.html')
+        if user['role'] == "Student":
+            if user['school_id'] == file_data_checked['school_id'] and user['user_id'] == file_data_checked['author_id']:
+                return render_template('report.html', file_id = file_id, user_id = user['user_id'])
+            else:
+                return render_template('error.html')
+        return render_template('error.html')
+    return render_template('error.html')
+    
+        
 
 
 

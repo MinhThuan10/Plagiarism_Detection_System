@@ -1,5 +1,5 @@
 import fitz
-from app.models.search_system.models import retrieve_pdf_from_mongodb, get_best_sources
+from app.models.search_system.models import retrieve_pdf_from_mongodb, get_best_sources, update_school_stt
 
 def is_within(qua_t, qua_s):
     if (qua_t[0].x >= qua_s[0].x and qua_t[0].y == qua_s[0].y and qua_t[-1].x <= qua_s[-1].x and qua_t[-1].y == qua_s[-1].y):
@@ -135,6 +135,7 @@ def add_highlight_to_page(page, x0, y0, x1, y1, color, school_stt):
                      color=color  )# Màu văn bản (đen)
 
 def highlight(file_id, type_source):
+    update_school_stt(file_id, "best_source", type_source)
     best_sources = get_best_sources(file_id, type_source)
     pdf_binary = retrieve_pdf_from_mongodb(file_id)
 

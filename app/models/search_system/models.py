@@ -55,6 +55,19 @@ def insert_file(school_id, class_id, assignment_id, file_id,title, author_id, au
     }
     db.files.insert_one(result)
 
+def update_file_checked(file_id, content):
+    db.files.update_one({
+            "file_id": file_id,
+            "type": "checked"
+        },
+        {
+            "$set": {
+                "content": content
+            }
+        }
+    )
+
+
 def update_file(file_id, plagiarism):
     db.files.update_one({
             "file_id": file_id,
@@ -67,6 +80,117 @@ def update_file(file_id, plagiarism):
         }
     )
     
+def update_school_stt(file_id, type, type_sources):
+    # update STT
+    sentences_data = db.sentences.find({"file_id": file_id,
+                                                "references": {"$ne": "checked"}, 
+                                                "quotation_marks": {"$ne": "checked"}, 
+                                                "sources": {"$ne": None, "$ne": []}})
+    school_source = {}
+    minWordValue = db.files.find_one({"file_id": file_id, "type": 'checked'})['fillter']['min_word']['minWordValue']
+
+    if sentences_data:
+        if type == "best_source":
+            for sentence in sentences_data:
+                    sources = sentence.get('sources', [])
+                    # filtered_sources = [source for source in sources if (source['except'] == 'no' and source['type_source'] in type_sources)]
+                    filtered_sources = [
+                        source for source in sources 
+                        if (source['except'] == 'no' and 
+                            source['type_source'] in type_sources and 
+                            source.get('highlight', {}).get('word_count_sml', 0) >= int(minWordValue))
+                    ]
+                    if filtered_sources:
+                        source_max = max(filtered_sources, key=lambda x: x['score'])
+                        school_id = source_max['school_id']
+                        highlight_source = source_max['highlight']
+                        if school_id not in school_source:
+                            school_source[school_id] = {
+                                "word_count": 0, 
+                            }
+                        school_source[school_id]['word_count'] += highlight_source.get('word_count_sml', 0)
+        else:
+            if type == "view_all":
+                for sentence in sentences_data:
+                    sources = sentence.get('sources', [])
+                    # filtered_sources = [source for source in sources if (source['except'] == 'no' and source['type_source'] in type_sources)]
+                    filtered_sources = [
+                        source for source in sources 
+                        if (source['except'] == 'no' and 
+                            source['type_source'] in type_sources and 
+                            source.get('highlight', {}).get('word_count_sml', 0) >= int(minWordValue))
+                    ]
+                    if filtered_sources:
+                        for source in filtered_sources:
+                            school_id = source['school_id']
+                            highlight_source = source['highlight']
+                            if school_id not in school_source:
+                                school_source[school_id] = {
+                                    "word_count": 0, 
+                                }
+                            school_source[school_id]['word_count'] += highlight_source.get('word_count_sml', 0)
+        school_source = sorted(school_source.items(), key=lambda x: x[1]['word_count'], reverse=True)
+
+    word_count = db.files.find_one({"file_id": file_id, "type": 'checked'}).get('word_count', 0)
+    word_count_sml = 0
+    if school_source:
+        for i, (school_id_source, source_data) in enumerate(school_source):
+            # Lặp qua từng câu để tìm nguồn
+            sentences_data = db.sentences.find({"file_id": file_id,
+                                                "references": {"$ne": "checked"}, 
+                                                "quotation_marks": {"$ne": "checked"}, 
+                                                "sources": {"$ne": None, "$ne": []}})
+            if source_data.get('word_count', 0) > word_count/200:
+                for sentence in sentences_data:
+                    sources = sentence.get('sources', [])
+                    for source in sources:
+                        school_id_data = source['school_id']
+                        if school_id_data == school_id_source:
+                            db.sentences.update_many(
+                                {"file_id": file_id, "sources.school_id": school_id_data},
+                                {"$set": {"sources.$[elem].school_stt": i + 1}}, 
+                                array_filters=[{"elem.school_id": school_id_data}]
+                            )
+                            break
+            else:
+                for sentence in sentences_data:
+                    sources = sentence.get('sources', [])
+                    for source in sources:
+                        school_id_data = source['school_id']
+                        if school_id_data == school_id_source:
+                            db.sentences.update_many(
+                                {"file_id": file_id, "sources.school_id": school_id_data},
+                                {"$set": {"sources.$[elem].except": "except"}}, 
+                                array_filters=[{"elem.school_id": school_id_data}]
+                            )
+                            break
+    
+    sentences_data = db.sentences.find({"file_id": file_id,
+                                                "references": {"$ne": "checked"}, 
+                                                "quotation_marks": {"$ne": "checked"}, 
+                                                "sources": {"$ne": None, "$ne": []}})
+    if sentences_data:
+        for sentence in sentences_data:
+                sources = sentence.get('sources', [])
+                filtered_sources = [
+                    source for source in sources 
+                    if (source['except'] == 'no' and 
+                        source['type_source'] in type_sources and 
+                        source.get('highlight', {}).get('word_count_sml', 0) >= int(minWordValue))
+                ]
+
+                if filtered_sources:
+                    source_max = max(filtered_sources, key=lambda x: x['score'])
+                    word_count_sml = word_count_sml +  source_max['highlight'].get('word_count_sml', 0)
+    result = {
+        "plagiarism": word_count_sml/word_count * 100,  # Lưu PDF dưới dạng Binary
+    }
+    db.files.update_one(
+                {"file_id": file_id, "type": "checked"},  
+                {"$set": result}  # Thay đổi nội dung file
+            )
+
+    return school_source
 
 def get_best_sources(file_id, type_source):
     all_documents = db.sentences.find({

@@ -39,6 +39,7 @@ def load_file_in_class(class_id, student_id):
     for assignment in list_assignments:
         file = db.files.find_one({"assignment_id": assignment['assignment_id'], "author_id": student_id, "type": "raw"})
         if file:
+            assignment['file_id'] = file['file_id']
             assignment['title'] = file['title']
             assignment['submit_day'] = file['submit_day']
             assignment['plagiarism'] = file['plagiarism']
@@ -124,7 +125,7 @@ def add_student_submit(school_id, assignment_id, student_id):
 
 
 def delete_student_submit(school_id, assignment_id, student_id):
-    assignment = db.assignments.find_one({"assignment_id": assignment_id})
+    assignment = db.assignments.find_one({"school_id": school_id, "assignment_id": assignment_id})
     if assignment:
         student_ids = assignment['student_ids']
         if student_id in student_ids:

@@ -64,15 +64,18 @@ document.addEventListener("DOMContentLoaded", function () {
             similarity,
             modal_upload,
             modal_download,
-            link;
+            link,
+            file_id;
           if (student_submited.includes(userId)) {
+            file_id = assignmentInfo.file_id
             title = assignmentInfo.title;
             submitDay = assignmentInfo.submit_day;
             link = `/api/download_pdf@school=${school_id}-class=${class_id}-assignment=${assignmentInfo.assignment_id}-student=${userId}`;
-            similarity = assignmentInfo.plagiarism || 0;
+            similarity = assignmentInfo.plagiarism ? assignmentInfo.plagiarism + "%" : "--";
             modal_upload = "";
             modal_download = "modal";
           } else {
+            file_id = "0"
             title = "--";
             submitDay = "--";
             link = "#";
@@ -88,10 +91,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     <td>${assignmentInfo.start_day}</td>
                     <td>${assignmentInfo.end_day}</td>
                     <td>
-                        <a href="class=${class_id}/assignment=${assignmentInfo.assignment_id}" class="text-body" style="color: #35509a !important">${title}</a>
+                        <a href="/report/file_id=${file_id}" class="text-body" style="color: #35509a !important">${title}</a>
                     </td>
                     <td>${submitDay}</td>
-                    <td>${similarity}%</td>
+                    <td>${similarity}</td>
                     <td>
                         <ul class="list-inline mb-0">
                             <li class="list-inline-item">
