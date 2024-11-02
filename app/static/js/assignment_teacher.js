@@ -177,7 +177,7 @@ document.addEventListener("DOMContentLoaded", function () {
           // Thêm các ô vào hàng
           row.innerHTML = `
                     <td class="ps-4">${data.classs.student_ids[index][1]}</td>
-                    <td>${studentInfo.last_name} ${studentInfo.firs_tname}</td>
+                    <td>${studentInfo.last_name} ${studentInfo.first_name}</td>
                     <td>${studentInfo.user_id}</td>
                     <td>${studentInfo.email}</td>
                   

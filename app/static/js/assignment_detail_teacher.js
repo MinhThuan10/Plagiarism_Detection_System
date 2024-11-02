@@ -93,7 +93,8 @@ document.addEventListener("DOMContentLoaded", function () {
             title = data.list_files[index].title;
             submitDay = data.list_files[index].submit_day;
             link = `/api/download_pdf@school=${school_id}-class=${class_id}-assignment=${assignment_id}-student=${studentInfo.user_id}`;
-            similarity = data.list_files[index].plagiarism || 0;
+            similarity = data.list_files[index].plagiarism ? data.list_files[index].plagiarism + "%" : "--";
+
             status = "bx-check text-success";
             modal_upload = "";
             modal_download = "modal";
@@ -113,19 +114,19 @@ document.addEventListener("DOMContentLoaded", function () {
           // Thêm các ô vào hàng
           row.innerHTML = `
                     <td class="ps-4">${studentInfo.user_id}</td>
-                    <td>${studentInfo.last_name} ${studentInfo.firs_tname}</td>
+                    <td>${studentInfo.last_name} ${studentInfo.first_name}</td>
                     <td>${submissionID}</td>
                     <td class="wrap-text">
                         <a
-                        href="#"
+                        href="/report/file_id=${submissionID}"
                         class="text-body"
                         style="color: #35509a !important"
                         title="${title}"
-                        >${title}</a
+                        target="_blank">${title}</a
                         >
                     </td>
                     <td style="text-align: center">${submitDay}</td>
-                    <td style="text-align: center">${similarity}%</td>
+                    <td style="text-align: center">${similarity}</td>
                     <td style="text-align: center">
                         <i
                         class="bx ${status} font-size-18"

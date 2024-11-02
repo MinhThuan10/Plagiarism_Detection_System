@@ -51,7 +51,7 @@ def add_file(school_id, class_id, assignment_id, title, author_id, submit_day, f
         "content_file": Binary(file.read()),
         "storage": storage_option,
         "quick_submit": "no",
-        "plagiarism": 0,
+        "plagiarism": "",
         "type": "raw"
     })
     return True, str(int(max_file) + 1)
@@ -72,12 +72,12 @@ def add_file_quick_submit(school_id, author_name, author_id, submission_title, s
         "content_file": Binary(file.read()),
         "storage": storage_option,
         "quick_submit": "yes",
-        "plagiarism": 0,
+        "plagiarism": "",
         "type": "raw",
     })
     return True, str(int(max_file) + 1)
 def delete_file_teacher(school_id, class_id, assignment_id, student_id):
-    file =  db.files.find_one({"author_id": student_id})
+    file =  db.files.find_one({"assignment_id": assignment_id, "author_id": student_id, "type": "raw"})
     if not file:
         return False
     if school_id == file['school_id'] and class_id == file['class_id'] and assignment_id == file['assignment_id']:
@@ -88,10 +88,12 @@ def delete_file_teacher(school_id, class_id, assignment_id, student_id):
     return False
     
 def delete_file_student(user_id, school_id, class_id, assignment_id, student_id):
-    file =  db.files.find_one({"author_id": student_id})
+    file =  db.files.find_one({ "assignment_id": assignment_id, "author_id": student_id, "type": "raw"})
     if not file:
         return False
     if user_id == file['author_id'] and school_id == file['school_id'] and class_id == file['class_id'] and assignment_id == file['assignment_id']:
+
+
         file_cursor = db.files.find({"assignment_id": assignment_id,"author_id": student_id})
         for file in file_cursor:
             db.sentences.delete_many({"file_id": file['file_id']})
@@ -118,3 +120,130 @@ def delete_file_for_user(student_id, class_id):
         
     return True
     
+
+def get_file_report(file_id):
+
+    file_data_checked = db.files.find_one({"file_id": file_id, "type": 'checked'})
+    sentences_data = db.sentences.find({"file_id": file_id,
+                                            "references": {"$ne": "checked"}, 
+                                            "quotation_marks": {"$ne": "checked"}, 
+                                            "sources": {"$ne": None, "$ne": []}})
+    if sentences_data:
+        source_file   = file_data_checked.get('source')  
+        minWordValue   = file_data_checked.get('fillter').get('min_word').get('minWordValue')
+
+        type_sources = []
+        if source_file['student_data'] == "checked":
+            type_sources.append('Dữ liệu học viên')
+        if source_file['internet'] == "checked":
+            type_sources.append('Internet')
+        if source_file['paper'] == "checked":
+            type_sources.append("Ấn bản")
+
+        school_source_off = {}
+        school_source_on = {}
+        school_exclusion_source = {}
+        school_exclusion_text = {}
+        
+
+        for sentence in sentences_data:
+            sources = sentence.get('sources', [])
+            page = sentence.get('page', None)
+            sentence_index = sentence.get('sentence_index', None)
+
+            if sources:
+                    # OFF
+                filtered_no = [
+                    source for source in sources 
+                    if (source['except'] == 'no' and 
+                        source['type_source'] in type_sources and 
+                        source.get('highlight', {}).get('word_count_sml', 0) >= int(minWordValue))
+                ]
+    
+                if filtered_no:
+                    best_source = max(filtered_no, key=lambda x: x['score'])
+                    school_id = best_source['school_id']
+                    school_name = best_source['school_name']
+                    color = best_source['color']
+                    type_source = best_source['type_source']
+                    file_id = best_source['file_id']
+                    best_match = best_source['best_match']
+                    highlight = best_source['highlight']
+
+                    if school_id not in school_source_off:
+                        school_source_off[school_id] = {
+                            "school_name": school_name,
+                            "word_count": 0,
+                            "color": color,
+                            "type_source":type_source,
+                            "sentences": {}  
+                        }
+                    school_source_off[school_id]['word_count'] += highlight.get('word_count_sml', 0)
+                    school_source_off[school_id]['sentences'][sentence_index] = {
+                        "page": page,
+                        "file_id": file_id,
+                        "best_match": best_match,
+                        "word_count_sml": highlight.get('word_count_sml', 0),
+                        "paragraphs": highlight.get('paragraphs'),
+                    }
+
+
+                    # ON NÈ NHÉ
+                    for source in filtered_no:
+                        school_id = source['school_id']
+                        school_name = source['school_name']
+                        color = source['color']
+                        type_source = source['type_source']
+                        file_id = source['file_id']
+                        best_match = source['best_match']
+                        highlight = source['highlight']
+
+                    
+                        if school_id not in school_source_on:
+                            school_source_on[school_id] = {
+                                "school_name": school_name,
+                                "word_count": 0,
+                                "color": color,
+                                "type_source":type_source,
+                                "sentences": {}  
+                            }
+                        school_source_on[school_id]['word_count'] += highlight.get('word_count_sml', 0)
+                        school_source_on[school_id]['sentences'][sentence_index] = {
+                            "page": page,
+                            "file_id": file_id,
+                            "best_match": best_match,
+                            "word_count_sml": highlight.get('word_count_sml', 0),
+                            "paragraphs": highlight.get('paragraphs'),
+                        }
+
+
+            filtered_sources = [source for source in sources if (source['except'] == 'source')]
+            if filtered_sources:
+                for source in filtered_sources:
+                    school_id = source['school_id']
+                    school_name = source['school_name']
+                    if school_id not in school_exclusion_source:
+                        school_exclusion_source[school_id] = {
+                            "school_name": school_name,
+                        }
+
+            filtered_text = [source for source in sources if (source['except'] == 'text')]
+            if filtered_text :
+                for source in filtered_text :
+                    sentence_index = sentence.get('sentence_index', "")
+                    school_name = source['school_name']
+                    best_match = source['best_match']
+                    source_id = source['source_id']
+
+                    if sentence_index not in school_exclusion_text:
+                        school_exclusion_text[sentence_index] = {}  # Khởi tạo nếu chưa có
+
+                    school_exclusion_text[sentence_index][source_id] = {
+                        "school_name": school_name,
+                        "best_match": best_match,
+                    }
+
+        school_source_off = sorted(school_source_off.items(), key=lambda x: x[1]['word_count'], reverse=True)
+        school_source_on = sorted(school_source_on.items(), key=lambda x: x[1]['word_count'], reverse=True)
+
+        return school_source_off, school_source_on, school_exclusion_source, school_exclusion_text
