@@ -25,7 +25,7 @@ function toggleContainer() {
         container.style.display === "none" ? "block" : "none";
     }
 let fileId = document.getElementById('file-info').getAttribute('data-file-id');
-console.log(fileId)
+
 // khi nhấn loại trừ text
 function toggleContainer2() {
     const container = document.querySelector(".container-text");
