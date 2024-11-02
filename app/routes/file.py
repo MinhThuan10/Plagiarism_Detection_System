@@ -70,20 +70,37 @@ def create_file_api(school_id, class_id, assignment_id):
     user = db.users.find_one({'_id': ObjectId(session['user_id'])})
     if user:
         if school_id == user['school_id']:
-            print("Them file")
-            student_id = request.form.get('student_id')
-            submission_title = request.form.get('submissionTitle')
-            storage_option = request.form.get('storageOption')
-            submit_day = request.form.get('submitDay')
-            file = request.files.get('file')
-            if file:
-                insert_file = add_file(school_id, class_id, assignment_id, submission_title, student_id, submit_day, file, storage_option)
-                if insert_file[0] and add_student_submit(school_id, assignment_id, student_id):
-                    call_test_function_async(insert_file[1])
-                    print("Chạy luôn")
-                    return jsonify(success = True, message = "Dung")
+            if user['role'] == "Teacher":
+                print("Them file")
+                student_id = request.form.get('student_id')
+                submission_title = request.form.get('submissionTitle')
+                storage_option = request.form.get('storageOption')
+                submit_day = request.form.get('submitDay')
+                file = request.files.get('file')
+                if file:
+                    insert_file = add_file(school_id, class_id, assignment_id, submission_title, student_id, submit_day, file, storage_option)
+                    if insert_file[0] and add_student_submit(school_id, assignment_id, student_id):
+                        call_test_function_async(insert_file[1])
+                        print("Chạy luôn")
+                        return jsonify(success = True, message = "Dung")
+                    return jsonify(success = False, message = "sai") 
                 return jsonify(success = False, message = "sai") 
-            return jsonify(success = False, message = "sai") 
+            if user['role'] == "Student":
+                print("Them file")
+                student_id = user['user_id']
+                uploaded_file = request.files['file']
+                submission_title = uploaded_file.filename
+                storage_option = request.form.get('storageOption')
+                submit_day = request.form.get('submitDay')
+                file = request.files.get('file')
+                if file:
+                    insert_file = add_file(school_id, class_id, assignment_id, submission_title, student_id, submit_day, file, storage_option)
+                    if insert_file[0] and add_student_submit(school_id, assignment_id, student_id):
+                        call_test_function_async(insert_file[1])
+                        print("Chạy luôn")
+                        return jsonify(success = True, message = "Dung")
+                    return jsonify(success = False, message = "sai") 
+                return jsonify(success = False, message = "sai") 
 
         return jsonify(success = False, message = "sai") 
         
@@ -173,11 +190,11 @@ def download_pdf_raw(school_id, class_id, assignment_id, student_id):
                 'class_id': class_id, 
                 'assignment_id': assignment_id, 
                 "author_id": student_id, 
-                "type": "raw"
+                "type": "checked"
             })
             
             if user['role'] == "Teacher" and pdf_record:
-                pdf_bytes = bytes(pdf_record['content_file'])
+                pdf_bytes = bytes(pdf_record['content'])
                 pdf_io = io.BytesIO(pdf_bytes)
                 file_name = pdf_record['title']
                 file_name += '.pdf'
@@ -190,8 +207,10 @@ def download_pdf_raw(school_id, class_id, assignment_id, student_id):
 
             if user['role'] == "Student" and pdf_record:
                 if user['user_id'] == pdf_record['author_id']:
-                    pdf_bytes = bytes(pdf_record['content_file'])
+                    pdf_bytes = bytes(pdf_record['content'])
                     pdf_io = io.BytesIO(pdf_bytes)
+                    file_name = pdf_record['title']
+                    file_name += '.pdf'
                     return send_file(
                         pdf_io, 
                         download_name=file_name,

@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", function () {
           if (student_submited.includes(userId)) {
             title = assignmentInfo.title;
             submitDay = assignmentInfo.submit_day;
-            link = `/api/download_pdf@school=${school_id}-class=${class_id}`;
+            link = `/api/download_pdf@school=${school_id}-class=${class_id}-assignment=${assignmentInfo.assignment_id}-student=${userId}`;
             similarity = assignmentInfo.plagiarism || 0;
             modal_upload = "";
             modal_download = "modal";
@@ -155,7 +155,6 @@ document.addEventListener("DOMContentLoaded", function () {
               const file = submissionFile.files[0];
               const formData = new FormData();
               formData.append("file", file);
-              formData.append("student_id", userId);
               formData.append("storageOption", storageOption.value);
               formData.append("submitDay", submitDay.value);
 
