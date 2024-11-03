@@ -109,65 +109,65 @@ def main(file_id):
                                                     paragraphs_best_math, positions)
                             source_id += 1
 
-            # result = search_google(processed_sentences[i])
-            # items = result.get('items', [])
-            # all_snippets = [item.get('snippet', '') for item in items if item.get('snippet', '')]
+            result = search_google(processed_sentences[i])
+            items = result.get('items', [])
+            all_snippets = [item.get('snippet', '') for item in items if item.get('snippet', '')]
 
-            # if not all_snippets:
-            #     insert_sentence(file_id, file_cursor['title'], page_num, sentence_index, sentence,
-            #                     "yes" if references else "no", quotation_marks, [])
-            #     sentence_index += 1
-            #     continue
+            if not all_snippets:
+                insert_sentence(file_id, file_cursor['title'], page_num, sentence_index, sentence,
+                                "yes" if references else "no", quotation_marks, [])
+                sentence_index += 1
+                continue
 
-            # top_similarities = compare_sentences(sentence, all_snippets)
-            # for _, idx in top_similarities:
-            #     url = items[idx].get('link')
-            #     snippet = all_snippets[idx]
-            #     sentences = sentences_cache.get(url)
+            top_similarities = compare_sentences(sentence, all_snippets)
+            for _, idx in top_similarities:
+                url = items[idx].get('link')
+                snippet = all_snippets[idx]
+                sentences = sentences_cache.get(url)
 
-            #     if sentences is None:
-            #         content = fetch_url(url)
-            #         sentences_from_webpage = split_sentences(content)
-            #         sentences = remove_sentences(sentences_from_webpage)
-            #         sentences_cache[url] = sentences
+                if sentences is None:
+                    content = fetch_url(url)
+                    sentences_from_webpage = split_sentences(content)
+                    sentences = remove_sentences(sentences_from_webpage)
+                    sentences_cache[url] = sentences
 
-            #     if sentences:
-            #         snippet_parts = split_snippet(snippet)
-            #         relevant_sentences = [s for s in sentences if check_snippet_in_sentence(s, snippet_parts)]
-            #         if relevant_sentences:
-            #             similarity_sentence, match_sentence, _ = compare_with_sentences(sentence, relevant_sentences)
-            #             if similarity_sentence > dynamic_threshold:
-            #                 parsed_url = urlparse(url)
-            #                 domain = parsed_url.netloc.replace('www.', '')
-            #                 school_id = school_cache.get(domain, current_school_id)
-            #                 if domain not in school_cache:
-            #                     school_cache[domain] = current_school_id
-            #                     current_school_id += 1
+                if sentences:
+                    snippet_parts = split_snippet(snippet)
+                    relevant_sentences = [s for s in sentences if check_snippet_in_sentence(s, snippet_parts)]
+                    if relevant_sentences:
+                        similarity_sentence, match_sentence, _ = compare_with_sentences(sentence, relevant_sentences)
+                        if similarity_sentence > dynamic_threshold:
+                            parsed_url = urlparse(url)
+                            domain = parsed_url.netloc.replace('www.', '')
+                            school_id = school_cache.get(domain, current_school_id)
+                            if domain not in school_cache:
+                                school_cache[domain] = current_school_id
+                                current_school_id += 1
 
-            #                 positions = []
-            #                 word_count_sml, paragraphs_best_math, paragraphs = common_ordered_words(match_sentence, sentence)
+                            positions = []
+                            word_count_sml, paragraphs_best_math, paragraphs = common_ordered_words(match_sentence, sentence)
 
-            #                 if word_count_sml > 3:
-            #                     quads_sentence = page.search_for(sentence, quads=True)
-            #                     for paragraph in paragraphs:
-            #                         quads_token = page.search_for(paragraph, quads=True)
-            #                         for qua_s in quads_sentence:
-            #                             for qua_t in quads_token:
-            #                                 if is_within(qua_t, qua_s):
-            #                                     new_position = {
-            #                                         "x_0": qua_t[0].x,
-            #                                         "y_0": qua_t[0].y,
-            #                                         "x_1": qua_t[-1].x,
-            #                                         "y_1": qua_t[-1].y,
-            #                                     }
-            #                                     if not is_position(new_position, positions):
-            #                                         positions.append(new_position)
+                            if word_count_sml > 3:
+                                quads_sentence = page.search_for(sentence, quads=True)
+                                for paragraph in paragraphs:
+                                    quads_token = page.search_for(paragraph, quads=True)
+                                    for qua_s in quads_sentence:
+                                        for qua_t in quads_token:
+                                            if is_within(qua_t, qua_s):
+                                                new_position = {
+                                                    "x_0": qua_t[0].x,
+                                                    "y_0": qua_t[0].y,
+                                                    "x_1": qua_t[-1].x,
+                                                    "y_1": qua_t[-1].y,
+                                                }
+                                                if not is_position(new_position, positions):
+                                                    positions.append(new_position)
 
-            #                     best_match = wrap_paragraphs_with_color(paragraphs_best_math, match_sentence, school_id)
-            #                     sources = source_append(sources, source_id, school_id, domain, url, "Internet",
-            #                                             'no', 0, best_match, similarity_sentence,
-            #                                             word_count_sml, paragraphs_best_math, positions)
-            #                     source_id += 1
+                                best_match = wrap_paragraphs_with_color(paragraphs_best_math, match_sentence, school_id)
+                                sources = source_append(sources, source_id, school_id, domain, url, "Internet",
+                                                        'no', 0, best_match, similarity_sentence,
+                                                        word_count_sml, paragraphs_best_math, positions)
+                                source_id += 1
 
             if sources:
                 best_source = max(sources, key=lambda x: x['highlight']['word_count_sml'])
@@ -185,8 +185,8 @@ def main(file_id):
     insert_file(file_cursor['school_id'], file_cursor['class_id'], file_cursor['assignment_id'],
                     file_id, file_cursor['title'], file_cursor['author_id'], "", file_cursor['submit_day'],
                     pdf_document.page_count, word_count, plagiarism, "",
-                    file_cursor['storage'], file_cursor['quick_submit'], "checked", "checked", "checked",
-                    "checked", "", "", "", 3)
+                    file_cursor['storage'], file_cursor['quick_submit'], "checked", "true", "true",
+                    "true", "", "", "", 3)
     # Final processing for the document
     file_highlighted = highlight(file_id, ["student_Data", "Internet", "Ấn bản"])
     
