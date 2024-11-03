@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             <ul class="list-inline mb-0">
                                 <li class="list-inline-item">
                                     <a
-                                    href="/api/download_pdf@file_id=${fileInfo.file_id}"
+                                    href="/api/download_pdf@file_id=${fileInfo.file_id}-type=raw"
                                     >
                                     <i class="bx bx-download font-size-18"></i>
                                     </a>

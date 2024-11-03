@@ -35,7 +35,7 @@ def insert_file(school_id, class_id, assignment_id, file_id,title, author_id, au
         "page_count": page_count,
         "word_count": word_count,
         "plagiarism": plagiarism, 
-        "content": content,  # Lưu PDF dưới dạng Binary
+        "content_file": content,  # Lưu PDF dưới dạng Binary
         "storage": storage,
         "quick_submit": quick_submit,
         "type": type,
@@ -62,16 +62,15 @@ def update_file_checked(file_id, content):
         },
         {
             "$set": {
-                "content": content
+                "content_file": content
             }
         }
     )
 
 
 def update_file(file_id, plagiarism):
-    db.files.update_one({
-            "file_id": file_id,
-            "type": "raw"
+    db.files.update_many({
+            "file_id": file_id
         },
         {
             "$set": {
@@ -182,12 +181,15 @@ def update_school_stt(file_id, type, type_sources):
                 if filtered_sources:
                     source_max = max(filtered_sources, key=lambda x: x['score'])
                     word_count_sml = word_count_sml +  source_max['highlight'].get('word_count_sml', 0)
+    
+    plagiarism = word_count_sml * 100 / word_count
+    plagiarism = f"{plagiarism:.2f}"
     result = {
-        "plagiarism": word_count_sml/word_count * 100,  # Lưu PDF dưới dạng Binary
+        "plagiarism": plagiarism 
     }
     db.files.update_one(
                 {"file_id": file_id, "type": "checked"},  
-                {"$set": result}  # Thay đổi nội dung file
+                {"$set": result} 
             )
 
     return school_source
