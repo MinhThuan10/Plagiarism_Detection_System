@@ -50,7 +50,7 @@ def render_page_class(class_id):
 
                 return render_template('assignment_teacher.html', user = user)
             elif role == 'Student' and any(user['user_id'] in student for student in clas['student_ids']):
-                return render_template('assignment_student.html', user_id = user['user_id'])
+                return render_template('assignment_student.html', user = user, user_id = user['user_id'])
             else:
                 return render_template('error.html')
         else:

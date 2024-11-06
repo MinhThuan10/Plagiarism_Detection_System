@@ -185,8 +185,8 @@ def main(file_id):
     insert_file(file_cursor['school_id'], file_cursor['class_id'], file_cursor['assignment_id'],
                     file_id, file_cursor['title'], file_cursor['author_id'], "", file_cursor['submit_day'],
                     pdf_document.page_count, word_count, plagiarism, "",
-                    file_cursor['storage'], file_cursor['quick_submit'], "checked", "true", "true",
-                    "true", "", "", "", 3)
+                    file_cursor['storage'], file_cursor['quick_submit'], "checked", True, True,
+                    True, "", "", "", 3)
     # Final processing for the document
     file_highlighted = highlight(file_id, ["student_Data", "Internet", "Ấn bản"])
     

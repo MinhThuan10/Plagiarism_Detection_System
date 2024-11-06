@@ -149,3 +149,19 @@ def update_user_api():
         else:
             print('looo')
             return jsonify(success=False, message='Email đã tồn tại, vui lòng nhập email khác') 
+        
+
+@user.route('/profile')
+def account_profile():
+    if 'user_id' not in session:
+        return render_template('login.html')
+    user = db.users.find_one({'_id': ObjectId(session['user_id'])})
+    if user:
+        if user['role'] == "Teacher":
+            return render_template('account_teacher.html', user = user)
+        if user['role'] == "Student":
+            return render_template('account_student.html', user = user)
+        return render_template('login.html')
+    return render_template('login.html')
+
+            
