@@ -190,11 +190,11 @@ def download_pdf_raw(school_id, class_id, assignment_id, student_id):
                 'class_id': class_id, 
                 'assignment_id': assignment_id, 
                 "author_id": student_id, 
-                "type": "checked"
+                "type": "raw"
             })
             
             if user['role'] == "Teacher" and pdf_record:
-                pdf_bytes = bytes(pdf_record['content'])
+                pdf_bytes = bytes(pdf_record['content_file'])
                 pdf_io = io.BytesIO(pdf_bytes)
                 file_name = pdf_record['title']
                 file_name += '.pdf'
@@ -207,7 +207,7 @@ def download_pdf_raw(school_id, class_id, assignment_id, student_id):
 
             if user['role'] == "Student" and pdf_record:
                 if user['user_id'] == pdf_record['author_id']:
-                    pdf_bytes = bytes(pdf_record['content'])
+                    pdf_bytes = bytes(pdf_record['content_file'])
                     pdf_io = io.BytesIO(pdf_bytes)
                     file_name = pdf_record['title']
                     file_name += '.pdf'
@@ -279,12 +279,12 @@ def get_file_report_api(file_id):
 
         if user['role'] == "Teacher":
             if user['school_id'] == file_data_checked['school_id']:
-                return render_template('report.html', file_id = file_id, user_id = user['user_id'])
+                return render_template('report.html', file_id = file_id, user = user, user_id = user['user_id'])
             else:
                 return render_template('error.html')
         if user['role'] == "Student":
             if user['school_id'] == file_data_checked['school_id'] and user['user_id'] == file_data_checked['author_id']:
-                return render_template('report.html', file_id = file_id, user_id = user['user_id'])
+                return render_template('report.html', file_id = file_id, user = user, user_id = user['user_id'])
             else:
                 return render_template('error.html')
         return render_template('error.html')
