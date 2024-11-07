@@ -166,14 +166,15 @@ def extract_text_from_pdf(response):
     try:
         pdf_source = io.BytesIO(response.content)  # Sử dụng .content để lấy dữ liệu dạng bytes
         with fitz.open(stream=pdf_source, filetype='pdf') as document:
-            # Sử dụng ThreadPoolExecutor để xử lý đồng thời các trang
-            with ThreadPoolExecutor() as executor:
-                text_parts = executor.map(lambda page: page.get_text("text"), document)
+            # Sử dụng vòng lặp đơn để xử lý từng trang
+            text_parts = []
+            for page in document:
+                text_parts.append(page.get_text("text"))
             pdf_text = ''.join(text_parts)
     except Exception as e:
         print(f"Lỗi khi xử lý PDF: {e}")
         return ""
-    return pdf_text    
+    return pdf_text  
 
 
 def fetch_docx(response):

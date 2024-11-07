@@ -246,6 +246,17 @@ def download_pdf_quick_submit_raw(file_id, type):
                 as_attachment=True, 
                 mimetype='application/pdf'
             )
+        if user['role'] == "Student" and pdf_record['author_id'] == user['user_id']:
+            pdf_bytes = bytes(pdf_record['content_file'])
+            pdf_io = io.BytesIO(pdf_bytes)
+            file_name = pdf_record['title']
+            file_name += '.pdf'
+            return send_file(
+                pdf_io, 
+                download_name=file_name, 
+                as_attachment=True, 
+                mimetype='application/pdf'
+            )
             
         return jsonify(success=False, message="Unauthorized school.")  # sai 3
     return jsonify(success=False, message="User not authenticated.")  # sai 4
@@ -277,12 +288,12 @@ def get_file_report_api(file_id):
     if user:
         file_data_checked = db.files.find_one({"file_id": file_id, "type": 'checked'})
 
-        if user['role'] == "Teacher":
+        if user['role'] == "Teacher" and file_data_checked:
             if user['school_id'] == file_data_checked['school_id']:
                 return render_template('report.html', file_id = file_id, user = user, user_id = user['user_id'])
             else:
                 return render_template('error.html')
-        if user['role'] == "Student":
+        if user['role'] == "Student" and file_data_checked:
             if user['school_id'] == file_data_checked['school_id'] and user['user_id'] == file_data_checked['author_id']:
                 return render_template('report.html', file_id = file_id, user = user, user_id = user['user_id'])
             else:
@@ -293,14 +304,14 @@ def get_file_report_api(file_id):
         
 @file.route('/api/load_fileInfo_checked@file_id=<file_id>', methods=['GET'])
 def load_fileInfo_checked(file_id):
-    # if 'user_id' not in session:
-    #     return render_template('login.html')
+    if 'user_id' not in session:
+        return render_template('login.html')
     
-    # user = db.users.find_one({'_id': ObjectId(session['user_id'])})
+    user = db.users.find_one({'_id': ObjectId(session['user_id'])})
     list_files, school_source_off, school_source_on, school_exclusion_source, school_exclusion_text = get_file_report(file_id)
-    # if user:
-    return jsonify(success = True, message = "Dung", list_files = list_files, school_source_off = school_source_off, school_source_on = school_source_on, school_exclusion_source = school_exclusion_source, school_exclusion_text = school_exclusion_text )
-    # return jsonify(success = False, message = "sai") 
+    if user:
+        return jsonify(success = True, message = "Dung", list_files = list_files, school_source_off = school_source_off, school_source_on = school_source_on, school_exclusion_source = school_exclusion_source, school_exclusion_text = school_exclusion_text )
+    return jsonify(success = False, message = "sai") 
 
 
 @file.route("/api/remove_source_school@file_id=<file_id>-school_id=<school_id>", methods=['POST'])
