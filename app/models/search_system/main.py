@@ -180,34 +180,33 @@ def main(file_id):
 
             sentence_index += 1
             
-    plagiarism = word_count_similarity * 100 / word_count
-    plagiarism = f"{plagiarism:.2f}"
     insert_file(file_cursor['school_id'], file_cursor['class_id'], file_cursor['assignment_id'],
                     file_id, file_cursor['title'], file_cursor['author_id'], "", file_cursor['submit_day'],
-                    pdf_document.page_count, word_count, plagiarism, "",
+                    pdf_document.page_count, word_count, 0, "",
                     file_cursor['storage'], file_cursor['quick_submit'], "checked", True, True,
                     True, "", "", "", 3)
     # Final processing for the document
-    file_highlighted = highlight(file_id, ["student_Data", "Internet", "Ấn bản"])
     
+    insert_file(file_cursor['school_id'], file_cursor['class_id'], file_cursor['assignment_id'],
+                file_id, file_cursor['title'], file_cursor['author_id'], "", file_cursor['submit_day'],
+                pdf_document.page_count, word_count, 0, file_cursor['content_file'],
+                file_cursor['storage'], file_cursor['quick_submit'], "view_all", "", "", "", "", "", "", 0)
+        
+    file_highlighted = highlight(file_id, ["student_Data", "Internet", "Ấn bản"])
     if file_highlighted:
         pdf_output_stream = io.BytesIO()
         file_highlighted.save(pdf_output_stream)
         file_highlighted.close()
         update_file_checked(file_id, Binary(pdf_output_stream.getvalue()))
-        update_file(file_id, plagiarism)
-        insert_file(file_cursor['school_id'], file_cursor['class_id'], file_cursor['assignment_id'],
-                    file_id, file_cursor['title'], file_cursor['author_id'], "", file_cursor['submit_day'],
-                    pdf_document.page_count, word_count, plagiarism, file_cursor['content_file'],
-                    file_cursor['storage'], file_cursor['quick_submit'], "view_all", "", "", "", "", "", "", 0)
+        
 
-# import concurrent.futures
-# import os
-# cpu_cores = os.cpu_count()  
-# # Run concurrently with multiple threads
-# def run_concurrently(file_id):
-#     with concurrent.futures.ThreadPoolExecutor(cpu_cores*3) as executor:
-#         executor.map(main, file_id)
-
+import concurrent.futures
+import os
+cpu_cores = os.cpu_count()  
+# Run concurrently with multiple threads
 def run_concurrently(file_id):
-    main(file_id)
+    with concurrent.futures.ThreadPoolExecutor(cpu_cores*2) as executor:
+        executor.map(main, file_id)
+
+# def run_concurrently(file_id):
+#     main(file_id)

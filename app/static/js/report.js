@@ -165,7 +165,7 @@ function loadFileInfo(sourceType) {
 
                 const percentageDiv = document.createElement('div');
                 percentageDiv.className = 'percentage';
-                percentageDiv.textContent = `${Math.floor((details.word_count / word_count) * 100)}%`;
+                percentageDiv.textContent = `${Math.round((details.word_count / word_count) * 100)}%`;
 
                 const containerText = document.createElement('div');
                 containerText.className = 'container-text-school_id-'+school_id;
