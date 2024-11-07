@@ -145,6 +145,16 @@ def calculate_similarity(query_features, reference_features):
     similarity_scores = cosine_similarity(query_features, reference_features)
     return similarity_scores
 
+def calculate_similarity(query_features, reference_features):
+    if query_features.shape[1] != reference_features.shape[1]:
+        reference_features = reference_features.T
+    
+    if query_features.shape[1] != reference_features.shape[1]:
+        raise ValueError("Incompatible dimensions for query and reference features")
+    
+    similarity_scores = cosine_similarity(query_features, reference_features)
+    return similarity_scores
+
 def compare_sentences(sentence, all_snippets):
     # Tiền xử lý câu và các snippet
     preprocessed_query, _ = preprocess_text_vietnamese(sentence)
@@ -155,7 +165,7 @@ def compare_sentences(sentence, all_snippets):
     similarity_scores = calculate_similarity(embeddings[0:1], embeddings[1:]) 
     # Sắp xếp điểm số tương đồng và chỉ số của các snippet
     sorted_indices = similarity_scores[0].argsort()[::-1]
-    top_indices = sorted_indices[:1]
+    top_indices = sorted_indices[:3]
     top_scores = similarity_scores[0][top_indices]
     # Trả về ba điểm số độ tương đồng cao nhất và các chỉ số tương ứng
     top_similarities = [(top_scores[i], top_indices[i]) for i in range(len(top_indices))]
