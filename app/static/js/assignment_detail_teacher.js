@@ -78,7 +78,6 @@ document.addEventListener("DOMContentLoaded", function () {
         let student_submited = data.assignment.student_ids;
 
         const tbody = document.getElementById("file_table_body");
-
         data.list_students.forEach((studentInfo, index) => {
           let submissionID,
             title,
@@ -89,11 +88,13 @@ document.addEventListener("DOMContentLoaded", function () {
             modal_download,
             link;
           if (student_submited.includes(studentInfo.user_id)) {
-            submissionID = data.list_files[index].file_id;
-            title = data.list_files[index].title;
-            submitDay = data.list_files[index].submit_day;
+            const result = data.list_files.find(item => item.author_id === studentInfo.user_id);
+            submissionID = result.file_id;
+            title = result.title;
+            submitDay = result.submit_day;
             link = `/api/download_pdf@school=${school_id}-class=${class_id}-assignment=${assignment_id}-student=${studentInfo.user_id}`;
-            similarity = data.list_files[index].plagiarism || 0;
+            similarity = result.plagiarism ? result.plagiarism + "%" : "--";
+
             status = "bx-check text-success";
             modal_upload = "";
             modal_download = "modal";
@@ -113,19 +114,19 @@ document.addEventListener("DOMContentLoaded", function () {
           // Thêm các ô vào hàng
           row.innerHTML = `
                     <td class="ps-4">${studentInfo.user_id}</td>
-                    <td>${studentInfo.last_name} ${studentInfo.firs_tname}</td>
+                    <td>${studentInfo.last_name} ${studentInfo.first_name}</td>
                     <td>${submissionID}</td>
                     <td class="wrap-text">
                         <a
-                        href="#"
+                        href="/report/file_id=${submissionID}"
                         class="text-body"
                         style="color: #35509a !important"
                         title="${title}"
-                        >${title}</a
+                        target="_blank">${title}</a
                         >
                     </td>
                     <td style="text-align: center">${submitDay}</td>
-                    <td style="text-align: center">${similarity}%</td>
+                    <td style="text-align: center">${similarity}</td>
                     <td style="text-align: center">
                         <i
                         class="bx ${status} font-size-18"
@@ -189,7 +190,7 @@ document.addEventListener("DOMContentLoaded", function () {
               const submitDay = document.getElementById("submitDay");
 
               messageDiv.textContent = "";
-
+              allFilled = true
               if (!submissionTitle.value) {
                 messageDiv.textContent += "Please give Submission Title! ";
                 allFilled = false;
@@ -206,23 +207,24 @@ document.addEventListener("DOMContentLoaded", function () {
               formData.append("submissionTitle", submissionTitle.value);
               formData.append("storageOption", storageOption.value);
               formData.append("submitDay", submitDay.value);
-
-              fetch(
-                `/api/upload_file@school=${school_id}-class=${class_id}-assignment=${assignment_id}`,
-                {
-                  method: "POST",
-                  body: formData,
+              if (allFilled) {
+                fetch(
+                  `/api/upload_file@school=${school_id}-class=${class_id}-assignment=${assignment_id}`,
+                  {
+                    method: "POST",
+                    body: formData,
+                  }
+                )
+                  .then((response) => response.json())
+                  .then((data) => {
+                    console.log(data); // Kiểm tra phản hồi từ máy chủ
+                    location.reload();
+                  })
+                  .catch((error) => {
+                    console.error("Error:", error);
+                  });
                 }
-              )
-                .then((response) => response.json())
-                .then((data) => {
-                  console.log(data); // Kiểm tra phản hồi từ máy chủ
-                  location.reload();
-                })
-                .catch((error) => {
-                  console.error("Error:", error);
-                });
-            });
+              });
           });
 
           const deleteicon = row.querySelector(".delete");

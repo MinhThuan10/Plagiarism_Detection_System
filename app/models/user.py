@@ -131,3 +131,19 @@ def send_verification_email(recipient_email, verification_code):
     except Exception as e:
         print(f"Error sending email: {e}")
         return False
+    
+def update_account(user_id, first_name, last_name, old_password, new_password):
+    user = db.users.find_one({"user_id": user_id})
+    if user:
+        checkuser = check_user(user['email'], old_password)
+        if checkuser[0] :
+            first_name = first_name or user['first_name']
+            last_name = last_name or user['last_name']
+            hashed_password = generate_password_hash(new_password)
+            db.users.update_one(
+            { "user_id": user_id},
+            { "$set": { "first_name": first_name,  "last_name": last_name, "password": hashed_password  } }
+        )
+            return True
+        return False
+    return False

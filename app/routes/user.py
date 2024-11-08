@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, jsonify, session
-from app.models.user import create_user, check_user, send_verification_email, check_user_change_passwd, update_user, create_avatar_image  # Thay đổi import
+from app.models.user import create_user, check_user, send_verification_email, check_user_change_passwd, update_user, create_avatar_image, update_account  # Thay đổi import
 import random
 
 from app.extensions import db
@@ -149,3 +149,34 @@ def update_user_api():
         else:
             print('looo')
             return jsonify(success=False, message='Email đã tồn tại, vui lòng nhập email khác') 
+        
+
+@user.route('/profile')
+def account_profile():
+    if 'user_id' not in session:
+        return render_template('login.html')
+    user = db.users.find_one({'_id': ObjectId(session['user_id'])})
+    if user:
+        if user['role'] == "Teacher":
+            return render_template('account_teacher.html', user = user)
+        if user['role'] == "Student":
+            return render_template('account_student.html', user = user)
+        return render_template('login.html')
+    return render_template('login.html')
+
+
+@user.route('/api/update_user', methods=["POST"])
+def update_account_api():
+    if 'user_id' not in session:
+        return render_template('login.html')
+    user = db.users.find_one({'_id': ObjectId(session['user_id'])})
+    if user:
+        data = request.get_json()  # Nhận dữ liệu JSON từ client
+        first_name = data.get('first_name')
+        last_name = data.get('last_name')
+        old_password = data.get('old_password')
+        new_password = data.get('new_password')
+        if update_account(user["user_id"],first_name, last_name, old_password, new_password):
+            return jsonify(success=True, message="Update success")
+        return jsonify(success=False, message="wrong password")
+    return jsonify(success=False, message="wrong password")      

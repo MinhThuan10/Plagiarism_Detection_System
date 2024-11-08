@@ -1,5 +1,5 @@
 import fitz
-from app.models.search_system.models import retrieve_pdf_from_mongodb, get_best_sources
+from app.models.search_system.models import retrieve_pdf_from_mongodb, get_best_sources, update_school_stt
 
 def is_within(qua_t, qua_s):
     if (qua_t[0].x >= qua_s[0].x and qua_t[0].y == qua_s[0].y and qua_t[-1].x <= qua_s[-1].x and qua_t[-1].y == qua_s[-1].y):
@@ -8,27 +8,24 @@ def is_within(qua_t, qua_s):
         return False
     
 def is_position(new_position, positions):
-    merged = False
-
     for position in positions:
-        if (new_position['y_0'] == position['y_0'] and new_position['y_1'] == position['y_1']):
-            if (new_position['x_0'] <= position['x_0'] and new_position['x_1'] >= position['x_1'] - 5):
+        if (new_position['y_0'] >= position['y_0'] - 5 and new_position['y_1'] <= position['y_1'] + 5):
+            if (new_position['x_0'] <= position['x_0'] and new_position['x_1'] >= position['x_1']):
                 position['x_0'] = new_position['x_0']
                 position['x_1'] = new_position['x_1']
-                merged = True
-                break
-            if (new_position['x_0'] <= position['x_0'] and new_position['x_1'] >= position['x_0']): #1
+                return True
+            if (new_position['x_0'] <= position['x_0'] and new_position['x_1'] >= position['x_0'] - 15): #1
                 position['x_0'] = new_position['x_0']
-                merged = True
-                break     
-            if (new_position['x_0'] >= position['x_0'] and new_position['x_1'] <= position['x_1']): #2
-                merged = True
-                break
-            if (new_position['x_0'] >= position['x_0'] and new_position['x_0'] <= position['x_1'] + 5): #3
+                return True
+ 
+            if (new_position['x_0'] >= position['x_0'] - 5 and new_position['x_1'] <= position['x_1'] + 5): #2
+                return True
+
+            if (new_position['x_0'] >= position['x_0'] and new_position['x_0'] <= position['x_1'] + 15): #3
                 position['x_1'] = new_position['x_1']
-                merged = True
-                break     
-    return merged
+                return True
+   
+    return False
 def should_merge(pos1, pos2):
     # Check if positions overlap or are adjacent on the x-axis
     return not (pos1["x_1"] < pos2["x_0"] or pos1["x_0"] > pos2["x_1"])
@@ -110,8 +107,8 @@ def source_append(sources, source_id, school_id, school_name, file_id_source, ty
             })
     return sources
 
-
-def add_highlight_to_page(page, x0, y0, x1, y1, color, school_stt):
+                
+def add_highlight_to_page(page, x0, y0, x1, y1, color, school_stt, highlighted_positions, page_num):
     """
     Thêm chú thích nổi bật vào trang PDF tại vùng xác định bởi các tọa độ với màu sắc cụ thể.
     
@@ -123,18 +120,15 @@ def add_highlight_to_page(page, x0, y0, x1, y1, color, school_stt):
     y1 (float): Tọa độ y của góc dưới bên phải.
     color (tuple): Màu sắc dưới dạng (R, G, B).
     """
-    highlight = page.add_highlight_annot(fitz.Rect(x0, y0, x1, y1))
-    highlight.set_colors(stroke=color)  
-    highlight.update()  
-    text = str(school_stt)
-    font_size = 12  # Kích thước chữ
-    page.insert_text((x0 - 10, y0 +2),  # Vị trí chèn văn bản (góc trên bên trái của vùng highlight)
-                     text,  # Văn bản cần chèn
-                     fontsize=font_size,  # Kích thước font
-                     fontname="helv",  # Font chữ đậm
-                     color=color  )# Màu văn bản (đen)
+    
+from collections import defaultdict
+import fitz  # PyMuPDF
 
 def highlight(file_id, type_source):
+    # Khởi tạo defaultdict với 'highlighted' là set và 'text' là dict
+    highlighted_positions = defaultdict(lambda: {'highlighted': set(), 'text': {}})
+
+    update_school_stt(file_id, "best_source", type_source)
     best_sources = get_best_sources(file_id, type_source)
     pdf_binary = retrieve_pdf_from_mongodb(file_id)
 
@@ -144,7 +138,7 @@ def highlight(file_id, type_source):
 
     # Mở file PDF từ dữ liệu nhị phân
     pdf_stream = fitz.open(stream=pdf_binary, filetype='pdf')
-
+    
     for source in best_sources:
         page_num = source.get('page', None)
         positions = source['highlight'].get('position', None)
@@ -162,5 +156,34 @@ def highlight(file_id, type_source):
                 y_0 = position.get('y_0')
                 x_1 = position.get('x_1')
                 y_1 = position.get('y_1')
-                add_highlight_to_page(page, x_0, y_0, x_1, y_1, color, school_stt)
+                
+                # Chuyển vùng đánh dấu thành tuple để sử dụng làm key trong dictionary
+                position_tuple = (x_0, y_0, x_1, y_1)
+                
+                # Kiểm tra nếu vùng đã được đánh dấu chưa
+                if position_tuple not in highlighted_positions[page_num]['highlighted']:
+                    highlight = page.add_highlight_annot(fitz.Rect(x_0, y_0, x_1, y_1))
+                    highlight.set_colors(stroke=color)
+                    highlight.update()
+
+                    text_position = (10, y_0 + 10)
+                    text = str(school_stt)
+                    font_size = 12
+
+                    # Kiểm tra nếu vị trí chưa có văn bản nào
+                    if text_position not in highlighted_positions[page_num]['text']:
+                        page.insert_text(text_position, text, fontsize=font_size, fontname="helv", color=color)
+                        highlighted_positions[page_num]['text'][text_position] = [text]
+                    else:
+                        # Kiểm tra nếu văn bản đã tồn tại trong danh sách tại vị trí này
+                        if text not in highlighted_positions[page_num]['text'][text_position]:
+                            new_x_position = text_position[0] + len(" ".join(highlighted_positions[page_num]['text'][text_position])) * font_size * 0.5
+                            new_text_position = (new_x_position, text_position[1])
+                            page.insert_text(new_text_position, text, fontsize=font_size, fontname="helv", color=color)
+                            highlighted_positions[page_num]['text'][new_text_position] = [text]
+
+                    # Ghi nhận vùng đã đánh dấu
+                    highlighted_positions[page_num]['highlighted'].add(position_tuple)
+
     return pdf_stream
+

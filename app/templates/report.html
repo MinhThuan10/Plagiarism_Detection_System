@@ -29,24 +29,27 @@
   </head>
   <body>
     <div class="container">
-      <div class="pdf-viewer">
-        <iframe src="path/to/your/file.pdf" frameborder="0"></iframe>
-      </div>
+      <div class="pdf-viewer" id="pdf-viewer"></div>
       <div class="report">
         <div class="header1">
           <div class="header-icon">
             <div>Standard Report</div>
-            <i class="fas fa-circle-down"></i>
+            <div class="download" >
+              <a href="" id="dowload_file">
+                <i class="fas fa-circle-down" ></i>
+              </a>
+              
+            </div>
           </div>
 
           <div class="count">
-            <div class="page">Page count: 2</div>
-            <div class="word">Word count: 500</div>
+            <div class="page" id="page_count"></div>
+            <div class="word" id="word_count"></p></div>
           </div>
         </div>
         <div class="header2">
           <div class="text1">
-            <div>30% Standard Similarity</div>
+            <div id="similarity"></div>
             <button
               class="btn-filter"
               data-bs-toggle="modal"
@@ -78,31 +81,8 @@
             </div>
           </div>
         </div>
-        <div class="source">
-          <!-- Section 1 -->
-          <div class="section">
-            <div class="source-info">
-              <div class="icon">
-                <i class="fas fa-ban"></i>
-                <i class="fas fa-angle-down"></i>
-              </div>
 
-              <div class="source-title">
-                <span class="number">11</span>
-                <span class="tag">Internet Internet Internetttttttttttttt</span>
-              </div>
-
-              <span class="source-name">www.coursehero.commmmmm</span>
-              <div class="matched">
-                <div class="matched1">
-                  <span class="number-matched">10000008</span>
-                  <span class="matched-words">matched words</span>
-                </div>
-                <div class="percentage">22%</div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <div id="source-container"  class="source"></div>
       </div>
     </div>
     <!-- Modal structure filter-->
@@ -126,7 +106,7 @@
           </div>
           <div class="modal-body">
             <div class="text1 text-filter">
-              <div>30% Standard Similarity</div>
+              <div id="similarity2"></div>
             </div>
             <!-- Form inside the modal -->
             <form>
@@ -141,7 +121,7 @@
                     class="form-check-input check-input2"
                     type="checkbox"
                     value=""
-                    id="flexCheckDefault"
+                    id="flexCheckDefault_student"
                   />
                   <label class="form-check-label" for="flexCheckDefault"
                     >Student database</label
@@ -153,7 +133,7 @@
                     class="form-check-input check-input2"
                     type="checkbox"
                     value=""
-                    id="flexCheckDefault"
+                    id="flexCheckDefault_internet"
                   />
                   <label class="form-check-label" for="flexCheckDefault"
                     >Internet content</label
@@ -165,7 +145,7 @@
                     class="form-check-input check-input2"
                     type="checkbox"
                     value=""
-                    id="flexCheckDefault"
+                    id="flexCheckDefault_paper"
                   />
                   <label class="form-check-label" for="flexCheckDefault"
                     >Periodicals, journals and publications</label
@@ -181,10 +161,10 @@
                     class="form-check-input check-input2"
                     type="checkbox"
                     value=""
-                    id="flexCheckDefault"
+                    id="flexCheckDefault_reference"
                   />
                   <label class="form-check-label" for="flexCheckDefault"
-                    >Exclude bibliography</label
+                    >Exclude Reference</label
                   >
                 </div>
                 <!-- Default checkbox -->
@@ -193,7 +173,7 @@
                     class="form-check-input check-input2"
                     type="checkbox"
                     value=""
-                    id="flexCheckDefault"
+                    id="flexCheckDefault_quoted"
                   />
                   <label class="form-check-label" for="flexCheckDefault"
                     >Exclude quoted text</label
@@ -205,7 +185,7 @@
                     class="form-check-input check-input2"
                     type="checkbox"
                     value=""
-                    id="flexCheckDefault"
+                    id="flexCheckDefault_small"
                   />
                   <label class="form-check-label" for="flexCheckDefault"
                     >Exclude small matches</label
@@ -220,7 +200,9 @@
                     class="form-control"
                     aria-label="Sizing example input"
                     aria-describedby="inputGroup-sizing-sm"
+                    id="input_small_text"
                   />
+                  <p id="input_feedback" style="color: red;"></p>
                 </div>
               </div>
             </form>
@@ -233,7 +215,7 @@
             >
               Cancel
             </button>
-            <button type="button" class="btn btn-primary">Apply Filter</button>
+            <button type="button" class="btn btn-primary" onclick="toggleFillterApply()">Apply Filter</button>
           </div>
         </div>
       </div>
@@ -268,93 +250,40 @@
                   <button
                     type="button"
                     class="btn-source"
-                    onclick="toggleContainer()"
+                    onclick="addAllSource()"
+                    
                   >
                     Include all sources
                   </button>
                 </div>
 
                 <!-- Container sẽ được ẩn ban đầu -->
-                <div class="container-source" style="display: none">
-                  <!-- link -->
-                  <div class="section-source">
-                    <div class="section-link">google.com</div>
-                    <i class="fas fa-xmark"></i>
-                  </div>
-                  <div class="section-source">
-                    <div class="section-link">google.com</div>
-                    <i class="fas fa-xmark"></i>
-                  </div>
-                  <div class="section-source">
-                    <div class="section-link">google.com</div>
-                    <i class="fas fa-xmark"></i>
-                  </div>
-                  <div class="section-source">
-                    <div class="section-link">google.com</div>
-                    <i class="fas fa-xmark"></i>
-                  </div>
-
-                  <!--end link-->
+                <div class="container-source" id="sourceContainer">
                 </div>
                 <div class="contai">
                   <div class="text6">Text Exclusion Criteria</div>
                   <button
                     type="button"
                     class="btn-text"
-                    onclick="toggleContainer2()"
+                    onclick="addTextSource()"
+
                   >
                     Include all texts
                   </button>
                 </div>
 
-                <div class="container-text" style="display: none">
-                  <!-- link -->
-                  <div class="section-source">
-                    <div class="section-text">
-                      <div class="text-section">
-                        Cách cho phép Google Map hiển thị quảng cáo tìm kiếm
-                      </div>
-                      <div class="section-link2">google.com</div>
-                    </div>
-                    <i class="fas fa-xmark"></i>
-                  </div>
-                  <div class="section-source">
-                    <div class="section-text">
-                      <div class="text-section">
-                        Cách cho phép Google Map hiển thị quảng cáo tìm kiếm
-                      </div>
-                      <div class="section-link2">google.com</div>
-                    </div>
-                    <i class="fas fa-xmark"></i>
-                  </div>
-                  <div class="section-source">
-                    <div class="section-text">
-                      <div class="text-section">
-                        Cách cho phép Google Map hiển thị quảng cáo tìm kiếm
-                      </div>
-                      <div class="section-link2">google.com</div>
-                    </div>
-                    <i class="fas fa-xmark"></i>
-                  </div>
-                  <div class="section-source">
-                    <div class="section-text">
-                      <div class="text-section">
-                        Cách cho phép Google Map hiển thị quảng cáo tìm kiếm
-                      </div>
-                      <div class="section-link2">google.com</div>
-                    </div>
-                    <i class="fas fa-xmark"></i>
-                  </div>
-                  <!--end link-->
-                </div>
+                <div class="container-text" id="textContainer">
+                
               </div>
             </form>
           </div>
         </div>
       </div>
     </div>
+    <div id="user-info" data-user-id="{{ user_id }}" style="display: none;"></div>
+    <div id="file-info" data-file-id="{{ file_id }}" style="display: none;"></div>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.2.0/mdb.min.js"></script>
-
     <script
       data-cfasync="false"
       src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"
@@ -362,50 +291,8 @@
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script type="text/javascript"></script>
-    <script>
-      // khi nhấn button filter
-      $(document).ready(function () {
-        // When the modal is shown
-        $("#addFilter").on("show.bs.modal", function () {
-          $(".report").addClass("hidden"); // Hide the report section
-        });
-
-        // When the modal is hidden
-        $("#addFilter").on("hidden.bs.modal", function () {
-          $(".report").removeClass("hidden"); // Show the report section again
-        });
-      });
-    </script>
-    <script>
-      // khi nhấn button loại trừ
-      $(document).ready(function () {
-        // When the modal is shown
-        $("#addExclusion").on("show.bs.modal", function () {
-          $(".report").addClass("hidden"); // Hide the report section
-        });
-
-        // When the modal is hidden
-        $("#addExclusion").on("hidden.bs.modal", function () {
-          $(".report").removeClass("hidden"); // Show the report section again
-        });
-      });
-    </script>
-
-    <script>
-      // khi nhấn loại trừ source
-      function toggleContainer() {
-        const container = document.querySelector(".container-source");
-        container.style.display =
-          container.style.display === "none" ? "block" : "none";
-      }
-    </script>
-    <script>
-      // khi nhấn loại trừ text
-      function toggleContainer2() {
-        const container = document.querySelector(".container-text");
-        container.style.display =
-          container.style.display === "none" ? "block" : "none";
-      }
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <script src="{{ url_for('static', filename='js/report.js') }}"></script>
+    
   </body>
 </html>

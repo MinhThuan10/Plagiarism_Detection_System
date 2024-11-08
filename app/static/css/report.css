@@ -188,7 +188,6 @@ body {
 .tag {
   padding: 3px 8px;
   border-radius: 12px;
-  background-color: #f8d7da;
   font-weight: bold;
   margin-bottom: 5px;
   display: inline-block;
@@ -198,7 +197,6 @@ body {
   margin-right: 10px;
   font-size: 12px;
   border-radius: 50%;
-  background-color: #f8d7da;
   font-weight: bold;
   width: 25px;
   height: 25px;

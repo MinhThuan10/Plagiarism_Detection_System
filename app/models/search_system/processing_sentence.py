@@ -4,6 +4,8 @@ import torch
 from sentence_transformers import SentenceTransformer
 import difflib
 from sklearn.metrics.pairwise import cosine_similarity
+from langdetect import detect
+from transformers import RobertaTokenizer
 
 # Load Vietnamese spaCy model
 nlp = spacy.blank("vi")
@@ -11,26 +13,53 @@ nlp.add_pipe("sentencizer")
 # Tăng giới hạn max_length
 nlp.max_length = 2000000
 
-
-def split_sentences(text):
-    combined_sentences = []
-    vietnamese_lowercase = 'aáàảãạăắằẳẵặâấầẩẫậbcdđeéèẻẽẹêếềểễệfghiíìỉĩịjklmnoóòỏõọôốồổỗộơớờởỡợpqrstuúùủũụưứừửữựvxyýỳỷỹỵ'
-    text = re.sub(rf'\n(?=[{vietnamese_lowercase}])', '', text)
-    text = text.replace('. ', '.\n')
+def is_vietnamese(text):
+    try:
+        # Phát hiện ngôn ngữ của văn bản
+        return detect(text) == 'vi'
+    except:
+        # Nếu có lỗi (ví dụ: văn bản quá ngắn), trả về False
+        return False
     
-    lines = text.split('\n')
-    for line in lines:
-        sentences = re.split(r'[.?!]\s+', line)
-        for sentence in sentences:
-            sentence = sentence.strip()
-            sentences = [s.strip() for s in sentences if s.strip()]
-            if sentence:
-                combined_sentences.append(sentence)
+def split_sentences(text):
+    text_with_dot = re.sub(r'\n{2,}', '. ', text) 
+    text_with_dot = re.sub(r'\n', ' ', text_with_dot)  
+    text_with_dot = re.sub(r'\t+', ' ', text_with_dot)
+    text_with_dot = re.sub(r' +', ' ', text_with_dot) 
 
-    return combined_sentences
+    sentences = re.split(r'(?<=[.!?])\s+', text_with_dot)
 
+    abbreviations = [
+        'tp.', 'gvhd.', 'svth.', 'ts.', 'ktx.', 'p.h.', 'cđv.', 'đh.', 'tđ.', 'ndt.',
+        'hđnd.', 'ubnd.', 'hđqt.', 'đtv.', 'tbt.', 'tt.', 'ct.', 'tchc.', 'cstc.', 'sdh.',
+        'tl.', 'ttxvn.', 'kqxh.', 'cnc.', 'thcs.', 'thpt.', 'tp.hcm.', 'bcd.', 'qh.', 'nh.'
+    ]
+
+    result = []
+    for i in range(len(sentences)):
+        sentence = sentences[i].strip()
+        
+        if i > 0 and any(sentence.lower().endswith(abbr) for abbr in abbreviations):
+            if result:  # Kiểm tra nếu result không rỗng
+                result[-1] += ' ' + sentence 
+            else:
+                result.append(sentence)  # Thêm câu vào danh sách nếu result rỗng
+        else:
+            if is_vietnamese(sentence) and len(sentence.split()) > 3:
+                result.append(sentence)
+
+    return [sentence for sentence in result if sentence]
+
+tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
 def remove_sentences(sentences):
-    return [sentence for sentence in sentences if(len(sentence.split()) > 2 and len(sentence.split()) < 100)]
+    filtered_sentences = []
+    for sentence in sentences:
+        # Đếm số lượng tokens trong câu
+        token_count = len(tokenizer.tokenize(sentence))
+        # Kiểm tra điều kiện: số tokens <= 512
+        if token_count < 512:
+            filtered_sentences.append(sentence)
+    return filtered_sentences
 
 def preprocess_text_vietnamese(text):
     # Process text with spaCy pipeline
@@ -48,7 +77,6 @@ model = SentenceTransformer('dangvantuan/vietnamese-embedding', device = device)
 def embedding_vietnamese(text):
     embedding = model.encode(text)
     return embedding
-
 
 def check_type_setence(sentence):
         # Kiểm tra câu có ngoặc kép
@@ -145,6 +173,16 @@ def calculate_similarity(query_features, reference_features):
     similarity_scores = cosine_similarity(query_features, reference_features)
     return similarity_scores
 
+def calculate_similarity(query_features, reference_features):
+    if query_features.shape[1] != reference_features.shape[1]:
+        reference_features = reference_features.T
+    
+    if query_features.shape[1] != reference_features.shape[1]:
+        raise ValueError("Incompatible dimensions for query and reference features")
+    
+    similarity_scores = cosine_similarity(query_features, reference_features)
+    return similarity_scores
+
 def compare_sentences(sentence, all_snippets):
     # Tiền xử lý câu và các snippet
     preprocessed_query, _ = preprocess_text_vietnamese(sentence)
@@ -155,7 +193,7 @@ def compare_sentences(sentence, all_snippets):
     similarity_scores = calculate_similarity(embeddings[0:1], embeddings[1:]) 
     # Sắp xếp điểm số tương đồng và chỉ số của các snippet
     sorted_indices = similarity_scores[0].argsort()[::-1]
-    top_indices = sorted_indices[:1]
+    top_indices = sorted_indices[:3]
     top_scores = similarity_scores[0][top_indices]
     # Trả về ba điểm số độ tương đồng cao nhất và các chỉ số tương ứng
     top_similarities = [(top_scores[i], top_indices[i]) for i in range(len(top_indices))]
@@ -165,7 +203,10 @@ def compare_with_sentences(sentence, sentences):
     preprocessed_query, _ = preprocess_text_vietnamese(sentence)
     preprocessed_references = [preprocess_text_vietnamese(ref)[0] for ref in sentences]
 
+
     all_sentences = [preprocessed_query] + preprocessed_references
+    all_sentences = remove_sentences(all_sentences)
+
     embeddings = embedding_vietnamese(all_sentences) 
     # Tính toán độ tương đồng cosine giữa câu và các snippet
     similarity_scores = calculate_similarity(embeddings[0:1], embeddings[1:]) 
