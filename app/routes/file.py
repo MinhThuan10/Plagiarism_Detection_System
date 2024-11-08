@@ -5,7 +5,7 @@ from app.extensions import db
 from app.models.file import  find_assignment_id, load_files, add_file, add_file_quick_submit, delete_file_teacher, delete_file_student, delete_file_quick_submit, load_files_quick_submit, \
 get_file_report , remove_source_school, add_source_school, remove_text_school, add_text_school, add_all_source_school, add_all_text_school, apply_filter
 from app.models.assignment import  load_student_in_class, add_student_submit, delete_student_submit
-from app.models.search_system.main import main, run_concurrently
+from app.models.search_system.main import main
 
 import base64
 import io
@@ -111,7 +111,7 @@ from threading import Thread
 from flask import jsonify, Response
 def call_test_function_async(file_id):
     # Khởi tạo và chạy luồng để gọi hàm main với file_id
-    thread = Thread(target=run_concurrently, args=(file_id))
+    thread = Thread(target=main, args=(file_id))
     thread.start()
 
 
