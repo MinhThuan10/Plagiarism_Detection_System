@@ -3,14 +3,10 @@ from app.extensions import db
 from bson.objectid import ObjectId
 from bson import Binary
 import io
-from fpdf import FPDF
 import mimetypes
 from app.models.search_system.highlight import highlight
 from app.models.search_system.models import update_file_checked
-import comtypes
-import comtypes.client
 import os
-import time
 
 def find_assignment_id(assignment_id):
     file_cursor = db.assignments.find_one({'assignment_id':assignment_id})
