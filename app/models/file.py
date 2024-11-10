@@ -3,9 +3,14 @@ from app.extensions import db
 from bson.objectid import ObjectId
 from bson import Binary
 import io
-
+from fpdf import FPDF
+import mimetypes
 from app.models.search_system.highlight import highlight
 from app.models.search_system.models import update_file_checked
+import comtypes
+import comtypes.client
+import os
+import time
 
 def find_assignment_id(assignment_id):
     file_cursor = db.assignments.find_one({'assignment_id':assignment_id})
@@ -35,11 +40,54 @@ def load_files_quick_submit(school_id):
     return list_files
 
 
+base_dir = os.path.dirname(__file__)  
+doc_filename = "word.docx"
+pdf_filename = "change_to_pdf.pdf"
+pdf_path = os.path.join(base_dir, pdf_filename)
+doc_path = os.path.join(base_dir, doc_filename)
+
+def doc_to_pdf(doc_path, pdf_path):
+    if doc_path:
+        comtypes.CoInitialize()
+        # Khởi tạo Word Application
+        word = comtypes.client.CreateObject('Word.Application')
+        doc = word.Documents.Open(doc_path)
+        
+        # Lưu file dưới dạng PDF
+        doc.SaveAs(pdf_path, FileFormat=17)
+        doc.Close()
+        word.Quit()
+        comtypes.CoUninitialize()
+        return True
+    return False
+    
+def get_file_type(file):
+    mime_type = mimetypes.guess_type(file.filename)[0]
+    if mime_type == 'application/pdf':
+        file_type = 'pdf'
+    elif mime_type in ['application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']:
+        file_type = 'word'
+    else:
+        file_type = 'unknown'
+    return file_type
+
 
 def add_file(school_id, class_id, assignment_id, title, author_id, submit_day, file, storage_option):
     if db.files.find_one({"assignment_id": assignment_id, "author_id": author_id}):
-        return False
+        return False, ""
     
+    file_type = get_file_type(file)
+    if file_type == 'unknown':
+        return False, ""
+    
+    if file_type == 'word':
+        file.save(doc_path)
+        if doc_to_pdf(doc_path, pdf_path):
+            with open(pdf_path, 'rb') as file_data:
+                file = file_data.read()      
+    if file_type == 'pdf':
+        file = file.read()
+
     max_file = db.files.find_one(sort=[('file_id', -1)])
     max_file = max_file['file_id'] if max_file else 0 
     db.files.insert_one({
@@ -51,12 +99,16 @@ def add_file(school_id, class_id, assignment_id, title, author_id, submit_day, f
         "author_id": author_id,
         "author_name": "",
         "submit_day": submit_day,
-        "content_file": Binary(file.read()),
+        "content_file": Binary(file),
         "storage": storage_option,
         "quick_submit": "no",
         "plagiarism": "",
         "type": "raw"
     })
+    if os.path.exists(pdf_path):
+        os.remove(doc_path)
+        os.remove(pdf_path)
+
     return True, str(int(max_file) + 1)
 
 
@@ -467,3 +519,11 @@ def apply_filter(file_id, studentData, internet, paper, references, curlybracket
         file_highlighted.close()
         update_file_checked(file_id, Binary(pdf_output_stream.getvalue()))
  
+from spire.doc import *
+from spire.doc.common import *
+
+
+def word_to_pdf(file_word, file_name):
+    document = Document()
+    document.SaveToFile(f"{file_name}.pdf", FileFormat.PDF)
+    document.Close()

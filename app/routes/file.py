@@ -79,9 +79,9 @@ def create_file_api(school_id, class_id, assignment_id):
                 submit_day = request.form.get('submitDay')
                 file = request.files.get('file')
                 if file:
-                    insert_file = add_file(school_id, class_id, assignment_id, submission_title, student_id, submit_day, file, storage_option)
-                    if insert_file[0] and add_student_submit(school_id, assignment_id, student_id):
-                        call_test_function_async(insert_file[1])
+                    result, file_id = add_file(school_id, class_id, assignment_id, submission_title, student_id, submit_day, file, storage_option)
+                    if result and add_student_submit(school_id, assignment_id, student_id):
+                        call_test_function_async(file_id)
                         print("Chạy luôn")
                         return jsonify(success = True, message = "Dung")
                     return jsonify(success = False, message = "sai") 

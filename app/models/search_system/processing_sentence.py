@@ -22,57 +22,56 @@ def is_vietnamese(text):
         return False
     
 def split_sentences(text):
-    text_with_dot = re.sub(r'\n{2,}', '. ', text) 
+    combined_sentences = []
+    text_with_dot = re.sub(r'\d+', '', text)
+    text_with_dot = re.sub(r'\n{2,}', '. ', text_with_dot) 
     text_with_dot = re.sub(r'\n', ' ', text_with_dot)  
     text_with_dot = re.sub(r'\t+', ' ', text_with_dot)
-    text_with_dot = re.sub(r' +', ' ', text_with_dot) 
+    text_with_dot = re.sub(r'\.{2,}', '.', text_with_dot)
+    text_with_dot = re.sub(r' +', ' ', text_with_dot)
+    
+    sentences = re.split(r'[.?!;]|\s*[:-]\s+', text_with_dot)
 
-    sentences = re.split(r'(?<=[.!?])\s+', text_with_dot)
+    # sentences = text_with_dot.split('[.?!:;-]')
 
-    abbreviations = [
-        'tp.', 'gvhd.', 'svth.', 'ts.', 'ktx.', 'p.h.', 'cđv.', 'đh.', 'tđ.', 'ndt.',
-        'hđnd.', 'ubnd.', 'hđqt.', 'đtv.', 'tbt.', 'tt.', 'ct.', 'tchc.', 'cstc.', 'sdh.',
-        'tl.', 'ttxvn.', 'kqxh.', 'cnc.', 'thcs.', 'thpt.', 'tp.hcm.', 'bcd.', 'qh.', 'nh.'
-    ]
 
-    result = []
-    for i in range(len(sentences)):
-        sentence = sentences[i].strip()
-        
-        if i > 0 and any(sentence.lower().endswith(abbr) for abbr in abbreviations):
-            if result:  # Kiểm tra nếu result không rỗng
-                result[-1] += ' ' + sentence 
-            else:
-                result.append(sentence)  # Thêm câu vào danh sách nếu result rỗng
-        else:
-            if is_vietnamese(sentence) and len(sentence.split()) > 3:
-                result.append(sentence)
+    for sentence in sentences:
 
-    return [sentence for sentence in result if sentence]
+        sentence = sentence.strip()
+        if sentence:
+            combined_sentences.append(sentence)
+    return combined_sentences
+    
 
 tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
 def remove_sentences(sentences):
     filtered_sentences = []
     for sentence in sentences:
         # Đếm số lượng tokens trong câu
-        token_count = len(tokenizer.tokenize(sentence))
-        # Kiểm tra điều kiện: số tokens <= 512
-        if token_count < 512:
+        tokens = tokenizer.encode(sentence, add_special_tokens=True)
+        if len(tokens) > 512:
+            sentence_minis = re.split(r',\s*', sentence)
+            for sentence_mini in sentence_minis:
+                sentence_mini = sentence_mini.strip()
+                if sentence_mini:
+                    tokensmini = tokenizer.encode(sentence_mini, add_special_tokens=True)
+                    if len(tokensmini) > 512:
+                        print(sentence_mini)
+                        print(len(tokensmini))
+                    if len(tokensmini) < 512:
+                        filtered_sentences.append(sentence_mini)
+        if len(tokens) < 512:
             filtered_sentences.append(sentence)
     return filtered_sentences
 
 def preprocess_text_vietnamese(text):
-    # Process text with spaCy pipeline
     doc = nlp(text)
-    # Filter out stopwords and punctuation, and convert to lowercase
     tokens = [token.text.lower() for token in doc if not token.is_stop and not token.is_punct]
-    # Join tokens back into a single string
     processed_text = ' '.join(tokens)
     return processed_text, tokens
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-# Tải mô hình và chuyển sang GPU (nếu có)
 model = SentenceTransformer('dangvantuan/vietnamese-embedding', device = device)
 def embedding_vietnamese(text):
     embedding = model.encode(text)
@@ -98,14 +97,12 @@ def calculate_dynamic_threshold(length, max_threshold=0.8, min_threshold=0.6):
     
 
 def common_ordered_words(best_match, sentence):
-    # Tách từ và ký tự đặc biệt nhưng giữ nguyên khoảng trắng và dấu câu
     def clean_text(text):
-        return re.findall(r'\w+|\W+', text)  # Giữ dấu câu và khoảng trắng
+        return re.findall(r'\w+|\W+', text) 
 
     words_best_match = clean_text(best_match)
     words_sentence = clean_text(sentence)
 
-    # Tạo SequenceMatcher để tìm các đoạn từ giống nhau (không phân biệt chữ hoa, chữ thường)
     seq_matcher = difflib.SequenceMatcher(None, [w.lower() for w in words_best_match], [w.lower() for w in words_sentence])
 
     paragraphs_best_match = []  # Các đoạn giống nhau từ câu 1
@@ -117,34 +114,27 @@ def common_ordered_words(best_match, sentence):
     last_end_index_best_match = -1
     last_end_index_sentence = -1
 
-    # Duyệt qua các khối trùng khớp (matching blocks)
     for match in seq_matcher.get_matching_blocks():
         if match.size > 0:
-            # Lấy các từ trùng khớp từ hai câu
             matched_words_best_match = words_best_match[match.a: match.a + match.size]
             matched_words_sentence = words_sentence[match.b: match.b + match.size]
 
-            # Kiểm tra xem các từ có liền kề nhau không
             if len(current_paragraph_best_match) > 0 and match.a == last_end_index_best_match + 1 and match.b == last_end_index_sentence + 1:
-                # Nếu từ khớp là liên tiếp, nối thêm vào đoạn hiện tại
                 current_paragraph_best_match.extend(matched_words_best_match)
                 current_paragraph_sentence.extend(matched_words_sentence)
             else:
-                # Nếu không liên tiếp, lưu đoạn hiện tại và bắt đầu một đoạn mới
                 if current_paragraph_best_match:
                     paragraphs_best_match.append("".join(current_paragraph_best_match).strip())
                     paragraphs_sentence.append("".join(current_paragraph_sentence).strip())
                 current_paragraph_best_match = matched_words_best_match
                 current_paragraph_sentence = matched_words_sentence
 
-            # Cập nhật chỉ số và đếm số từ thực sự trùng khớp (bỏ qua dấu câu)
             last_end_index_best_match = match.a + match.size - 1
             last_end_index_sentence = match.b + match.size - 1
             for word in matched_words_best_match:
-                if re.match(r'\w+', word):  # Chỉ đếm từ thực sự (bỏ qua dấu câu)
+                if re.match(r'\w+', word): 
                     word_count_sml += 1
 
-    # Thêm đoạn cuối cùng vào kết quả
     if current_paragraph_best_match:
         paragraphs_best_match.append("".join(current_paragraph_best_match).strip())
         paragraphs_sentence.append("".join(current_paragraph_sentence).strip())
