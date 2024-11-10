@@ -523,12 +523,4 @@ def apply_filter(file_id, studentData, internet, paper, references, curlybracket
         file_highlighted.save(pdf_output_stream)
         file_highlighted.close()
         update_file_checked(file_id, Binary(pdf_output_stream.getvalue()))
- 
-from spire.doc import *
-from spire.doc.common import *
 
-
-def word_to_pdf(file_word, file_name):
-    document = Document()
-    document.SaveToFile(f"{file_name}.pdf", FileFormat.PDF)
-    document.Close()
