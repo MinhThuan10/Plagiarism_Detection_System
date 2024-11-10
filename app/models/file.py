@@ -40,26 +40,29 @@ def load_files_quick_submit(school_id):
     return list_files
 
 
-base_dir = os.path.dirname(__file__)  
-doc_filename = "word.docx"
-pdf_filename = "change_to_pdf.pdf"
-pdf_path = os.path.join(base_dir, pdf_filename)
-doc_path = os.path.join(base_dir, doc_filename)
 
-def doc_to_pdf(doc_path, pdf_path):
-    if doc_path:
-        comtypes.CoInitialize()
-        # Khởi tạo Word Application
-        word = comtypes.client.CreateObject('Word.Application')
-        doc = word.Documents.Open(doc_path)
+
+# def doc_to_pdf(doc_path, pdf_path):
+#     if doc_path:
+#         comtypes.CoInitialize()
+#         # Khởi tạo Word Application
+#         word = comtypes.client.CreateObject('Word.Application')
+#         doc = word.Documents.Open(doc_path)
         
-        # Lưu file dưới dạng PDF
-        doc.SaveAs(pdf_path, FileFormat=17)
-        doc.Close()
-        word.Quit()
-        comtypes.CoUninitialize()
-        return True
-    return False
+#         # Lưu file dưới dạng PDF
+#         doc.SaveAs(pdf_path, FileFormat=17)
+#         doc.Close()
+#         word.Quit()
+#         comtypes.CoUninitialize()
+#         return True
+#     return False
+
+
+
+from docx2pdf import convert
+
+
+
     
 def get_file_type(file):
     mime_type = mimetypes.guess_type(file.filename)[0]
@@ -73,6 +76,12 @@ def get_file_type(file):
 
 
 def add_file(school_id, class_id, assignment_id, title, author_id, submit_day, file, storage_option):
+    base_dir = os.path.dirname(__file__)  
+    doc_filename = "word.docx"
+    pdf_filename = "change_to_pdf.pdf"
+    pdf_path = os.path.join(base_dir, pdf_filename)
+    doc_path = os.path.join(base_dir, doc_filename)
+
     if db.files.find_one({"assignment_id": assignment_id, "author_id": author_id}):
         return False, ""
     
@@ -82,9 +91,9 @@ def add_file(school_id, class_id, assignment_id, title, author_id, submit_day, f
     
     if file_type == 'word':
         file.save(doc_path)
-        if doc_to_pdf(doc_path, pdf_path):
-            with open(pdf_path, 'rb') as file_data:
-                file = file_data.read()      
+        convert(doc_path, pdf_path)
+        with open(pdf_path, 'rb') as file_data:
+            file = file_data.read()      
     if file_type == 'pdf':
         file = file.read()
 
