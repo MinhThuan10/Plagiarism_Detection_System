@@ -22,24 +22,27 @@ def is_vietnamese(text):
         return False
     
 def split_sentences(text):
+    processed_text = []
     combined_sentences = []
-    text_with_dot = re.sub(r'\d+', '', text)
-    text_with_dot = re.sub(r'\n{2,}', '. ', text_with_dot) 
-    text_with_dot = re.sub(r'\n', ' ', text_with_dot)  
-    text_with_dot = re.sub(r'\t+', ' ', text_with_dot)
-    text_with_dot = re.sub(r'\.{2,}', '.', text_with_dot)
-    text_with_dot = re.sub(r' +', ' ', text_with_dot)
+    # Bao gồm tất cả các ký tự thường trong tiếng Việt
+    vietnamese_lowercase = 'aáàảãạăắằẳẵặâấầẩẫậbcdđeéèẻẽẹêếềểễệfghiíìỉĩịjklmnoóòỏõọôốồổỗộơớờởỡợpqrstuúùủũụưứừửữựvxyýỳỷỹỵ'
     
-    sentences = re.split(r'[.?!;]|\s*[:-]\s+', text_with_dot)
-
-    # sentences = text_with_dot.split('[.?!:;-]')
-
-
-    for sentence in sentences:
-
-        sentence = sentence.strip()
-        if sentence:
-            combined_sentences.append(sentence)
+    # Thay thế '\n' theo điều kiện: Nếu có ký tự '\n' và sau đó là chữ thường tiếng Việt
+    text = re.sub(r'\n+', '\n', text)
+    text = re.sub(rf'\n(?=[{vietnamese_lowercase}])', ' ', text)
+    text = re.sub(r'[^\w\s.,;?:]', ' ', text)
+    text = re.sub(r'\.{2,}', '.', text)
+    text = re.sub(r'\ {2,}', ' ', text)
+    text = text.replace('. ', '.\n')
+    processed_text.append((text))
+         
+    lines = text.split('\n')
+    for line in lines:
+        sentences = re.split(r'[.?!]\s+', line)
+        for sentence in sentences:
+            sentence = sentence.strip()
+            if sentence:
+                combined_sentences.append((sentence))
     return combined_sentences
     
 
@@ -58,9 +61,9 @@ def remove_sentences(sentences):
                     if len(tokensmini) > 512:
                         print(sentence_mini)
                         print(len(tokensmini))
-                    if len(tokensmini) < 512:
+                    if len(tokensmini) < 512 and len(tokensmini) > 10:
                         filtered_sentences.append(sentence_mini)
-        if len(tokens) < 512:
+        if len(tokens) < 512 and len(tokens) > 10:
             filtered_sentences.append(sentence)
     return filtered_sentences
 
@@ -196,18 +199,19 @@ def compare_with_sentences(sentence, sentences):
 
     all_sentences = [preprocessed_query] + preprocessed_references
     all_sentences = remove_sentences(all_sentences)
-
-    embeddings = embedding_vietnamese(all_sentences) 
-    # Tính toán độ tương đồng cosine giữa câu và các snippet
-    similarity_scores = calculate_similarity(embeddings[0:1], embeddings[1:]) 
+    if len(all_sentences) > 2:
+        embeddings = embedding_vietnamese(all_sentences) 
+        # Tính toán độ tương đồng cosine giữa câu và các snippet
+        similarity_scores = calculate_similarity(embeddings[0:1], embeddings[1:]) 
     
-    if similarity_scores.shape[1] == 0:
-        return 0, "", -1
+        if similarity_scores.shape[1] == 0:
+            return 0, "", -1
     
-    max_similarity_idx = similarity_scores.argmax()
-    max_similarity = similarity_scores[0][max_similarity_idx]
-    best_match = sentences[max_similarity_idx]
-    return max_similarity, best_match, max_similarity_idx
+        max_similarity_idx = similarity_scores.argmax()
+        max_similarity = similarity_scores[0][max_similarity_idx]
+        best_match = sentences[max_similarity_idx]
+        return max_similarity, best_match, max_similarity_idx
+    return 0, "", -1
 
 
 def check_snippet_in_sentence(sentence, snippet_parts):

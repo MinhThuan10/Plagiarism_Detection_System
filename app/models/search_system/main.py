@@ -83,72 +83,74 @@ def process_page(word_count, page_num, page, file_id, file_cursor, sentence_inde
                                                             "x_1": qua_t[-1].x,
                                                             "y_1": qua_t[-1].y,
                                                         }
-                                                        if not is_position(new_position, positions):
+                                                        new_position_temp = new_position
+
+                                                        if not is_position(new_position_temp, positions):
                                                             positions.append(new_position)
                                         
                                         best_match = wrap_paragraphs_with_color(paragraphs_best_math, best_match, school_id)
                                         sources = source_append(sources, source_id, school_id, school_name, file_id_source,
                                                                 type, 'no', 0, best_match, score, word_count_sml,
-                                                                paragraphs_best_math, positions)
+                                                                paragraphs, positions)
                                         source_id += 1
 
-                        # if not sources:  # If no sources found from Elasticsearch, search Google
-                        #     result = search_google(processed_sentences[i])
-                        #     items = result.get('items', [])
-                        #     all_snippets = [item.get('snippet', '') for item in items if item.get('snippet', '')]
+                        if not sources:  # If no sources found from Elasticsearch, search Google
+                            result = search_google(processed_sentences[i])
+                            items = result.get('items', [])
+                            all_snippets = [item.get('snippet', '') for item in items if item.get('snippet', '')]
 
-                        #     if not all_snippets:
-                        #         insert_sentence(file_id, file_cursor['title'], page_num, sentence_index, sentence,
-                        #                         "yes" if references else "no", quotation_marks, [])
-                        #         sentence_index += 1
-                        #         continue
+                            if not all_snippets:
+                                insert_sentence(file_id, file_cursor['title'], page_num, sentence_index, sentence,
+                                                "yes" if references else "no", quotation_marks, [])
+                                sentence_index += 1
+                                continue
 
-                        #     top_similarities = compare_sentences(sentence, all_snippets)
-                        #     for snippet_score, idx in top_similarities:
-                        #         if snippet_score > dynamic_threshold - 0.1:
-                        #             url = items[idx].get('link')
-                        #             sentences = sentences_cache.get(url)
+                            top_similarities = compare_sentences(sentence, all_snippets)
+                            for snippet_score, idx in top_similarities:
+                                if snippet_score > dynamic_threshold - 0.1:
+                                    url = items[idx].get('link')
+                                    sentences = sentences_cache.get(url)
 
-                        #             if sentences is None:
-                        #                 content = fetch_url(url)
-                        #                 sentences_from_webpage = split_sentences(content)
-                        #                 sentences = remove_sentences(sentences_from_webpage)
-                        #                 sentences_cache[url] = sentences
+                                    if sentences is None:
+                                        content = fetch_url(url)
+                                        sentences_from_webpage = split_sentences(content)
+                                        sentences = remove_sentences(sentences_from_webpage)
+                                        sentences_cache[url] = sentences
 
-                        #             if sentences:
-                        #                 similarity_sentence, match_sentence, _ = compare_with_sentences(sentence, sentences)
-                        #                 if similarity_sentence > dynamic_threshold:
-                        #                     parsed_url = urlparse(url)
-                        #                     domain = parsed_url.netloc.replace('www.', '')
-                        #                     school_id = school_cache.get(domain, current_school_id)
-                        #                     if domain not in school_cache:
-                        #                         school_cache[domain] = current_school_id
-                        #                         current_school_id += 1
+                                    if sentences:
+                                        similarity_sentence, match_sentence, _ = compare_with_sentences(sentence, sentences)
+                                        if similarity_sentence > dynamic_threshold:
+                                            parsed_url = urlparse(url)
+                                            domain = parsed_url.netloc.replace('www.', '')
+                                            school_id = school_cache.get(domain, current_school_id)
+                                            if domain not in school_cache:
+                                                school_cache[domain] = current_school_id
+                                                current_school_id += 1
 
-                        #                     positions = []
-                        #                     word_count_sml, paragraphs_best_math, paragraphs = common_ordered_words(match_sentence, sentence)
+                                            positions = []
+                                            word_count_sml, paragraphs_best_math, paragraphs = common_ordered_words(match_sentence, sentence)
 
-                        #                     if word_count_sml > 3:
-                        #                         quads_sentence = page.search_for(sentence, quads=True)
-                        #                         for paragraph in paragraphs:
-                        #                             quads_token = page.search_for(paragraph, quads=True)
-                        #                             for qua_s in quads_sentence:
-                        #                                 for qua_t in quads_token:
-                        #                                     if is_within(qua_t, qua_s):
-                        #                                         new_position = {
-                        #                                             "x_0": qua_t[0].x,
-                        #                                             "y_0": qua_t[0].y,
-                        #                                             "x_1": qua_t[-1].x,
-                        #                                             "y_1": qua_t[-1].y,
-                        #                                         }
-                        #                                         if not is_position(new_position, positions):
-                        #                                             positions.append(new_position)
+                                            if word_count_sml > 3:
+                                                quads_sentence = page.search_for(sentence, quads=True)
+                                                for paragraph in paragraphs:
+                                                    quads_token = page.search_for(paragraph, quads=True)
+                                                    for qua_s in quads_sentence:
+                                                        for qua_t in quads_token:
+                                                            if is_within(qua_t, qua_s):
+                                                                new_position = {
+                                                                    "x_0": qua_t[0].x,
+                                                                    "y_0": qua_t[0].y,
+                                                                    "x_1": qua_t[-1].x,
+                                                                    "y_1": qua_t[-1].y,
+                                                                }
+                                                                if not is_position(new_position, positions):
+                                                                    positions.append(new_position)
 
-                        #                     best_match = wrap_paragraphs_with_color(paragraphs_best_math, match_sentence, school_id)
-                        #                     sources = source_append(sources, source_id, school_id, domain, url, "Internet",
-                        #                                             'no', 0, best_match, similarity_sentence,
-                        #                                             word_count_sml, paragraphs_best_math, positions)
-                        #                     source_id += 1
+                                            best_match = wrap_paragraphs_with_color(paragraphs_best_math, match_sentence, school_id)
+                                            sources = source_append(sources, source_id, school_id, domain, url, "Internet",
+                                                                    'no', 0, best_match, similarity_sentence,
+                                                                    word_count_sml, paragraphs, positions)
+                                            source_id += 1
 
                         if sources:
                             insert_sentence(file_id, file_cursor['title'], page_num, sentence_index, sentence,
