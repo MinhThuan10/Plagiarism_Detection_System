@@ -523,4 +523,4 @@ def apply_filter(file_id, studentData, internet, paper, references, curlybracket
         file_highlighted.save(pdf_output_stream)
         file_highlighted.close()
         update_file_checked(file_id, Binary(pdf_output_stream.getvalue()))
- 
+
