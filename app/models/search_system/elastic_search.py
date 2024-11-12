@@ -1,4 +1,5 @@
 from app.extensions import es
+from elasticsearch import Elasticsearch
 
 def search_top10_vector_elastic(vector_sentence):
     search_body = {
@@ -21,6 +22,8 @@ def search_top10_vector_elastic(vector_sentence):
     }
 
     res = es.search(index="plagiarism_vector", body=search_body)
+    # res = es.search(index="cluster1:plagiarism_vector", body=search_body)
+
     sentence_results = [] 
 
     for hit in res['hits']['hits']:
@@ -44,3 +47,36 @@ def search_top10_vector_elastic(vector_sentence):
 
 
     return sentence_results
+
+
+
+def save_to_elasticsearch(ip_cluster, processed_sentences, vectors, school_id, school_name, file_id, file_name, index_name, type):
+    # Kết nối tới Elasticsearch
+    print(ip_cluster)
+    es_school = Elasticsearch([ip_cluster], timeout=300) 
+    for i, sentence in enumerate(processed_sentences):
+        document = {
+            'school_id': school_id,
+            'school_name': school_name,
+            'file_id': file_id,
+            'file_name': file_name,
+            'sentence': sentence,
+            'vector': vectors[i],
+            'type': type
+        }
+        # Lưu tài liệu vào Elasticsearch
+        es_school.index(index=index_name, document=document)
+
+def delete_by_file_id(ip_cluster, file_id, index_name):
+    # Kết nối tới Elasticsearch
+    es_school = Elasticsearch([ip_cluster], timeout=300)
+    
+    query = {
+        "query": {
+            "match": {
+                "file_id": file_id
+            }
+        }
+    }
+    # Xóa các tài liệu theo truy vấn
+    es_school.delete_by_query(index=index_name, body=query)

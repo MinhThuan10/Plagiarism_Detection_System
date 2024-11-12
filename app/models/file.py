@@ -6,6 +6,7 @@ import io
 import mimetypes
 from app.models.search_system.highlight import highlight
 from app.models.search_system.models import update_file_checked
+from app.models.search_system.elastic_search import delete_by_file_id
 import os
 
 def find_assignment_id(assignment_id):
@@ -118,6 +119,24 @@ def add_file(school_id, class_id, assignment_id, title, author_id, submit_day, f
 
 
 def add_file_quick_submit(school_id, author_name, author_id, submission_title, submit_day, file, storage_option):
+    base_dir = os.path.dirname(__file__)  
+    doc_filename = "word.docx"
+    pdf_filename = "change_to_pdf.pdf"
+    pdf_path = os.path.join(base_dir, pdf_filename)
+    doc_path = os.path.join(base_dir, doc_filename)
+
+    file_type = get_file_type(file)
+    if file_type == 'unknown':
+        return False, ""
+    
+    if file_type == 'word':
+        file.save(doc_path)
+        convert(doc_path, pdf_path)
+        with open(pdf_path, 'rb') as file_data:
+            file = file_data.read()      
+    if file_type == 'pdf':
+        file = file.read()
+
     max_file = db.files.find_one(sort=[('file_id', -1)])
     max_file = max_file['file_id'] if max_file else 0 
     db.files.insert_one({
@@ -129,13 +148,14 @@ def add_file_quick_submit(school_id, author_name, author_id, submission_title, s
         "author_id": author_id,
         "author_name": author_name,
         "submit_day": submit_day,
-        "content_file": Binary(file.read()),
+        "content_file": Binary(file),
         "storage": storage_option,
         "quick_submit": "yes",
         "plagiarism": "",
         "type": "raw",
     })
     return True, str(int(max_file) + 1)
+
 def delete_file_teacher(school_id, class_id, assignment_id, student_id):
     file =  db.files.find_one({"assignment_id": assignment_id, "author_id": student_id, "type": "raw"})
     if not file:
@@ -144,6 +164,8 @@ def delete_file_teacher(school_id, class_id, assignment_id, student_id):
         file_cursor = db.files.find_one({"assignment_id": assignment_id,"author_id": student_id, "type": "raw"})
         db.sentences.delete_many({"file_id": file_cursor['file_id']})
         db.files.delete_many({"assignment_id": assignment_id,"author_id": student_id})
+        school_cursor = db.schools.find_one({'school_id': school_id})
+        delete_by_file_id(school_cursor["ip_cluster"], file_cursor['file_id'], school_cursor["index_name"])
         return True
     return False
     
@@ -155,9 +177,12 @@ def delete_file_student(user_id, school_id, class_id, assignment_id, student_id)
 
 
         file_cursor = db.files.find({"assignment_id": assignment_id,"author_id": student_id})
+        school_cursor = db.schools.find_one({'school_id': school_id})
         for file in file_cursor:
             db.sentences.delete_many({"file_id": file['file_id']})
+            delete_by_file_id(school_cursor["ip_cluster"], file['file_id'], school_cursor["index_name"])
         db.files.delete_many({"assignment_id": assignment_id,"author_id": student_id})
+        
         return True
     return False
 
@@ -168,18 +193,21 @@ def delete_file_quick_submit(school_id, file_id):
     if school_id == file['school_id']:
         db.files.delete_many({"file_id": file_id})
         db.sentences.delete_many({"file_id": file_id})
+        school_cursor = db.schools.find_one({'school_id': school_id})
+        delete_by_file_id(school_cursor["ip_cluster"], file_id, school_cursor["index_name"])
         return True
     return False
 
 def delete_file_for_user(student_id, class_id):
     file_cursor = db.files.find({"author_id": student_id, "class_id": class_id})
     if file_cursor:
+        school_cursor = db.schools.find_one({'school_id': file_cursor['school_id']})
         for file in file_cursor:
             db.sentences.delete_many({"file_id": file['file_id'], "class_id": class_id})
+            delete_by_file_id(school_cursor["ip_cluster"], file['file_id'], school_cursor["index_name"])
         db.files.delete_many({"author_id": student_id, "class_id": class_id})
         
     return True
-    
 
 def get_file_report(file_id):
 
@@ -340,7 +368,6 @@ def remove_source_school(file_id, school_id):
         file_highlighted.close()
         update_file_checked(file_id, Binary(pdf_output_stream.getvalue()))
 
-
 def add_source_school(file_id, school_id):
     db.sentences.update_many(
         {"file_id": file_id, "sources.school_id": int(school_id), "sources.except": "source"},
@@ -390,8 +417,6 @@ def add_all_source_school(file_id):
         file_highlighted.save(pdf_output_stream)
         file_highlighted.close()
         update_file_checked(file_id, Binary(pdf_output_stream.getvalue()))
-
-
 
 def remove_text_school(file_id, school_id, sentence_index):
     db.sentences.update_many(
@@ -468,7 +493,6 @@ def add_text_school(file_id, sentence_index, source_id):
         file_highlighted.close()
         update_file_checked(file_id, Binary(pdf_output_stream.getvalue()))
 
-    
 def apply_filter(file_id, studentData, internet, paper, references, curlybracket, minWord, minWordValue):
     print(studentData)
     print(internet)
