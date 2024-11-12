@@ -5,7 +5,7 @@ from app.extensions import db
 from app.models.file import  find_assignment_id, load_files, add_file, add_file_quick_submit, delete_file_teacher, delete_file_student, delete_file_quick_submit, load_files_quick_submit, \
 get_file_report , remove_source_school, add_source_school, remove_text_school, add_text_school, add_all_source_school, add_all_text_school, apply_filter
 from app.models.assignment import  load_student_in_class, add_student_submit, delete_student_submit
-from app.models.search_system.main import main
+from app.models.search_system.main import main, add_file_to_elasticsearch
 
 import base64
 import io
@@ -81,8 +81,10 @@ def create_file_api(school_id, class_id, assignment_id):
                 if file:
                     result, file_id = add_file(school_id, class_id, assignment_id, submission_title, student_id, submit_day, file, storage_option)
                     if result and add_student_submit(school_id, assignment_id, student_id):
+                        if storage_option == "standard_repository":
+                            school_cursor = db.schools.find_one({"school_id": school_id})
+                            add_file_to_elasticsearch(school_cursor["ip_cluster"], school_id, school_cursor["school_name"], file_id, school_cursor["index_name"], 'student_Data')
                         call_test_function_async(file_id)
-                        print("Chạy luôn")
                         return jsonify(success = True, message = "Dung")
                     return jsonify(success = False, message = "sai") 
                 return jsonify(success = False, message = "sai") 
@@ -95,10 +97,12 @@ def create_file_api(school_id, class_id, assignment_id):
                 submit_day = request.form.get('submitDay')
                 file = request.files.get('file')
                 if file:
-                    insert_file = add_file(school_id, class_id, assignment_id, submission_title, student_id, submit_day, file, storage_option)
-                    if insert_file[0] and add_student_submit(school_id, assignment_id, student_id):
-                        call_test_function_async(insert_file[1])
-                        print("Chạy luôn")
+                    result, file_id  = add_file(school_id, class_id, assignment_id, submission_title, student_id, submit_day, file, storage_option)
+                    if result and add_student_submit(school_id, assignment_id, student_id):
+                        if storage_option == "standard_repository":
+                            school_cursor = db.schools.find_one({"school_id": school_id})
+                            add_file_to_elasticsearch(school_cursor["ip_cluster"], school_id, school_cursor["school_name"], file_id, school_cursor["index_name"], 'student_Data')
+                        call_test_function_async(file_id)
                         return jsonify(success = True, message = "Dung")
                     return jsonify(success = False, message = "sai") 
                 return jsonify(success = False, message = "sai") 
@@ -130,10 +134,12 @@ def create_file_quick_submit_api(school_id):
             file = request.files.get('file')
             author_id = user['user_id']
             if file:
-                insert_file =  add_file_quick_submit(school_id, author_name, author_id, submission_title, submit_day, file, storage_option)
-                if insert_file[0]: 
-                    call_test_function_async(insert_file[1])
-                    print("Chạy luôn")
+                result, file_id  =  add_file_quick_submit(school_id, author_name, author_id, submission_title, submit_day, file, storage_option)
+                if result:
+                    if storage_option == "standard_repository":
+                        school_cursor = db.schools.find_one({"school_id": school_id})
+                        add_file_to_elasticsearch(school_cursor["ip_cluster"], school_id, school_cursor["school_name"], file_id, school_cursor["index_name"], 'student_Data')
+                    call_test_function_async(file_id)
                     return jsonify(success = True, message = "Dung")
                 return jsonify(success = False, message = "sai") 
             return jsonify(success = False, message = "sai") 
