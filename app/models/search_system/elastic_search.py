@@ -1,6 +1,6 @@
 from app.extensions import es
 from elasticsearch import Elasticsearch
-
+from elasticsearch.exceptions import ConnectionError, TransportError
 def search_top10_vector_elastic(vector_sentence):
     search_body = {
         "size": 10,
@@ -68,15 +68,23 @@ def save_to_elasticsearch(ip_cluster, processed_sentences, vectors, school_id, s
         es_school.index(index=index_name, document=document)
 
 def delete_by_file_id(ip_cluster, file_id, index_name):
-    # Kết nối tới Elasticsearch
-    es_school = Elasticsearch([ip_cluster], timeout=300)
-    
-    query = {
-        "query": {
-            "match": {
-                "file_id": file_id
+    try:
+        es_school = Elasticsearch([ip_cluster], timeout=10000)
+        
+        query = {
+            "query": {
+                "match": {
+                    "file_id": file_id
+                }
             }
         }
-    }
-    # Xóa các tài liệu theo truy vấn
-    es_school.delete_by_query(index=index_name, body=query)
+        
+        response = es_school.delete_by_query(index=index_name, body=query)
+        return response
+    
+    except (ConnectionError, TransportError) as e:
+        print(f"Lỗi kết nối hoặc giao thức: {e}")
+        return None
+    except Exception as e:
+        print(f"Lỗi khác: {e}")
+        return None

@@ -30,7 +30,7 @@ def split_sentences(text):
     text = re.sub(r'[ ]{2,}', ' ', text)
     text = text.replace(' .', '.')
 
-    abbreviations = ['TS.', 'Ths.', 'THS.',  'TP.', 'Dr.', 'PhD.', 'BS.', ' Th.', 'S.']
+    abbreviations = ['TS.', 'Ths.', 'THS.',  'TP.', 'Dr.', 'PhD.', 'BS.', ' Th.', 'S.', 'PGS.', 'GS']
 
     for abbr in abbreviations:
         text = text.replace(abbr, abbr.replace('.', '__DOT__'))
@@ -41,25 +41,23 @@ def split_sentences(text):
 
     return sentences
     
-
-tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
 def remove_sentences(sentences):
     filtered_sentences = []
     for sentence in sentences:
         # Đếm số lượng tokens trong câu
-        tokens = tokenizer.encode(sentence, add_special_tokens=True)
-        if len(tokens) > 512:
+        o = model.tokenizer(sentence, return_attention_mask=False, return_token_type_ids=False)
+        if len(o.input_ids) > 256:
             sentence_minis = re.split(r'[,:-]\s*', sentence)
             for sentence_mini in sentence_minis:
                 sentence_mini = sentence_mini.strip()
                 if sentence_mini:
-                    tokensmini = tokenizer.encode(sentence_mini, add_special_tokens=True)
-                    if len(tokensmini) > 512:
+                    o_mini = model.tokenizer(sentence, return_attention_mask=False, return_token_type_ids=False)
+                    if len(o_mini.input_ids) > 256:
                         print(sentence_mini)
-                        print(len(tokensmini))
-                    if len(tokensmini) < 512 and len(tokensmini) > 10:
+                        print(len(o_mini.input_ids))
+                    if len(o_mini.input_ids) < 256 and len(o_mini.input_ids) > 10:
                         filtered_sentences.append(sentence_mini)
-        if len(tokens) < 512 and len(tokens) > 10:
+        if len(o.input_ids) < 256 and len(o.input_ids) > 10:
             filtered_sentences.append(sentence)
     return filtered_sentences
 
@@ -73,8 +71,14 @@ def preprocess_text_vietnamese(text):
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = SentenceTransformer('dangvantuan/vietnamese-embedding', device = device)
 def embedding_vietnamese(text):
-    embedding = model.encode(text)
-    return embedding
+    try:
+        embedding = model.encode(text)
+        return embedding
+    except Exception as e:
+        print(f"Error during embedding calculation: {e}")
+        print(text)
+        
+        return None 
 
 def check_type_setence(sentence):
         # Kiểm tra câu có ngoặc kép
@@ -173,20 +177,31 @@ def calculate_similarity(query_features, reference_features):
     return similarity_scores
 
 def compare_sentences(sentence, all_snippets):
-    # Tiền xử lý câu và các snippet
     preprocessed_query, _ = preprocess_text_vietnamese(sentence)
-    preprocessed_references = [preprocess_text_vietnamese(snippet)[0] for snippet in all_snippets]  
-    all_sentences = [preprocessed_query] + preprocessed_references
-    embeddings = embedding_vietnamese(all_sentences) 
-    # Tính toán độ tương đồng cosine giữa câu và các snippet
-    similarity_scores = calculate_similarity(embeddings[0:1], embeddings[1:]) 
-    # Sắp xếp điểm số tương đồng và chỉ số của các snippet
-    sorted_indices = similarity_scores[0].argsort()[::-1]
-    top_indices = sorted_indices[:3]
-    top_scores = similarity_scores[0][top_indices]
-    # Trả về ba điểm số độ tương đồng cao nhất và các chỉ số tương ứng
-    top_similarities = [(top_scores[i], top_indices[i]) for i in range(len(top_indices))]
-    return top_similarities
+    preprocessed_references = [preprocess_text_vietnamese(snippet)[0] for snippet in all_snippets]
+    all_sentences = [s for s in [preprocessed_query] + preprocessed_references if s.strip()]
+    if len(all_sentences) <= 1:
+        print("Error: Not enough valid sentences for comparison.")
+        return []
+
+
+    embeddings = embedding_vietnamese(all_sentences)
+    if embeddings is not None and embeddings.any():
+        similarity_scores = calculate_similarity(embeddings[0:1], embeddings[1:])
+
+        if similarity_scores.shape[1] == 0:
+            print("Error: Similarity scores could not be computed.")
+            return []
+
+        sorted_indices = similarity_scores[0].argsort()[::-1]
+        top_indices = sorted_indices[:3] 
+        top_scores = similarity_scores[0][top_indices]
+
+        top_similarities = [(top_scores[i], top_indices[i]) for i in range(len(top_indices))]
+        return top_similarities
+    return []
+
+
 
 def compare_with_sentences(sentence, sentences):
     preprocessed_query, _ = preprocess_text_vietnamese(sentence)
@@ -194,37 +209,30 @@ def compare_with_sentences(sentence, sentences):
 
 
     all_sentences = [preprocessed_query] + preprocessed_references
-    all_sentences = remove_sentences(all_sentences)
     if len(all_sentences) > 2:
-        embeddings = embedding_vietnamese(all_sentences) 
-        # Tính toán độ tương đồng cosine giữa câu và các snippet
-        similarity_scores = calculate_similarity(embeddings[0:1], embeddings[1:]) 
-    
-        if similarity_scores.shape[1] == 0:
-            return 0, "", -1
-    
-        max_similarity_idx = similarity_scores.argmax()
-        max_similarity = similarity_scores[0][max_similarity_idx]
-        best_match = sentences[max_similarity_idx]
-        return max_similarity, best_match, max_similarity_idx
+        embeddings = embedding_vietnamese(all_sentences)
+        if embeddings is not None and embeddings.any():
+            similarity_scores = calculate_similarity(embeddings[0:1], embeddings[1:])
+
+            if similarity_scores.shape[1] == 0:
+                return 0, "", -1
+
+            max_similarity_idx = similarity_scores.argmax()
+            max_similarity = similarity_scores[0][max_similarity_idx]
+            best_match = sentences[max_similarity_idx]
+            return max_similarity, best_match, max_similarity_idx
+        return 0, "", -1
     return 0, "", -1
 
 
 def check_snippet_in_sentence(sentence, snippet_parts):
-    # Kiểm tra xem câu có chứa bất kỳ phần nào của snippet hay không
     return any(part in sentence for part in snippet_parts)
 
 def extract_phrases(sentence, n=3):
-    # Tách câu thành các từ
     words = sentence.split()
-    # Danh sách để lưu các cụm từ
     phrases = []
-    
-    # Nếu số từ ít hơn n, không thể tạo cụm từ
     if len(words) < n:
         return phrases
-    
-    # Tạo các cụm từ với khoảng n từ
     for i in range(0, len(words), n):
         phrase = ' '.join(words[i:i + n])
         phrases.append(phrase)
