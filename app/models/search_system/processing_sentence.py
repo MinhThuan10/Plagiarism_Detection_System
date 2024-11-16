@@ -22,28 +22,24 @@ def is_vietnamese(text):
         return False
     
 def split_sentences(text):
-    processed_text = []
-    combined_sentences = []
-    # Bao gồm tất cả các ký tự thường trong tiếng Việt
     vietnamese_lowercase = 'aáàảãạăắằẳẵặâấầẩẫậbcdđeéèẻẽẹêếềểễệfghiíìỉĩịjklmnoóòỏõọôốồổỗộơớờởỡợpqrstuúùủũụưứừửữựvxyýỳỷỹỵ'
-    
-    # Thay thế '\n' theo điều kiện: Nếu có ký tự '\n' và sau đó là chữ thường tiếng Việt
-    text = re.sub(r'\n+', '\n', text)
-    text = re.sub(rf'\n(?=[{vietnamese_lowercase}])', ' ', text)
-    text = re.sub(r'[^\w\s.,;?:]', ' ', text)
-    text = re.sub(r'\.{2,}', '.', text)
-    text = re.sub(r'\ {2,}', ' ', text)
-    text = text.replace('. ', '.\n')
-    processed_text.append((text))
-         
-    lines = text.split('\n')
-    for line in lines:
-        sentences = re.split(r'[.?!]\s+', line)
-        for sentence in sentences:
-            sentence = sentence.strip()
-            if sentence:
-                combined_sentences.append((sentence))
-    return combined_sentences
+    text = re.sub(rf'\n(?=[{vietnamese_lowercase}])', '', text)
+
+    text = text.replace(' \n', '. ')
+    text = text.replace('\n', ' ')
+    text = re.sub(r'[ ]{2,}', ' ', text)
+    text = text.replace(' .', '.')
+
+    abbreviations = ['TS.', 'Ths.', 'THS.',  'TP.', 'Dr.', 'PhD.', 'BS.', ' Th.', 'S.']
+
+    for abbr in abbreviations:
+        text = text.replace(abbr, abbr.replace('.', '__DOT__'))
+
+    sentences = re.split(r'[.!?]', text)
+    sentences = [s.replace('__DOT__', '.') for s in sentences]
+    sentences = [s.strip() for s in sentences if s.strip()]
+
+    return sentences
     
 
 tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
@@ -53,7 +49,7 @@ def remove_sentences(sentences):
         # Đếm số lượng tokens trong câu
         tokens = tokenizer.encode(sentence, add_special_tokens=True)
         if len(tokens) > 512:
-            sentence_minis = re.split(r',\s*', sentence)
+            sentence_minis = re.split(r'[,:-]\s*', sentence)
             for sentence_mini in sentence_minis:
                 sentence_mini = sentence_mini.strip()
                 if sentence_mini:
