@@ -188,6 +188,8 @@ def update_school_stt(file_id, type, type_sources):
                     word_count_sml = word_count_sml +  source_max['highlight'].get('word_count_sml', 0)
     
     plagiarism = word_count_sml * 100 / word_count
+    if plagiarism > 100:
+        plagiarism = 100
     plagiarism = f"{plagiarism:.2f}"
     result = {
         "plagiarism": plagiarism 
