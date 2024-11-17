@@ -165,7 +165,10 @@ def delete_file_teacher(school_id, class_id, assignment_id, student_id):
         db.sentences.delete_many({"file_id": file_cursor['file_id']})
         db.files.delete_many({"assignment_id": assignment_id,"author_id": student_id})
         school_cursor = db.schools.find_one({'school_id': school_id})
-        delete_by_file_id(school_cursor["ip_cluster"], file_cursor['file_id'], school_cursor["index_name"])
+        try:
+            delete_by_file_id(school_cursor["ip_cluster"], file_cursor['file_id'], school_cursor["index_name"])
+        except Exception as e:
+            print(f"Lỗi khi gọi delete_by_file_id: {e}")
         return True
     return False
     
@@ -180,7 +183,11 @@ def delete_file_student(user_id, school_id, class_id, assignment_id, student_id)
         school_cursor = db.schools.find_one({'school_id': school_id})
         for file in file_cursor:
             db.sentences.delete_many({"file_id": file['file_id']})
+        try:
             delete_by_file_id(school_cursor["ip_cluster"], file['file_id'], school_cursor["index_name"])
+        except Exception as e:
+            print(f"Lỗi khi gọi delete_by_file_id: {e}")
+            
         db.files.delete_many({"assignment_id": assignment_id,"author_id": student_id})
         
         return True
@@ -194,7 +201,11 @@ def delete_file_quick_submit(school_id, file_id):
         db.files.delete_many({"file_id": file_id})
         db.sentences.delete_many({"file_id": file_id})
         school_cursor = db.schools.find_one({'school_id': school_id})
-        delete_by_file_id(school_cursor["ip_cluster"], file_id, school_cursor["index_name"])
+        try:
+            delete_by_file_id(school_cursor["ip_cluster"], file_id, school_cursor["index_name"])
+        except Exception as e:
+            print(f"Lỗi khi gọi delete_by_file_id: {e}")
+        
         return True
     return False
 
@@ -204,7 +215,10 @@ def delete_file_for_user(student_id, class_id):
         school_cursor = db.schools.find_one({'school_id': file_cursor['school_id']})
         for file in file_cursor:
             db.sentences.delete_many({"file_id": file['file_id'], "class_id": class_id})
+        try:
             delete_by_file_id(school_cursor["ip_cluster"], file['file_id'], school_cursor["index_name"])
+        except Exception as e:
+            print(f"Lỗi khi gọi delete_by_file_id: {e}")
         db.files.delete_many({"author_id": student_id, "class_id": class_id})
         
     return True
