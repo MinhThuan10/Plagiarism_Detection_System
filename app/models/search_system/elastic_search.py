@@ -1,6 +1,15 @@
 from app.extensions import es
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import ConnectionError, TransportError
+from app.models.search_system.models import cluster_remote
+
+clusters = cluster_remote()
+index = ''
+for cluster in clusters:
+    index = index + cluster[0] + ':' + cluster[1] + ','
+if index.endswith(','):
+    index = index[:-1] 
+
 def search_top10_vector_elastic(vector_sentence):
     search_body = {
         "size": 10,
@@ -21,8 +30,9 @@ def search_top10_vector_elastic(vector_sentence):
         }
     }
 
-    res = es.search(index="plagiarism_vector", body=search_body)
-    # res = es.search(index="cluster1:plagiarism_vector", body=search_body)
+
+    # res = es.search(index="plagiarism_vector", body=search_body)
+    res = es.search(index=index, body=search_body)
 
     sentence_results = [] 
 

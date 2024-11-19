@@ -78,12 +78,18 @@ document.addEventListener("DOMContentLoaded", function() {
                     document.getElementById('schoolName_replace').value = schoolInfo.school_name
                     document.getElementById('schoolKey_replace').value = schoolInfo.school_key
                     document.getElementById('schoolEmail_replace').value = schoolInfo.school_email; 
+                    document.getElementById('indexName_replace').value = schoolInfo.index_name; 
+                    document.getElementById('ipCluster_replace').value = schoolInfo.ip_cluster; 
+
 
                     const deletebutton = document.getElementById('update_btn');
                     deletebutton.addEventListener('click', function(){
                         const schoolName_replace = document.getElementById('schoolName_replace');
                         const schoolKey_replace = document.getElementById('schoolKey_replace');
                         const schoolEmail_replace = document.getElementById('schoolEmail_replace');
+                        const indexName_replace = document.getElementById('indexName_replace');
+                        const ipCluster_replace = document.getElementById('ipCluster_replace');
+
 
                         fetch(`/api/update_school@school=${school_id}`, {
                             method: 'PUT',
@@ -93,7 +99,10 @@ document.addEventListener("DOMContentLoaded", function() {
                             body: JSON.stringify({ 
                                 school_name: schoolName_replace.value,
                                 school_key: schoolKey_replace.value,
-                                school_email: schoolEmail_replace.value
+                                school_email: schoolEmail_replace.value,
+                                index_name: indexName_replace.value,
+                                ip_cluster: ipCluster_replace.value
+
                              })
                         })
                         .then(response => response.json())
@@ -133,6 +142,9 @@ document.getElementById("button_create_school").addEventListener("click", functi
     const schoolName = document.getElementById("schoolName");
     const schoolKey = document.getElementById("schoolKey");
     const schoolEmail = document.getElementById("schoolEmail");
+    const indexName = document.getElementById("indexName");
+    const ipCluster = document.getElementById("ipCluster");
+
     const messageDiv = document.getElementById("signupMessage");
    
     messageDiv.textContent = '';
@@ -156,6 +168,16 @@ document.getElementById("button_create_school").addEventListener("click", functi
         allFilled = false;
     }
 
+    if (!indexName.value) {
+        messageDiv.textContent += "Please give School index Name! ";
+        allFilled = false;
+    }
+    
+    if (!ipCluster.value) {
+        messageDiv.textContent += "Please give School ip address Cluster! ";
+        allFilled = false;
+    }
+
     
     if (allFilled) {
         fetch(`/api/create_school`, {
@@ -165,7 +187,10 @@ document.getElementById("button_create_school").addEventListener("click", functi
             },
             body: JSON.stringify({ school_name: schoolName.value,
                 school_key: schoolKey.value,
-                school_email: schoolEmail.value
+                school_email: schoolEmail.value,
+                index_name: indexName.value,
+                ip_cluster: ipCluster.value
+
              })
         })
         .then(response => response.json())

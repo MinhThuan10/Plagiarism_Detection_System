@@ -34,10 +34,13 @@ def create_school_api():
             school_name = data.get('school_name')
             school_email = data.get('school_email')
             school_key = data.get('school_key')
+            index_name = data.get('index_name')
+            ip_cluster = data.get('ip_cluster')
+
 
 
             print(school_email)
-            if create_school(school_name, school_email, school_key):
+            if create_school(school_name, school_email, school_key, index_name, ip_cluster):
                 return jsonify(success = True)
             else:
                 return jsonify(success = False, message = "Email hoặc tên Trường đã tồn tại")
@@ -62,9 +65,12 @@ def update_school_api(school_id):
             school_name = data.get('school_name')
             school_email = data.get('school_email')
             school_key = data.get('school_key')
+            index_name = data.get('index_name')
+            ip_cluster = data.get('ip_cluster')
 
 
-            if update_school(school_id, school_name, school_email, school_key):
+
+            if update_school(school_id, school_name, school_email, school_key, index_name, ip_cluster):
                 return jsonify(success = True)
             else:
                 return jsonify(success = False, message = "Email hoặc tên Trường đã tồn tại")
