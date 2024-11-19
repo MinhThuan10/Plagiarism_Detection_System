@@ -7,7 +7,7 @@ def load_school():
     return schools 
 
 
-def create_school(name, email, key):
+def create_school(name, email, key, index_name, ip_cluster):
     if db.schools.find_one({'school_email': email}) or db.schools.find_one({'school_name': name}):
         return False   
     
@@ -18,11 +18,13 @@ def create_school(name, email, key):
                         'school_name': name, 
                          'school_email': email,
                          'school_key': key,
+                         'index_name': index_name,
+                         'ip_cluster': ip_cluster
                          })
     return True
 
 
-def update_school(school_id, name, email, key):
+def update_school(school_id, name, email, key, index_name, ip_cluster):
     if  db.schools.find_one({
             '$or': [
                 {'school_email': email},
@@ -38,7 +40,10 @@ def update_school(school_id, name, email, key):
             "$set": {
                 "school_name": name,
                 "school_email": email,
-                "school_key": key
+                "school_key": key,
+                "index_name": index_name,
+                "ip_cluster": ip_cluster
+
             }
         }
     )

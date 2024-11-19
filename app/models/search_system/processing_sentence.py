@@ -51,7 +51,7 @@ def remove_sentences(sentences):
             for sentence_mini in sentence_minis:
                 sentence_mini = sentence_mini.strip()
                 if sentence_mini:
-                    o_mini = model.tokenizer(sentence, return_attention_mask=False, return_token_type_ids=False)
+                    o_mini = model.tokenizer(sentence_mini, return_attention_mask=False, return_token_type_ids=False)
                     if len(o_mini.input_ids) > 256:
                         print(sentence_mini)
                         print(len(o_mini.input_ids))
@@ -71,13 +71,13 @@ def preprocess_text_vietnamese(text):
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = SentenceTransformer('dangvantuan/vietnamese-embedding', device = device)
 def embedding_vietnamese(text):
+    global model
     try:
         embedding = model.encode(text)
         return embedding
     except Exception as e:
         print(f"Error during embedding calculation: {e}")
         print(text)
-        
         return None 
 
 def check_type_setence(sentence):
@@ -85,7 +85,6 @@ def check_type_setence(sentence):
     match = re.search(r'“(.*?)”|"(.*?)"', sentence)
     if match:
         return "yes"
-    
     return "no"
 
 def calculate_dynamic_threshold(length, max_threshold=0.8, min_threshold=0.6):

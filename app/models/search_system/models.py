@@ -1,5 +1,14 @@
 from app.extensions import db
 
+def cluster_remote():
+    clusters = []
+    school_cursor = db.schools.find({})
+    for school in school_cursor:
+        clusters.append([school['school_id'], school['index_name']])
+
+    return clusters
+
+
 def find_file(file_id):
     files_cursor = db.files.find_one({"file_id": file_id, 'type': "raw"})
     return files_cursor
