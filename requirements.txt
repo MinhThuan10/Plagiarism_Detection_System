@@ -1,20 +1,17 @@
 beautifulsoup4==4.12.3
 docx2pdf==0.1.8
 elasticsearch==8.14.0
-fitz==0.0.1.dev2
-Flask==2.2.5
-Flask_PyMongo==2.3.0
+Flask==3.0.3
+Flask-PyMongo==2.3.0
 langdetect==1.0.9
-pandas==2.2.3
-Pillow==11.0.0
-pymongo==4.10.1
-python_docx==1.1.2
-Requests==2.32.3
-scikit_learn==1.5.2
-sentence_transformers==3.0.1
-spacy==3.7.6
-transformers==4.44.2
-urllib3==2.2.3
+pandas==2.2.2
+pillow==10.4.0
+PyMuPDF==1.24.9
+python-docx==1.1.2
+pyvi==0.1.1
+requests==2.32.3
+sentence-transformers==3.0.1
+spacy==3.7.5
 waitress==3.0.0
-Werkzeug==2.2.3
-#Cài thủ công: pip install torch==2.2.0+cu118 -f https://download.pytorch.org/whl/torch_stable.html
+
+#pip install torch==2.2.0+cu118 -f https://download.pytorch.org/whl/torch_stable.html
