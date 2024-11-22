@@ -87,10 +87,10 @@ def check_type_setence(sentence):
         return "yes"
     return "no"
 
-def calculate_dynamic_threshold(length, max_threshold=0.8, min_threshold=0.6):
+def calculate_dynamic_threshold(length, max_threshold=0.85, min_threshold=0.65):
     if length < 10:
         return max_threshold
-    elif length > 40:
+    elif length > 50:
         return min_threshold
     else:
         scaling_factor = (max_threshold - min_threshold) / (40 - 10)
