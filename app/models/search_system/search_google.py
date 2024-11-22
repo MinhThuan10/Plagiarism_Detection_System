@@ -1,7 +1,6 @@
 import requests
 import io
 import fitz  # PyMuPDF
-from concurrent.futures import ThreadPoolExecutor
 from io import BytesIO
 from docx import Document
 from io import StringIO

@@ -7,7 +7,6 @@ get_file_report , remove_source_school, add_source_school, remove_text_school, a
 from app.models.assignment import  load_student_in_class, add_student_submit, delete_student_submit
 from app.models.search_system.main import main, add_file_to_elasticsearch
 
-import base64
 import io
 
 file = Blueprint('file', __name__)
@@ -38,29 +37,6 @@ def load_files_quick_submit_api():
         return jsonify(success = True, list_files = list_files, school_name = school['school_name'], school_id = school['school_id'])
     return jsonify(success = False, message = "sai")
 
-
-# @file.route('/api/upload_file@school=<school_id>-class=<class_id>-assignment=<assignment_id>', methods=['POST'])
-# def create_file_api(school_id, class_id, assignment_id):
-#     if 'user_id' not in session:
-#         return render_template('login.html')
-#     user = db.users.find_one({'_id': ObjectId(session['user_id'])})
-#     if user:
-#         if school_id == user['school_id']:
-#             print("Them file")
-#             student_id = request.form.get('student_id')
-#             submission_title = request.form.get('submissionTitle')
-#             storage_option = request.form.get('storageOption')
-#             submit_day = request.form.get('submitDay')
-#             file = request.files.get('file')
-#             if file:
-#                 if add_file(school_id, class_id, assignment_id, submission_title, student_id, submit_day, file, storage_option) and add_student_submit(school_id, assignment_id, student_id):     
-#                     return jsonify(success = True, message = "Dung")
-#                 return jsonify(success = False, message = "sai") 
-#             return jsonify(success = False, message = "sai") 
-
-#         return jsonify(success = False, message = "sai") 
-        
-#     return jsonify(success = False, message = "sai") 
 
 
 @file.route('/api/upload_file@school=<school_id>-class=<class_id>-assignment=<assignment_id>', methods=['POST'])

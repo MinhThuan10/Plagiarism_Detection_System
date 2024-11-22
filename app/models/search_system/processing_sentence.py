@@ -5,7 +5,6 @@ from sentence_transformers import SentenceTransformer
 import difflib
 from sklearn.metrics.pairwise import cosine_similarity
 from langdetect import detect
-from transformers import RobertaTokenizer
 
 # Load Vietnamese spaCy model
 nlp = spacy.blank("vi")
