@@ -19,18 +19,10 @@ __pycache__/
 .vscode/
 .idea/
 
-# Logs
-logs/
-*.log
-
-# Docker
-Dockerfile
-docker-compose.yml
-
 # Other
 *.sqlite3
 
-
+config.py
 
 __pycache__/
 *.pyc
