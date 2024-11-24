@@ -1,11 +1,11 @@
 from pymongo import MongoClient
 from elasticsearch import Elasticsearch
-import os
+from config import Config
 
 # Khởi tạo MongoClient
-mongo = MongoClient('localhost', 27017)
+mongo = MongoClient(Config.MONGO_URI)
 db = mongo['mydatabase']
 
 # Khởi tạo Elasticsearch
-es = Elasticsearch("http://localhost:9200")
+es = Elasticsearch(Config.ELASTICSEARCH_URL)
 
