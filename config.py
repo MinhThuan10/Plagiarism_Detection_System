@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 import os
+import ast  
 
 load_dotenv()
 class Config:
@@ -10,7 +11,10 @@ class Config:
     CX2 = os.getenv('CX2')
     CX3 = os.getenv('CX3')
     CX4 = os.getenv('CX4')
-    API_KEYS = os.getenv('API_KEYS')
-    API_KEYS2 = os.getenv('API_KEYS2')
-    API_KEYS3 = os.getenv('API_KEYS3')
-    API_KEYS4 = os.getenv('API_KEYS4')
+    # Sử dụng ast.literal_eval để chuyển chuỗi thành list
+    API_KEYS = ast.literal_eval(os.getenv('API_KEYS', '[]'))
+    API_KEYS2 = ast.literal_eval(os.getenv('API_KEYS2', '[]'))
+    API_KEYS3 = ast.literal_eval(os.getenv('API_KEYS3', '[]'))
+    API_KEYS4 = ast.literal_eval(os.getenv('API_KEYS4', '[]'))
+
+    

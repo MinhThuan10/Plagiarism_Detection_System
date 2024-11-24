@@ -22,8 +22,6 @@ __pycache__/
 # Other
 *.sqlite3
 
-config.py
-
 __pycache__/
 *.pyc
 

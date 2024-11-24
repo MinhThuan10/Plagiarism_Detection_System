@@ -16,15 +16,25 @@ current_list = 1
 
 def get_current_api_key():
     """Trả về API Key hiện tại."""
-    global current_list
-    if current_list == 1 and current_api_key_index < len(Config.API_KEYS):
-        return Config.API_KEYS[current_api_key_index]
-    elif current_list == 2 and current_api_key_index < len(Config.API_KEYS2):
-        return Config.API_KEYS2[current_api_key_index]
-    elif current_list == 3 and current_api_key_index < len(Config.API_KEYS3):
-        return Config.API_KEYS3[current_api_key_index]
-    elif current_list == 4 and current_api_key_index < len(Config.API_KEYS4):
-        return Config.API_KEYS4[current_api_key_index]
+    global current_list, current_api_key_index
+
+    # Kiểm tra giá trị của current_list và trả về API Key từ danh sách tương ứng
+    if current_list == 1:
+        # Kiểm tra nếu còn key trong API_KEYS
+        if current_api_key_index < len(Config.API_KEYS):
+            return Config.API_KEYS[current_api_key_index]
+    elif current_list == 2:
+        # Kiểm tra nếu còn key trong API_KEYS2
+        if current_api_key_index < len(Config.API_KEYS2):
+            return Config.API_KEYS2[current_api_key_index]
+    elif current_list == 3:
+        # Kiểm tra nếu còn key trong API_KEYS3
+        if current_api_key_index < len(Config.API_KEYS3):
+            return Config.API_KEYS3[current_api_key_index]
+    elif current_list == 4:
+        # Kiểm tra nếu còn key trong API_KEYS4
+        if current_api_key_index < len(Config.API_KEYS4):
+            return Config.API_KEYS4[current_api_key_index]
     return None
 
 def get_next_api_key():
@@ -71,6 +81,7 @@ def search_google(query):
             cx = Config.CX3
         else:
             cx = Config.CX4
+            
         url = f"https://www.googleapis.com/customsearch/v1?q={query}&key={api_key}&cx={cx}"
         response = requests.get(url, verify=False)
         

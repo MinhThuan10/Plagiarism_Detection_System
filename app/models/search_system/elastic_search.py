@@ -4,11 +4,13 @@ from elasticsearch.exceptions import ConnectionError, TransportError
 from app.models.search_system.models import cluster_remote
 
 clusters = cluster_remote()
-index = ''
+index = 'plagiarism_vector,'
 for cluster in clusters:
     index = index + cluster[0] + ':' + cluster[1] + ','
 if index.endswith(','):
     index = index[:-1] 
+
+print(index)
 
 def search_top10_vector_elastic(vector_sentence):
     search_body = {
