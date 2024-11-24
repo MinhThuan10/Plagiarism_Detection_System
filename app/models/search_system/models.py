@@ -2,7 +2,7 @@ from app.extensions import db
 
 def cluster_remote():
     clusters = []
-    school_cursor = db.schools.find({})
+    school_cursor = db.schools.find({"school_id": {"$ne": "1"}})
     for school in school_cursor:
         clusters.append([school['school_id'], school['index_name']])
 
