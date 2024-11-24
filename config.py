@@ -14,4 +14,3 @@ class Config:
     API_KEYS2 = os.getenv('API_KEYS2')
     API_KEYS3 = os.getenv('API_KEYS3')
     API_KEYS4 = os.getenv('API_KEYS4')
-
