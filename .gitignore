@@ -9,9 +9,6 @@ __pycache__/
 *.pyc
 *.pyo
 
-# Environment variables
-.env
-
 # Pytest cache
 .cache/
 
@@ -24,5 +21,3 @@ __pycache__/
 
 __pycache__/
 *.pyc
-
-.env
