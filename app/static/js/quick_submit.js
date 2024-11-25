@@ -177,8 +177,12 @@ submit_button.addEventListener("click", function () {
     )
       .then((response) => response.json())
       .then((data) => {
-        console.log(data); // Kiểm tra phản hồi từ máy chủ
-        location.reload();
+        if (data.success) {
+          messageDiv.textContent = data.message;
+          location.reload();
+        } else {
+          messageDiv.textContent = data.message;
+        }
       })
       .catch((error) => {
         console.error("Error:", error);

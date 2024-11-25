@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, jsonify, session
 from app.models.classs import  load_class_teacher, load_class_student, create_class, update_class, delete_class, load_school_id, add_user_to_class, delete_user_to_class
 from app.models.file import delete_file_for_user
 from app.models.assignment import delete_student_in_assignments
-
+from datetime import datetime
 from bson import ObjectId
 from bson.objectid import ObjectId
 from app.extensions import db
@@ -158,16 +158,17 @@ def add_user_to_class_api():
 
             classs = db.classs.find_one({'class_id': class_id})
             if classs:
-                if classs['school_id'] == user['school_id']:
+                end_day = datetime.strptime(classs['end_day'], "%m/%d/%Y")
+                if classs['school_id'] == user['school_id'] and datetime.now() < end_day:
                     if add_user_to_class(user['user_id'], class_id, class_key):
                         return jsonify(success = True)
                     else:
-                        return jsonify(success = False, message = "Không thể cập nhật lớp")
+                        return jsonify(success = False, message = "Bạn đã tham gia vào lớp học rồi")
                     
-                return jsonify(success = False, message = "sai") 
-            return jsonify(success = False, message = "sai") 
-        return jsonify(success = False, message = "sai")      
-    return jsonify(success = False, message = "sai") 
+                return jsonify(success = False, message = "Lớp học đã kết thúc, không thể tham gia được nữa") 
+            return jsonify(success = False, message = "Lớp học không tồn tại") 
+        return jsonify(success = False, message = "Bạn ko có quyền tham gia vào lớp học")      
+    return jsonify(success = False, message = "Vui lòng đăng nhập lại") 
 
 
 @classs.route('/api/delete_user_to_class', methods=['PUT'])
@@ -181,10 +182,10 @@ def delete_user_to_class_api():
     user = db.users.find_one({'_id': ObjectId(session['user_id'])})
     if user:
         role = user['role']
-
+        class_id= data.get('class_id')
+        student_id = data.get('student_id')
         if role == "Teacher":
-            class_id= data.get('class_id')
-            student_id = data.get('student_id')
+
             classs = db.classs.find_one({'class_id': class_id})
             if classs:
                 if classs['school_id'] == user['school_id']:
@@ -201,7 +202,7 @@ def delete_user_to_class_api():
             if classs:
                 if classs['school_id'] == user['school_id']:
                     if delete_user_to_class(user['user_id'], class_id) and delete_file_for_user(user['user_id'], class_id) and delete_student_in_assignments(student_id, class_id):
-                        return jsonify(success = True)
+                        return jsonify(success = True, message = "Cập nhật thành công")
                     else:
                         return jsonify(success = False, message = "Không thể cập nhật lớp")
                     

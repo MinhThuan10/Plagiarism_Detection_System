@@ -88,9 +88,9 @@ def create_assignment_api(school_id, class_id):
                 create_day = data.get('createDay')
 
                 if create_assignment(school_id, class_id, assignment_name, start_day, end_day, create_day):
-                    return jsonify(success = True,message = "Tạo lớp mới thành công")
+                    return jsonify(success = True,message = "Tạo bài mới thành công")
                 else:
-                    return jsonify(success = False, message = "Tên lớp đã tồn tại")
+                    return jsonify(success = False, message = "Tên bài tập đã tồn tại")
             return jsonify(success = False, message = "sai") 
             
         return jsonify(success = False, message = "sai") 

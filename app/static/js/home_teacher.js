@@ -60,12 +60,11 @@ document.addEventListener("DOMContentLoaded", function() {
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                console.log(data.message); 
-                                location.reload()
-                                
-                            } else {
-                                console.log(data.message); 
-                            }
+                                console.log(data.message);
+                                location.reload();
+                              } else {
+                                console.log(data.message);
+                              }
                         })
                         .catch(error => {
                             console.error('Error:', error);
@@ -107,12 +106,11 @@ document.addEventListener("DOMContentLoaded", function() {
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                console.log(data.message); 
-                                location.reload()
-                                
-                            } else {
-                                console.log(data.message); 
-                            }
+                                console.log(data.message);
+                                location.reload();
+                              } else {
+                                console.log(data.message);
+                              }
                         })
                         .catch(error => {
                             console.error('Error:', error);

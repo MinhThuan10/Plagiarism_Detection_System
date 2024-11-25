@@ -55,15 +55,15 @@ def create_file_api(school_id, class_id, assignment_id):
                 submit_day = request.form.get('submitDay')
                 file = request.files.get('file')
                 if file:
-                    result, file_id = add_file(school_id, class_id, assignment_id, submission_title, student_id, submit_day, file, storage_option)
+                    result, file_id = add_file(user['role'], school_id, class_id, assignment_id, submission_title, student_id, submit_day, file, storage_option)
                     if result and add_student_submit(school_id, assignment_id, student_id):
                         if storage_option == "standard_repository":
                             school_cursor = db.schools.find_one({"school_id": school_id})
                             add_file_to_elasticsearch(school_cursor["ip_cluster"], school_id, school_cursor["school_name"], file_id, school_cursor["index_name"], 'student_Data')
                         call_test_function_async(file_id)
                         return jsonify(success = True, message = "Dung")
-                    return jsonify(success = False, message = "sai") 
-                return jsonify(success = False, message = "sai") 
+                    return jsonify(success = False, message = "Đã bị trùng tên bài tập") 
+                return jsonify(success = False, message = "Tải file lên không thành công") 
             if user['role'] == "Student":
                 print("Them file")
                 student_id = user['user_id']
@@ -73,19 +73,19 @@ def create_file_api(school_id, class_id, assignment_id):
                 submit_day = request.form.get('submitDay')
                 file = request.files.get('file')
                 if file:
-                    result, file_id  = add_file(school_id, class_id, assignment_id, submission_title, student_id, submit_day, file, storage_option)
+                    result, file_id  = add_file(user['role'], school_id, class_id, assignment_id, submission_title, student_id, submit_day, file, storage_option)
                     if result and add_student_submit(school_id, assignment_id, student_id):
                         if storage_option == "standard_repository":
                             school_cursor = db.schools.find_one({"school_id": school_id})
                             add_file_to_elasticsearch(school_cursor["ip_cluster"], school_id, school_cursor["school_name"], file_id, school_cursor["index_name"], 'student_Data')
                         call_test_function_async(file_id)
-                        return jsonify(success = True, message = "Dung")
-                    return jsonify(success = False, message = "sai") 
-                return jsonify(success = False, message = "sai") 
+                        return jsonify(success = True, message = "Tải file lên thành công")
+                    return jsonify(success = False, message = "Bài tập đã nộp rồi") 
+                return jsonify(success = False, message = "Không thể tải file lên") 
 
-        return jsonify(success = False, message = "sai") 
+        return jsonify(success = False, message = "Bạn không có quyền") 
         
-    return jsonify(success = False, message = "sai") 
+    return jsonify(success = False, message = "Vui lòng đăng nhập lại") 
 
 from threading import Thread
 from flask import jsonify, Response
