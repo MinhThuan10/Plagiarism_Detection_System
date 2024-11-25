@@ -22,7 +22,3 @@ __pycache__/
 __pycache__/
 *.pyc
 
-
-.env
-
-run.py
