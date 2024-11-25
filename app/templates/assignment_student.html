@@ -105,7 +105,7 @@
         <button
           type="button"
           class="btn-close"
-          data-mdb-dismiss="modal"
+          data-bs-dismiss="modal"
           aria-label="Close"
         ></button>
       </div>
@@ -187,7 +187,7 @@
         <button
           type="button"
           class="btn btn-secondary"
-          data-mdb-dismiss="modal"
+          data-bs-dismiss="modal"
         >
           Cancel
         </button>
@@ -196,6 +196,7 @@
     </div>
   </div>
 </div>
+
 <!-- Delete Modal -->
 <div
   class="modal fade"
@@ -233,11 +234,10 @@
 </div>
 <div id="user-info" data-user-id="{{ user_id }}" style="display: none;"></div>
 {% endblock %} {% block extra_js %}
-<script
-  src="{{ url_for('static', filename='js/assignment_student.js') }}"
-></script>
+<script src="{{ url_for('static', filename='js/assignment_student.js') }}"></script>
 <script>
-  // Lấy user_id từ data attribute
-  const userId = document.getElementById('user-info').getAttribute('data-user-id');
+  document.addEventListener('DOMContentLoaded', function() {
+    const userId = document.getElementById('user-info').getAttribute('data-user-id');
+  });
 </script>
 {% endblock %}

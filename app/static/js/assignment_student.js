@@ -202,10 +202,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then((response) => response.json())
                 .then((data) => {
                   if (data.success) {
-                    messageDiv.textContent = data.message;
+                    console.log(data.message);
                     location.reload();
                   } else {
-                    messageDiv.textContent = data.message;
+                    console.log(data.message);
                   }
                 })
                 .catch((error) => {

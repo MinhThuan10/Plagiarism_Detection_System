@@ -8,6 +8,7 @@ from app.models.search_system.highlight import highlight
 from app.models.search_system.models import update_file_checked
 from app.models.search_system.elastic_search import delete_by_file_id
 import os
+from datetime import datetime
 
 def find_assignment_id(assignment_id):
     file_cursor = db.assignments.find_one({'assignment_id':assignment_id})
@@ -83,6 +84,11 @@ def add_file(role, school_id, class_id, assignment_id, title, author_id, submit_
         return False, ""
     if role == "Teacher":
         if db.files.find_one({"assignment_id": assignment_id, "title": title}):
+            return False, ""
+    if role == "Student":
+        assignment = db.assignments.find_one({"assignment_id": assignment_id})
+        end_day = datetime.strptime(assignment['end_day'], "%m/%d/%Y")
+        if datetime.now() > end_day:
             return False, ""
     
     file_type = get_file_type(file)

@@ -80,7 +80,7 @@ def create_file_api(school_id, class_id, assignment_id):
                             add_file_to_elasticsearch(school_cursor["ip_cluster"], school_id, school_cursor["school_name"], file_id, school_cursor["index_name"], 'student_Data')
                         call_test_function_async(file_id)
                         return jsonify(success = True, message = "Tải file lên thành công")
-                    return jsonify(success = False, message = "Bài tập đã nộp rồi") 
+                    return jsonify(success = False, message = "Đã hết hạn nộp bài") 
                 return jsonify(success = False, message = "Không thể tải file lên") 
 
         return jsonify(success = False, message = "Bạn không có quyền") 
