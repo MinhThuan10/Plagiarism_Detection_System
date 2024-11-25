@@ -35,8 +35,6 @@ def get_current_api_key():
         # Kiểm tra nếu còn key trong API_KEYS4
         if current_api_key_index < len(Config.API_KEYS4):
             return Config.API_KEYS4[current_api_key_index]
-    
-    # Nếu không có key hợp lệ hoặc đã hết, trả về None
     return None
 
 def get_next_api_key():
@@ -83,7 +81,7 @@ def search_google(query):
             cx = Config.CX3
         else:
             cx = Config.CX4
-
+            
         url = f"https://www.googleapis.com/customsearch/v1?q={query}&key={api_key}&cx={cx}"
         response = requests.get(url, verify=False)
         
