@@ -22,7 +22,7 @@ def is_vietnamese(text):
     
 def split_sentences(text):
     vietnamese_lowercase = 'aáàảãạăắằẳẵặâấầẩẫậbcdđeéèẻẽẹêếềểễệfghiíìỉĩịjklmnoóòỏõọôốồổỗộơớờởỡợpqrstuúùủũụưứừửữựvxyýỳỷỹỵ'
-    text = re.sub(rf'\n(?=[{vietnamese_lowercase}])', '', text)
+    text = re.sub(rf'\n(?=[{vietnamese_lowercase}])', ' ', text)
 
     text = text.replace(' \n', '. ')
     text = text.replace('\n', ' ')

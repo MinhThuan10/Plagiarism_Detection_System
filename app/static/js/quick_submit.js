@@ -30,10 +30,11 @@ document.addEventListener("DOMContentLoaded", function () {
                         <td class="ps-4">${fileInfo.file_id}</td>
                         <td class="wrap-text">
                             <a
-                                href="#"
+                                href="/report/file_id=${fileInfo.file_id}"
                                 class="text-body"
                                 style="color: #35509a !important"
                                 title="${fileInfo.title}"
+                                target="_blank"
                                 >${fileInfo.title}
                             </a>
                         </td>

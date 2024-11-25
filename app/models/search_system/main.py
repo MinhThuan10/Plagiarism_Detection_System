@@ -20,6 +20,7 @@ embedding_vietnamese, check_type_setence, calculate_dynamic_threshold, common_or
 
 def process_page(word_count, page_num, page, file_id, file_cursor, sentence_index, sentences_cache, school_cache, current_school_id):
     text = page.get_text("text")
+    print(text)
     if text:
         # Cập nhật word_count bằng cách tính số từ của từng câu
         sentence_word_count = len(text.split())
@@ -96,7 +97,7 @@ def process_page(word_count, page_num, page, file_id, file_cursor, sentence_inde
                                             source_id += 1
 
                             if not sources:  # If no sources found from Elasticsearch, search Google
-                                result = search_google(processed_sentences[i])
+                                result = search_google(sentence)
                                 items = result.get('items', [])
                                 all_snippets = [item.get('snippet', '') for item in items if item.get('snippet', '')]
 
@@ -108,7 +109,7 @@ def process_page(word_count, page_num, page, file_id, file_cursor, sentence_inde
 
                                 top_similarities = compare_sentences(sentence, all_snippets)
                                 for snippet_score, idx in top_similarities:
-                                    if snippet_score > dynamic_threshold - 0.1:
+                                    if snippet_score > dynamic_threshold - 0.2:
                                         url = items[idx].get('link')
                                         sentences = sentences_cache.get(url)
 

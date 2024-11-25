@@ -3,8 +3,6 @@ import io
 import fitz  # PyMuPDF
 from io import BytesIO
 from docx import Document
-from io import StringIO
-import pandas as pd
 from bs4 import BeautifulSoup
 from config import Config
 
@@ -133,15 +131,6 @@ def fetch_docx(response):
         print(f"Lỗi khi xử lý DOCX: {e}")
         return ""
 
-def fetch_csv(response):
-    try:
-        csv_content = StringIO(response.content.decode('utf-8'))
-        df = pd.read_csv(csv_content)
-        return df.to_string()  # Trả về dữ liệu CSV dưới dạng chuỗi
-    except Exception as e:
-        print(f"Lỗi khi xử lý CSV: {e}")
-        return ""   
-
 def extract_text_from_html(response):
     try:
         soup = BeautifulSoup(response.content, 'html.parser')
@@ -169,8 +158,6 @@ def fetch_url(url):
         return extract_text_from_pdf(response)
     elif 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' in content_type:
         return fetch_docx(response)
-    elif 'text/csv' in content_type:
-        return fetch_csv(response)
     else:
         return extract_text_from_html(response)
 

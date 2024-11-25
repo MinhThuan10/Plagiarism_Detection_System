@@ -6,7 +6,6 @@ import io
 import mimetypes
 from app.models.search_system.highlight import highlight
 from app.models.search_system.models import update_file_checked
-from app.models.search_system.elastic_search import delete_by_file_id
 import os
 from datetime import datetime
 
@@ -66,8 +65,8 @@ def get_file_type(file):
     mime_type = mimetypes.guess_type(file.filename)[0]
     if mime_type == 'application/pdf':
         file_type = 'pdf'
-    elif mime_type in ['application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']:
-        file_type = 'word'
+    # elif mime_type in ['application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']:
+    #     file_type = 'word'
     else:
         file_type = 'unknown'
     return file_type
@@ -95,11 +94,17 @@ def add_file(role, school_id, class_id, assignment_id, title, author_id, submit_
     if file_type == 'unknown':
         return False, ""
     
-    if file_type == 'word':
-        file.save(doc_path)
-        convert(doc_path, pdf_path)
-        with open(pdf_path, 'rb') as file_data:
-            file = file_data.read()      
+    # if file_type == 'word':
+    #     file.save(doc_path)
+    #     time.sleep(5)
+    #     try:
+    #         convert(doc_path, pdf_path, keep_active=    False)
+    #         with open(pdf_path, 'rb') as file_data:
+    #             file = file_data.read()     
+    #     except Exception as e:
+    #         print("Error during conversion:", e)
+    #         return False, ""
+         
     if file_type == 'pdf':
         file = file.read()
 
