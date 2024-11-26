@@ -22,7 +22,7 @@ def load_school_api():
 def create_school_api():
     data = request.get_json()
     if not data:
-        return jsonify(success = False, message = "Email hoặc tên Trường đã tồn tại")
+        return jsonify(success = False, message = "Email or School name already exists")
     if 'user_id' not in session:
         return render_template('login.html')
     user = db.users.find_one({'_id': ObjectId(session['user_id'])})
@@ -43,16 +43,16 @@ def create_school_api():
             if create_school(school_name, school_email, school_key, index_name, ip_cluster):
                 return jsonify(success = True)
             else:
-                return jsonify(success = False, message = "Email hoặc tên Trường đã tồn tại")
-        return jsonify(success = False, message = "sai") 
+                return jsonify(success = False, message = "Email or School name already exists")
+        return jsonify(success = False, message = "Unauthorized access") 
         
-    return jsonify(success = False, message = "sai") 
+    return jsonify(success = False, message = "User not logged in") 
 
 @school.route('/api/update_school@school=<school_id>', methods=['PUT'])
 def update_school_api(school_id):
     data = request.get_json()
     if not data:
-        return jsonify(success = False, message = "Nhập lại dữ liệu")
+        return jsonify(success = False, message = "Re-enter data")
 
     if 'user_id' not in session:
         return render_template('login.html')
@@ -73,11 +73,11 @@ def update_school_api(school_id):
             if update_school(school_id, school_name, school_email, school_key, index_name, ip_cluster):
                 return jsonify(success = True)
             else:
-                return jsonify(success = False, message = "Email hoặc tên Trường đã tồn tại")
+                return jsonify(success = False, message = "Email or School name already exists")
         
-        return jsonify(success = False, message = "sai") 
+        return jsonify(success = False, message = "Unauthorized access") 
         
-    return jsonify(success = False, message = "sai") 
+    return jsonify(success = False, message = "User not logged in") 
 
 @school.route('/api/delete_school@school=<school_id>', methods=['DELETE'])
 def delete_school_api(school_id):
@@ -93,7 +93,7 @@ def delete_school_api(school_id):
             if delete_school(school_id):
                 return jsonify(success = True)
             else:
-                return jsonify(success = False, message = "Trường không tồn tại")
-        return jsonify(success = False, message = "sai") 
+                return jsonify(success = False, message = "School does not exist")
+        return jsonify(success = False, message = "Unauthorized access") 
         
-    return jsonify(success = False, message = "sai") 
+    return jsonify(success = False, message = "User not logged in") 

@@ -73,7 +73,14 @@
                   <th scope="col" style="max-width: 120px; min-width: 120px">
                     Submit Day
                   </th>
-                  <th scope="col" style="max-width: 130px; min-width: 130px">
+                  <th
+                    scope="col"
+                    style="
+                      max-width: 130px;
+                      min-width: 130px;
+                      text-align: center;
+                    "
+                  >
                     Similarity
                   </th>
                   <th scope="col" style="max-width: 90px; min-width: 90px">
@@ -206,7 +213,11 @@
           </div>
         </form>
       </div>
-      <div id="signupMessage" class="text-danger mb-3"></div>
+      <div
+        id="signupMessage"
+        class="text mb-3"
+        style="text-align: center"
+      ></div>
 
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
@@ -256,7 +267,12 @@
     </div>
   </div>
 </div>
-<div id="loadingSpinner" class="spinner-border text-primary" role="status" style="display: none;">
+<div
+  id="loadingSpinner"
+  class="spinner-border text-primary"
+  role="status"
+  style="display: none"
+>
   <span class="sr-only">Loading...</span>
 </div>
 {% endblock %} {% block extra_js %}

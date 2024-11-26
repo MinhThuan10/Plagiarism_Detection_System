@@ -11,15 +11,19 @@
     <div class="input-group">
       <div class="input-field">
         <label for="first-name">First Name</label>
-        <input type="text" id="first-name" placeholder="{{ user.first_name }}"/>
+        <input
+          type="text"
+          id="first-name"
+          placeholder="{{ user.first_name }}"
+        />
       </div>
       <div class="input-field">
         <label for="last-name">Last Name</label>
-        <input type="text" id="last-name" placeholder="{{ user.last_name }}"/>
+        <input type="text" id="last-name" placeholder="{{ user.last_name }}" />
       </div>
       <div class="input-field">
         <label for="email">Email</label>
-        <input type="text" id="email" placeholder="{{ user.email }}" readonly/>
+        <input type="text" id="email" placeholder="{{ user.email }}" readonly />
       </div>
       <div class="input-field">
         <label for="password">Old Password</label>
@@ -30,15 +34,22 @@
         <input type="password" id="new_password" />
       </div>
     </div>
-    <div id="signupMessage" class="text-danger mb-3"></div>
+    <div
+      id="signupMessage"
+      class="text mb-3"
+      style="text-align: center; margin-top: 5px"
+    ></div>
 
-    <button type="button" class="btn btn-primary btn-save" id="btn_save" data-mdb-ripple-init>
+    <button
+      type="button"
+      class="btn btn-primary btn-save"
+      id="btn_save"
+      data-mdb-ripple-init
+    >
       Save changes
     </button>
   </div>
 </div>
 {% endblock %} {% block extra_js %}
-<script
-  src="{{ url_for('static', filename='js/account.js') }}"
-></script>
+<script src="{{ url_for('static', filename='js/account.js') }}"></script>
 {% endblock %}

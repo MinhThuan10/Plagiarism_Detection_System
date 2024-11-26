@@ -20,14 +20,15 @@ def load_assignments_api(class_id):
             list_students = load_student_in_class(class_id)
             if user['school_id'] == classs['school_id']:
                 return jsonify(success = True, classs = classs, list_students = list_students, assignments = assignments)
-            return jsonify(success = False, message = "sai") 
+            return jsonify(success = False, message = "School ID does not match") 
         if user['role'] == "Student":
             classs = find_class_id(class_id)
             assignments = load_file_in_class(class_id, user['user_id'])
             if user['school_id'] == classs['school_id']:
                 return jsonify(success = True, classs = classs, assignments = assignments)
-            return jsonify(success = False, message = "sai") 
-    return jsonify(success = False, message = "sai")
+            return jsonify(success = False, message = "School ID does not match") 
+    return jsonify(success = False, message = "User not logged in")
+
 
 
 @assignment.route('/class=<class_id>/assignment=<assignment_id>')
@@ -74,7 +75,7 @@ def render_page_quick_submit():
 def create_assignment_api(school_id, class_id):
     data = request.get_json()
     if not data:
-        return jsonify(success = False, message = "Nhập lại dữ liệu")
+        return jsonify(success = False, message = "Please re-enter the data")
     if 'user_id' not in session:
         return render_template('login.html')
     user = db.users.find_one({'_id': ObjectId(session['user_id'])})
@@ -88,21 +89,22 @@ def create_assignment_api(school_id, class_id):
                 create_day = data.get('createDay')
 
                 if create_assignment(school_id, class_id, assignment_name, start_day, end_day, create_day):
-                    return jsonify(success = True,message = "Tạo bài mới thành công")
+                    return jsonify(success = True, message = "Successfully created a new assignment")
                 else:
-                    return jsonify(success = False, message = "Tên bài tập đã tồn tại")
-            return jsonify(success = False, message = "sai") 
+                    return jsonify(success = False, message = "Assignment name already exists")
+            return jsonify(success = False, message = "Invalid school ID")
             
-        return jsonify(success = False, message = "sai") 
+        return jsonify(success = False, message = "Unauthorized role") 
         
-    return jsonify(success = False, message = "sai") 
+    return jsonify(success = False, message = "User not logged in")
+
 
 
 @assignment.route('/api/update_assignment@school=<school_id>-class=<class_id>-assignment=<assignment_id>', methods=['PUT'])
 def update_assignment_api(school_id, class_id, assignment_id):
     data = request.get_json()
     if not data:
-        return jsonify(success = False, message = "Nhập lại dữ liệu")
+        return jsonify(success = False, message = "Please re-enter the data")
     if 'user_id' not in session:
         return render_template('login.html')
     user = db.users.find_one({'_id': ObjectId(session['user_id'])})
@@ -115,14 +117,15 @@ def update_assignment_api(school_id, class_id, assignment_id):
                 end_day = data.get('end_day')
 
                 if update_assignment(school_id, class_id, assignment_id, assignment_name, start_day, end_day):
-                    return jsonify(success = True,message = "Cập nhật lớp  thành công")
+                    return jsonify(success = True, message = "Successfully updated the assignment")
                 else:
-                    return jsonify(success = False, message = "Cập nhật không thành công")
-            return jsonify(success = False, message = "sai") 
+                    return jsonify(success = False, message = "Update failed")
+            return jsonify(success = False, message = "Invalid school ID")
             
-        return jsonify(success = False, message = "sai") 
+        return jsonify(success = False, message = "Unauthorized role")
         
-    return jsonify(success = False, message = "sai") 
+    return jsonify(success = False, message = "User not logged in")
+
 
 
 @assignment.route('/api/delete_assignment@school=<school_id>-class=<class_id>-assignment=<assignment_id>', methods=['DELETE'])
@@ -136,12 +139,11 @@ def delete_assignment_api(school_id, class_id, assignment_id):
         if role == "Teacher":
             if school_id == user['school_id']:
                 if delete_assignment(school_id, class_id, assignment_id):
-                    
-                    return jsonify(success = True,message = "Xóa lớp thành công")
+                    return jsonify(success = True, message = "Successfully deleted the assignment")
                 else:
-                    return jsonify(success = False, message = "Xóa lớp không thành công")
-            return jsonify(success = False, message = "sai") 
+                    return jsonify(success = False, message = "Failed to delete the assignment")
+            return jsonify(success = False, message = "Invalid school ID") 
             
-        return jsonify(success = False, message = "sai") 
+        return jsonify(success = False, message = "Unauthorized role") 
         
-    return jsonify(success = False, message = "sai") 
+    return jsonify(success = False, message = "User not logged in")

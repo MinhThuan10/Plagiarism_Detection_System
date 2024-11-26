@@ -35,7 +35,7 @@ def signup_api():
     avatar_letter = first_name[0].upper() if first_name else ""
 
     if not stored_code:
-        return jsonify(success=False, message='Mã xác nhận không tồn tại hoặc đã hết hạn'), 400
+        return jsonify(success=False, message='The verification code does not exist or has expired.'), 400
     
     if str(verificationCode) == str(stored_code):
         # Kiểm tra và tạo user
@@ -46,12 +46,12 @@ def signup_api():
             return jsonify(success=True)
         else:
             print('looo')
-            return jsonify(success=False, message='Email đã tồn tại, vui lòng nhập email khác') 
+            return jsonify(success=False, message='Email already exists, please enter another email') 
     
     else:
         print('looob')
 
-        return jsonify(success=False, message='Mã xác nhận không chính xác'), 400
+        return jsonify(success=False, message='Incorrect confirmation code'), 400
     
     
     
@@ -67,7 +67,7 @@ def send_verification():
     email = data.get('email')
     
     if not email:
-        return jsonify(success=False, message='Email không hợp lệ'), 400
+        return jsonify(success=False, message='Invalid email'), 400
     
     # Tạo mã xác nhận
     verification_code = random.randint(100000, 999999)
@@ -76,7 +76,7 @@ def send_verification():
     if send_verification_email(email, verification_code):
         return jsonify(success=True, verification_code=verification_code)
     else:
-        return jsonify(success=False, message='Không thể gửi email xác nhận')
+        return jsonify(success=False, message='Unable to send confirmation email')
     
 @user.route('/login')
 def login():
@@ -96,7 +96,7 @@ def login_api():
         return jsonify(success=True, role = checkuser[1].get('role'), school_id =  checkuser[1].get('school_id'))
     else:
         print('looo')
-        return jsonify(success=False, message='Tài khoản hoặc mật khẩu không chính xác') 
+        return jsonify(success=False, message='Incorrect account or password') 
 
 @user.route('/api/forgot_password', methods=['POST'])
 def forgot_password():
@@ -112,7 +112,7 @@ def forgot_password():
 
 
     if not stored_code:
-        return jsonify(success=False, message='Mã xác nhận không tồn tại hoặc đã hết hạn'), 400
+        return jsonify(success=False, message='The verification code does not exist or has expired.'), 400
     
     if str(verificationCode) == str(stored_code):
         # Kiểm tra và tạo user
@@ -120,12 +120,12 @@ def forgot_password():
             return jsonify(success=True)
         else:
             print('looo')
-            return jsonify(success=False, message='Email đã tồn tại, vui lòng nhập email khác') 
+            return jsonify(success=False, message='Email already exists, please enter another email') 
     
     else:
         print('looob')
 
-        return jsonify(success=False, message='Mã xác nhận không chính xác'), 400
+        return jsonify(success=False, message='Incorrect confirmation code'), 400
     
 
 @user.route('/api/update_user', methods=['PUST'])
@@ -148,7 +148,7 @@ def update_user_api():
                 return jsonify(success=True)
         else:
             print('looo')
-            return jsonify(success=False, message='Email đã tồn tại, vui lòng nhập email khác') 
+            return jsonify(success=False, message='Email already exists, please enter another email') 
         
 
 @user.route('/profile')
