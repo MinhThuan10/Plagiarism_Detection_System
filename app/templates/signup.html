@@ -144,7 +144,7 @@
                     </div>
 
                     <!-- Submit button -->
-                    <div id="signupMessage" class="text-danger mb-3"></div>
+                    <div id="signupMessage" class="text mb-3"></div>
                     <button
                       id="signupButton"
                       data-mdb-button-init
@@ -158,8 +158,8 @@
 
                   <!-- Verification form (hidden by default) -->
                   <form id="verificationForm" style="display: none">
-                    <p style="color: red">
-                      Vui lòng kiểm tra Email để xác minh mã xác nhận
+                    <p style="color: #0369c3">
+                      Please check your Email to verify the confirmation code
                     </p>
 
                     <div class="form-outline mb-4">
@@ -172,13 +172,15 @@
                         >Enter verification code</label
                       >
                     </div>
-                    <div
-                      id="verificationMessage"
-                      class="text-danger mb-3"
-                    ></div>
+                    <div id="verificationMessage" class="text mb-3"></div>
                     <button
                       id="verifyButton"
-                      class="btn btn-success btn-block fa-lg gradient-custom-2 mb-3"
+                      class="btn btn-block fa-lg gradient-custom-2 mb-3"
+                      style="
+                        background-color: #0369c3;
+                        color: white;
+                        border: none;
+                      "
                       type="button"
                     >
                       Verify

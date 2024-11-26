@@ -1,31 +1,29 @@
-
 let school_id = "";
 
 document.addEventListener("DOMContentLoaded", function () {
-    const submitDayField = document.getElementById("submitDay");
-    const currentDate = new Date();
-    const formattedDate = `${
-        currentDate.getMonth() + 1
-    }/${currentDate.getDate()}/${currentDate.getFullYear()}`;
-    submitDayField.value = formattedDate;
+  const submitDayField = document.getElementById("submitDay");
+  const currentDate = new Date();
+  const formattedDate = `${
+    currentDate.getMonth() + 1
+  }/${currentDate.getDate()}/${currentDate.getFullYear()}`;
+  submitDayField.value = formattedDate;
 
-
-    fetch(`/api/quick_submit`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.success) {
-            document.getElementById("school_name").innerText = data.school_name;
-            const tbody = document.getElementById("file_table_body");
-            school_id = data.school_id;
-            data.list_files.forEach((fileInfo, index) => {
-              const row = document.createElement("tr");
-              // Thêm các ô vào hàng
-              row.innerHTML = `
+  fetch(`/api/quick_submit`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        document.getElementById("school_name").innerText = data.school_name;
+        const tbody = document.getElementById("file_table_body");
+        school_id = data.school_id;
+        data.list_files.forEach((fileInfo, index) => {
+          const row = document.createElement("tr");
+          // Thêm các ô vào hàng
+          row.innerHTML = `
                         <td>${fileInfo.author_name}</td>
                         <td class="ps-4">${fileInfo.file_id}</td>
                         <td class="wrap-text">
@@ -64,127 +62,122 @@ document.addEventListener("DOMContentLoaded", function () {
                             </ul>
                         </td>
                         `;
-    
-              tbody.appendChild(row);
-    
 
-              const deleteicon = row.querySelector(".delete");
-              deleteicon.addEventListener("click", function () {
-                const file_id = this.getAttribute("file_id");
-                console.log("Đã nhấn xóa file có ID:", file_id);
-                const deletebutton = document.getElementById("submit_delete");
-                deletebutton.addEventListener("click", function () {
-                  fetch(
-                    `/api/delete_file@file_id=${file_id}`,
-                    {
-                      method: "DELETE",
-                      headers: {
-                        "Content-Type": "application/json",
-                      },
-                    }
-                  )
-                    .then((response) => response.json())
-                    .then((data) => {
-                      if (data.success) {
-                        console.log(data.message);
-                        location.reload();
-                      } else {
-                        console.log(data.message);
-                      }
-                    })
-                    .catch((error) => {
-                      console.error("Error:", error);
-                    });
+          tbody.appendChild(row);
+
+          const deleteicon = row.querySelector(".delete");
+          deleteicon.addEventListener("click", function () {
+            const file_id = this.getAttribute("file_id");
+            console.log("Đã nhấn xóa file có ID:", file_id);
+            const deletebutton = document.getElementById("submit_delete");
+            deletebutton.addEventListener("click", function () {
+              fetch(`/api/delete_file@file_id=${file_id}`, {
+                method: "DELETE",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              })
+                .then((response) => response.json())
+                .then((data) => {
+                  if (data.success) {
+                    console.log(data.message);
+                    location.reload();
+                  } else {
+                    console.log(data.message);
+                  }
+                })
+                .catch((error) => {
+                  console.error("Error:", error);
                 });
-              });
-
-              
             });
-          } else {
-            console.error("Không thể tải dữ liệu trường học");
-          }
-        })
-        .catch((error) => console.error("Lỗi:", error));
-
-
+          });
+        });
+      } else {
+        console.error("Không thể tải dữ liệu trường học");
+      }
+    })
+    .catch((error) => console.error("Lỗi:", error));
 });
 
-
-
 function updateFileName() {
-    const fileInput = document.getElementById("submissionFile");
-    const fileNameField = document.getElementById("fileName");
-    const removeFileBtn = document.getElementById("removeFileBtn");
+  const fileInput = document.getElementById("submissionFile");
+  const fileNameField = document.getElementById("fileName");
+  const removeFileBtn = document.getElementById("removeFileBtn");
 
-    if (fileInput.files.length > 0) {
-        fileNameField.value = fileInput.files[0].name;
-        removeFileBtn.style.display = "inline"; // Show the "x" button
-    } else {
-        fileNameField.value = "No file chosen";
-        removeFileBtn.style.display = "none"; // Hide the "x" button
-    }
+  if (fileInput.files.length > 0) {
+    fileNameField.value = fileInput.files[0].name;
+    removeFileBtn.style.display = "inline"; // Show the "x" button
+  } else {
+    fileNameField.value = "No file chosen";
+    removeFileBtn.style.display = "none"; // Hide the "x" button
+  }
 }
 
 function removeFile() {
-    const fileInput = document.getElementById("submissionFile");
-    const fileNameField = document.getElementById("fileName");
-    const removeFileBtn = document.getElementById("removeFileBtn");
+  const fileInput = document.getElementById("submissionFile");
+  const fileNameField = document.getElementById("fileName");
+  const removeFileBtn = document.getElementById("removeFileBtn");
 
-    fileInput.value = ""; // Clear the file input
-    fileNameField.value = "No file chosen"; // Reset the file name display
-    removeFileBtn.style.display = "none"; // Hide the "x" button
+  fileInput.value = ""; // Clear the file input
+  fileNameField.value = "No file chosen"; // Reset the file name display
+  removeFileBtn.style.display = "none"; // Hide the "x" button
 }
 
 const submit_button = document.getElementById("submit_button");
 submit_button.addEventListener("click", function () {
-    const messageDiv = document.getElementById("signupMessage");
-    const authorName = document.getElementById("authorName");
+  const messageDiv = document.getElementById("signupMessage");
+  const authorName = document.getElementById("authorName");
 
-    const submissionTitle = document.getElementById("submissionTitle");
-    const submissionFile = document.getElementById("submissionFile");
-    const storageOption = document.getElementById("storageOption");
-    const submitDay = document.getElementById("submitDay");
+  const submissionTitle = document.getElementById("submissionTitle");
+  const submissionFile = document.getElementById("submissionFile");
+  const storageOption = document.getElementById("storageOption");
+  const submitDay = document.getElementById("submitDay");
 
-    messageDiv.textContent = "";
+  messageDiv.textContent = "";
 
-    if (!authorName.value) {
-        messageDiv.textContent += "Please give author Name! ";
-        allFilled = false;
+  if (!authorName.value) {
+    messageDiv.textContent += "Please give author Name! ";
+    messageDiv.style.color = "red";
+
+    allFilled = false;
+  }
+
+  if (!submissionTitle.value) {
+    messageDiv.textContent += "Please give Submission Title! ";
+    messageDiv.style.color = "red";
+
+    allFilled = false;
+  }
+  if (!submissionFile.value) {
+    messageDiv.textContent += "Please chose File! ";
+    messageDiv.style.color = "red";
+
+    allFilled = false;
+  }
+
+  const file = submissionFile.files[0];
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("author_name", authorName.value);
+  formData.append("submissionTitle", submissionTitle.value);
+  formData.append("storageOption", storageOption.value);
+  formData.append("submitDay", submitDay.value);
+  fetch(`/api/upload_file_quick_submit@school=${school_id}`, {
+    method: "POST",
+    body: formData,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        messageDiv.textContent = data.message;
+        messageDiv.style.color = "#0369C3";
+        location.reload();
+      } else {
+        messageDiv.textContent = data.message;
+        messageDiv.style.color = "red";
       }
-
-    if (!submissionTitle.value) {
-      messageDiv.textContent += "Please give Submission Title! ";
-      allFilled = false;
-    }
-    if (!submissionFile.value) {
-      messageDiv.textContent += "Please chose File! ";
-      allFilled = false;
-    }
-
-    const file = submissionFile.files[0];
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("author_name", authorName.value);
-    formData.append("submissionTitle", submissionTitle.value);
-    formData.append("storageOption", storageOption.value);
-    formData.append("submitDay", submitDay.value);
-    fetch(
-      `/api/upload_file_quick_submit@school=${school_id}`,
-      {
-        method: "POST",
-        body: formData,
-      }
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          messageDiv.textContent = data.message;
-          location.reload();
-        } else {
-          messageDiv.textContent = data.message;
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
-  });
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+});

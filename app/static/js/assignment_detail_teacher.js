@@ -88,7 +88,9 @@ document.addEventListener("DOMContentLoaded", function () {
             modal_download,
             link;
           if (student_submited.includes(studentInfo.user_id)) {
-            const result = data.list_files.find(item => item.author_id === studentInfo.user_id);
+            const result = data.list_files.find(
+              (item) => item.author_id === studentInfo.user_id
+            );
             submissionID = result.file_id;
             title = result.title;
             submitDay = result.submit_day;
@@ -190,13 +192,15 @@ document.addEventListener("DOMContentLoaded", function () {
               const submitDay = document.getElementById("submitDay");
 
               messageDiv.textContent = "";
-              allFilled = true
+              allFilled = true;
               if (!submissionTitle.value) {
                 messageDiv.textContent += "Please give Submission Title! ";
+                messageDiv.style.color = "red";
                 allFilled = false;
               }
               if (!submissionFile.value) {
                 messageDiv.textContent += "Please chose File! ";
+                messageDiv.style.color = "red";
                 allFilled = false;
               }
 
@@ -209,7 +213,8 @@ document.addEventListener("DOMContentLoaded", function () {
               formData.append("submitDay", submitDay.value);
 
               if (allFilled) {
-                document.getElementById("loadingSpinner").style.display = "block";
+                document.getElementById("loadingSpinner").style.display =
+                  "block";
 
                 fetch(
                   `/api/upload_file@school=${school_id}-class=${class_id}-assignment=${assignment_id}`,
@@ -222,9 +227,11 @@ document.addEventListener("DOMContentLoaded", function () {
                   .then((data) => {
                     if (data.success) {
                       messageDiv.textContent = data.message;
+                      messageDiv.style.color = "#0369C3";
                       location.reload();
                     } else {
                       messageDiv.textContent = data.message;
+                      messageDiv.style.color = "red";
                     }
                   })
                   .catch((error) => {
@@ -232,10 +239,11 @@ document.addEventListener("DOMContentLoaded", function () {
                   })
                   .finally(() => {
                     // Hide the loading spinner
-                    document.getElementById("loadingSpinner").style.display = "none";
+                    document.getElementById("loadingSpinner").style.display =
+                      "none";
                   });
-                }
-              });
+              }
+            });
           });
 
           const deleteicon = row.querySelector(".delete");
@@ -269,8 +277,8 @@ document.addEventListener("DOMContentLoaded", function () {
           });
         });
       } else {
-        console.error("Không thể tải dữ liệu trường học");
+        console.error("Unable to load school data");
       }
     })
-    .catch((error) => console.error("Lỗi:", error));
+    .catch((error) => console.error("Error:", error));
 });

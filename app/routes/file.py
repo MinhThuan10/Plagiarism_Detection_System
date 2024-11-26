@@ -22,9 +22,9 @@ def load_files_api(class_id, assignment_id):
         list_students = load_student_in_class(class_id)
         if user['school_id'] == assignment['school_id']:
             return jsonify(success = True, assignment = assignment, list_students = list_students, list_files = list_files)
-        return jsonify(success = False, message = "sai") 
-        
-    return jsonify(success = False, message = "sai")
+        return jsonify(success=False, message="Invalid school ID for the assignment.")
+    
+    return jsonify(success=False, message="User authentication failed.")
 
 @file.route('/api/quick_submit', methods=['GET'])
 def load_files_quick_submit_api():
@@ -35,7 +35,7 @@ def load_files_quick_submit_api():
         school = db.schools.find_one({'school_id': user['school_id']})
         list_files = load_files_quick_submit(user['school_id'])
         return jsonify(success = True, list_files = list_files, school_name = school['school_name'], school_id = school['school_id'])
-    return jsonify(success = False, message = "sai")
+    return jsonify(success=False, message="School information missing.")
 
 
 
@@ -61,9 +61,9 @@ def create_file_api(school_id, class_id, assignment_id):
                             school_cursor = db.schools.find_one({"school_id": school_id})
                             add_file_to_elasticsearch(school_cursor["ip_cluster"], school_id, school_cursor["school_name"], file_id, school_cursor["index_name"], 'student_Data')
                         call_test_function_async(file_id)
-                        return jsonify(success = True, message = "Dung")
-                    return jsonify(success = False, message = "Đã bị trùng tên bài tập") 
-                return jsonify(success = False, message = "Tải file lên không thành công") 
+                        return jsonify(success = True, message = "File upload successful")
+                    return jsonify(success = False, message = "The assignment name is duplicated.") 
+                return jsonify(success = False, message = "File upload failed") 
             if user['role'] == "Student":
                 print("Them file")
                 student_id = user['user_id']
@@ -79,13 +79,13 @@ def create_file_api(school_id, class_id, assignment_id):
                             school_cursor = db.schools.find_one({"school_id": school_id})
                             add_file_to_elasticsearch(school_cursor["ip_cluster"], school_id, school_cursor["school_name"], file_id, school_cursor["index_name"], 'student_Data')
                         call_test_function_async(file_id)
-                        return jsonify(success = True, message = "Tải file lên thành công")
-                    return jsonify(success = False, message = "Đã hết hạn nộp bài") 
-                return jsonify(success = False, message = "Không thể tải file lên") 
+                        return jsonify(success = True, message = "File upload successful")
+                    return jsonify(success = False, message = "Submission deadline has passed.") 
+                return jsonify(success = False, message = "Unable to upload file") 
 
-        return jsonify(success = False, message = "Bạn không có quyền") 
+        return jsonify(success = False, message = "You do not have the right") 
         
-    return jsonify(success = False, message = "Vui lòng đăng nhập lại") 
+    return jsonify(success = False, message = "Please log in again") 
 
 from threading import Thread
 from flask import jsonify, Response
@@ -116,13 +116,13 @@ def create_file_quick_submit_api(school_id):
                         school_cursor = db.schools.find_one({"school_id": school_id})
                         add_file_to_elasticsearch(school_cursor["ip_cluster"], school_id, school_cursor["school_name"], file_id, school_cursor["index_name"], 'student_Data')
                     call_test_function_async(file_id)
-                    return jsonify(success = True, message = "Dung")
-                return jsonify(success = False, message = "sai") 
-            return jsonify(success = False, message = "sai") 
+                    return jsonify(success = True, message = "File uploaded successfully")
+                return jsonify(success = False, message = "Error occurred during file upload") 
+            return jsonify(success = False, message = "No file provided") 
 
-        return jsonify(success = False, message = "sai") 
+        return jsonify(success = False, message = "School ID does not match") 
         
-    return jsonify(success = False, message = "sai") 
+    return jsonify(success = False, message = "User not logged in") 
 
 @file.route('/api/delete_file@school=<school_id>-class=<class_id>-assignment=<assignment_id>-student=<student_id>', methods=['DELETE'])
 def delete_file_api(school_id, class_id, assignment_id, student_id):
@@ -134,15 +134,15 @@ def delete_file_api(school_id, class_id, assignment_id, student_id):
             if user['role'] == "Teacher":
                 print("Xoa file")
                 if delete_file_teacher(school_id, class_id, assignment_id, student_id) and delete_student_submit(school_id, assignment_id, student_id):
-                    return jsonify(success = True, message = "Dung")
-                return jsonify(success = False, message = "sai") 
+                    return jsonify(success = True, message = "File deleted successfully")
+                return jsonify(success = False, message = "Error occurred during file deletion")  
             if user['role'] == "Student":
                 if delete_file_student(user['user_id'], school_id, class_id, assignment_id, student_id) and delete_student_submit(school_id, assignment_id, student_id):
-                    return jsonify(success = True, message = "Dung")
-                return jsonify(success = False, message = "sai") 
-        return jsonify(success = False, message = "sai") 
+                    return jsonify(success = True, message = "File deleted successfully")
+                return jsonify(success = False, message = "Error occurred during file deletion") 
+        return jsonify(success = False, message = "School ID does not match") 
         
-    return jsonify(success = False, message = "sai") 
+    return jsonify(success = False, message = "User not logged in") 
 
 
 @file.route('/api/delete_file@file_id=<file_id>', methods=['DELETE'])
@@ -154,11 +154,11 @@ def delete_file_quick_submit_api(file_id):
         if user['role'] == "Teacher":
             print("Xoa file")
             if delete_file_quick_submit(user['school_id'], file_id):
-                return jsonify(success = True, message = "Dung")
-            return jsonify(success = False, message = "sai") 
-        return jsonify(success = False, message = "sai") 
+                return jsonify(success = True, message = "File deleted successfully")
+            return jsonify(success = False, message = "Error occurred during file deletion") 
+        return jsonify(success = False, message = "Permission denied") 
         
-    return jsonify(success = False, message = "sai") 
+    return jsonify(success = False, message = "User not logged in") 
 
 @file.route('/api/download_pdf@school=<school_id>-class=<class_id>-assignment=<assignment_id>-student=<student_id>', methods=['GET'])
 def download_pdf_raw(school_id, class_id, assignment_id, student_id):
@@ -292,8 +292,8 @@ def load_fileInfo_checked(file_id):
     user = db.users.find_one({'_id': ObjectId(session['user_id'])})
     list_files, school_source_off, school_source_on, school_exclusion_source, school_exclusion_text = get_file_report(file_id)
     if user:
-        return jsonify(success = True, message = "Dung", list_files = list_files, school_source_off = school_source_off, school_source_on = school_source_on, school_exclusion_source = school_exclusion_source, school_exclusion_text = school_exclusion_text )
-    return jsonify(success = False, message = "sai") 
+        return jsonify(success = True, message = "Data loaded successfully", list_files = list_files, school_source_off = school_source_off, school_source_on = school_source_on, school_exclusion_source = school_exclusion_source, school_exclusion_text = school_exclusion_text )
+    return jsonify(success = False, message = "Error occurred while loading data") 
 
 
 @file.route("/api/remove_source_school@file_id=<file_id>-school_id=<school_id>", methods=['POST'])
@@ -303,8 +303,8 @@ def remove_source_school_api(file_id, school_id):
     user = db.users.find_one({'_id': ObjectId(session['user_id'])})
     if user:
         remove_source_school(file_id, school_id)
-        return jsonify(success = True, message = "da cap nhat") 
-    return jsonify(success = False, message = "sai") 
+        return jsonify(success = True, message = "Source updated successfully") 
+    return jsonify(success = False, message = "Error occurred during source removal") 
 
 @file.route("/api/add_source_school@file_id=<file_id>-school_id=<school_id>", methods=['POST'])
 def add_source_school_api(file_id, school_id):
@@ -313,8 +313,8 @@ def add_source_school_api(file_id, school_id):
     user = db.users.find_one({'_id': ObjectId(session['user_id'])})
     if user:
         add_source_school(file_id, school_id)
-        return jsonify(success = True, message = "da cap nhat") 
-    return jsonify(success = False, message = "sai") 
+        return jsonify(success = True, message = "Updated successfully") 
+    return jsonify(success = False, message = "Error occurred during update") 
 
 
 @file.route("/api/remove_text_school@file_id=<file_id>-school_id=<school_id>-sentence=<sentence_index>", methods=['POST'])
@@ -324,8 +324,8 @@ def remove_source_school_text(file_id, school_id, sentence_index):
     user = db.users.find_one({'_id': ObjectId(session['user_id'])})
     if user:
         remove_text_school(file_id, school_id, sentence_index)
-        return jsonify(success = True, message = "da cap nhat") 
-    return jsonify(success = False, message = "sai") 
+        return jsonify(success = True, message = "Updated successfully") 
+    return jsonify(success = False, message = "Error occurred during update") 
     
 @file.route("/api/add_text_school@file_id=<file_id>-sentence=<sentence_index>-<source_id>", methods=['POST'])
 def add_source_school_text(file_id, sentence_index, source_id):
@@ -334,9 +334,8 @@ def add_source_school_text(file_id, sentence_index, source_id):
     user = db.users.find_one({'_id': ObjectId(session['user_id'])})
     if user:
         add_text_school(file_id, sentence_index, source_id)
-        return jsonify(success = True, message = "da cap nhat") 
-    return jsonify(success = False, message = "sai") 
-
+        return jsonify(success = True, message = "Updated successfully") 
+    return jsonify(success = False, message = "Error occurred during update") 
 
 @file.route("/api/add_all_source_school@file_id=<file_id>", methods=['POST'])
 def add_all_source_school_api(file_id):
@@ -345,8 +344,8 @@ def add_all_source_school_api(file_id):
     user = db.users.find_one({'_id': ObjectId(session['user_id'])})
     if user:
         add_all_source_school(file_id)
-        return jsonify(success = True, message = "da cap nhat") 
-    return jsonify(success = False, message = "sai") 
+        return jsonify(success = True, message = "Updated successfully") 
+    return jsonify(success = False, message = "Error occurred during update") 
 
 @file.route("/api/add_all_text_school@file_id=<file_id>", methods=['POST'])
 def add_all_text_school_api(file_id):
@@ -355,8 +354,8 @@ def add_all_text_school_api(file_id):
     user = db.users.find_one({'_id': ObjectId(session['user_id'])})
     if user:
         add_all_text_school(file_id)
-        return jsonify(success = True, message = "da cap nhat") 
-    return jsonify(success = False, message = "sai") 
+        return jsonify(success = True, message = "Updated successfully") 
+    return jsonify(success = False, message = "Error occurred during update") 
 
 @file.route("/api/fillter@file_id=<file_id>", methods=['POST'])
 def apply_filter_api(file_id):
@@ -373,5 +372,5 @@ def apply_filter_api(file_id):
         minWord = data.get('minWord')
         minWordValue = data.get('minWordValue')
         apply_filter(file_id, studentData, internet, paper, references, curlybracket, minWord, minWordValue)
-        return jsonify(success = True, message = "da cap nhat") 
-    return jsonify(success = False, message = "sai") 
+        return jsonify(success = True, message = "Updated successfully") 
+    return jsonify(success = False, message = "Error occurred during update") 

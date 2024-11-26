@@ -10,7 +10,7 @@
   border: 1px solid #eee; /* Màu xám nhạt */
   padding: 20px; /* Khoảng cách bên trong cho nội dung */
   width: 600px;
-  height: 500px;
+  height: 580px;
   background-color: white;
   border-radius: 15px;
 }
@@ -19,7 +19,6 @@
   font-weight: 600;
   color: #35509a;
   margin-left: 175px;
-  margin-bottom: 20px;
 }
 
 .input-group {
@@ -50,11 +49,22 @@ input[type="text"] {
   border-radius: 5px;
   color: #212529;
 }
+input[type="password"] {
+  font-size: 16px;
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  color: #212529;
+}
 input[type="text"]:focus {
   outline: none; /* Xóa outline mặc định */
   border-color: #e0e0e0; /* Giữ nguyên màu border */
 }
+input[type="password"]:focus {
+  outline: none; /* Xóa outline mặc định */
+  border-color: #e0e0e0; /* Giữ nguyên màu border */
+}
 .btn-save {
-  margin-top: 20px;
+  margin-top: 0px;
   width: 558px;
 }

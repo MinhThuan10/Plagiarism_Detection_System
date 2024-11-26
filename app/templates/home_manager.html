@@ -103,9 +103,6 @@
               aria-labelledby="navbarDropdownMenuAvatar"
             >
               <li>
-                <a class="dropdown-item" href="#">My profile</a>
-              </li>
-              <li>
                 <a class="dropdown-item" href="{{ url_for('user.logout') }}"
                   >Logout</a
                 >
@@ -227,11 +224,13 @@
                               required
                             />
                           </div>
-
-
                         </form>
                       </div>
-                      <div id="signupMessage" class="text-danger mb-3"></div>
+                      <div
+                        id="signupMessage"
+                        class="text mb-3"
+                        style="text-align: center"
+                      ></div>
 
                       <div class="modal-footer">
                         <button
@@ -371,9 +370,7 @@
               </div>
 
               <div class="mb-3">
-                <label for="indexName" class="form-label"
-                  >Index name</label
-                >
+                <label for="indexName" class="form-label">Index name</label>
                 <input
                   type="text"
                   class="form-control"
@@ -393,8 +390,6 @@
                   required
                 />
               </div>
-
-
             </form>
           </div>
           <div class="modal-footer">

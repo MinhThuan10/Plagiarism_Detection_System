@@ -80,9 +80,7 @@
                   </th>
                 </tr>
               </thead>
-              <TBody id="assignment_table_body">
-
-              </TBody>
+              <tbody id="assignment_table_body"></tbody>
             </table>
           </div>
         </div>
@@ -181,17 +179,19 @@
           </div>
         </form>
       </div>
-      <div id="signupMessage" class="text-danger mb-3"></div>
+      <div
+        id="signupMessage"
+        class="text mb-3"
+        style="text-align: center"
+      ></div>
 
       <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-secondary"
-          data-bs-dismiss="modal"
-        >
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
           Cancel
         </button>
-        <button type="button" id="submit_button" class="btn btn-primary">Submit</button>
+        <button type="button" id="submit_button" class="btn btn-primary">
+          Submit
+        </button>
       </div>
     </div>
   </div>
@@ -227,17 +227,21 @@
         >
           Cancel
         </button>
-        <button type="button" id="delete_file" class="btn btn-primary">Delete</button>
+        <button type="button" id="delete_file" class="btn btn-primary">
+          Delete
+        </button>
       </div>
     </div>
   </div>
 </div>
-<div id="user-info" data-user-id="{{ user_id }}" style="display: none;"></div>
+<div id="user-info" data-user-id="{{ user_id }}" style="display: none"></div>
 {% endblock %} {% block extra_js %}
 <script src="{{ url_for('static', filename='js/assignment_student.js') }}"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const userId = document.getElementById('user-info').getAttribute('data-user-id');
+  document.addEventListener("DOMContentLoaded", function () {
+    const userId = document
+      .getElementById("user-info")
+      .getAttribute("data-user-id");
   });
 </script>
 {% endblock %}

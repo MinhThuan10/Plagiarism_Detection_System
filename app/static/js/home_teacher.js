@@ -1,26 +1,26 @@
-let  school_id = ''
+let school_id = "";
 
-document.addEventListener("DOMContentLoaded", function() {
-    fetch(`/api/school`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const schoolName = data.school_data.school_name;
-            school_id = data.school_data.school_id;
-            document.getElementById('school_name').innerText = schoolName;
-            console.log(schoolName);
-            const tbody = document.getElementById('class_table_body');
+document.addEventListener("DOMContentLoaded", function () {
+  fetch(`/api/school`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        const schoolName = data.school_data.school_name;
+        school_id = data.school_data.school_id;
+        document.getElementById("school_name").innerText = schoolName;
+        console.log(schoolName);
+        const tbody = document.getElementById("class_table_body");
 
-            data.classs.forEach(classInfo => {
-                const row = document.createElement('tr');
+        data.classs.forEach((classInfo) => {
+          const row = document.createElement("tr");
 
-                // Thêm các ô vào hàng
-                row.innerHTML = `
+          // Thêm các ô vào hàng
+          row.innerHTML = `
                     <td class="ps-4">${classInfo.class_id}</td>
                     <td>
                         <a href="class=${classInfo.class_id}" class="text-body" style="color: #35509a !important">${classInfo.class_name}</a>
@@ -43,115 +43,118 @@ document.addEventListener("DOMContentLoaded", function() {
                     </td>
                 `;
 
-                tbody.appendChild(row);
+          tbody.appendChild(row);
 
-                const deleteicon = row.querySelector('.delete');
-                deleteicon.addEventListener('click', function() {
-                    const class_id = this.getAttribute('class_id');
-                    console.log('Đã nhấn xóa lớp có ID:', class_id);
-                    const deletebutton = document.getElementById('submit_delete');
-                    deletebutton.addEventListener('click', function(){
-                        fetch(`/api/delete_class@school=${school_id}-class=${class_id}`, {
-                            method: 'DELETE',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                console.log(data.message);
-                                location.reload();
-                              } else {
-                                console.log(data.message);
-                              }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                        });
-                    })
-                    
-
-                });
-
-                const editicon = row.querySelector('.edit');
-                editicon.addEventListener('click', function() {
-                    const class_id = this.getAttribute('class_id');
-                    console.log('Đã nhấn chỉnh sửa lớp có ID:', class_id);
-                    document.getElementById('class-name-replace').value = classInfo.class_name
-                    document.getElementById('enrollment-key-replace').value = classInfo.class_key
-                    // Chuyển đổi định dạng ngày sang YYYY-MM-DD
-                    const [month, day, year] = classInfo.end_day.split('/'); // Tách chuỗi
-                    const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`; // Định dạng lại
-                    document.getElementById('end-day-replace').value = formattedDate; 
-
-                    const deletebutton = document.getElementById('update_btn');
-                    deletebutton.addEventListener('click', function(){
-                        const class_name_replace = document.getElementById('class-name-replace');
-                        const class_key_replace = document.getElementById('enrollment-key-replace');
-                        const end_day_replace = document.getElementById('end-day-replace');
-
-                        const convertedEndDay = convertDateFormat(end_day_replace.value  );
-                        fetch(`/api/update_class@school=${school_id}-class=${class_id}`, {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ 
-                                class_name: class_name_replace.value,
-                                class_key: class_key_replace.value,
-                                end_day: convertedEndDay
-                             })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                console.log(data.message);
-                                location.reload();
-                              } else {
-                                console.log(data.message);
-                              }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                        });
-                    })
-                    
-
+          const deleteicon = row.querySelector(".delete");
+          deleteicon.addEventListener("click", function () {
+            const class_id = this.getAttribute("class_id");
+            console.log("Đã nhấn xóa lớp có ID:", class_id);
+            const deletebutton = document.getElementById("submit_delete");
+            deletebutton.addEventListener("click", function () {
+              fetch(`/api/delete_class@school=${school_id}-class=${class_id}`, {
+                method: "DELETE",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              })
+                .then((response) => response.json())
+                .then((data) => {
+                  if (data.success) {
+                    console.log(data.message);
+                    location.reload();
+                  } else {
+                    console.log(data.message);
+                  }
+                })
+                .catch((error) => {
+                  console.error("Error:", error);
                 });
             });
-        } else {
-            console.error("Không thể tải dữ liệu trường học");
-        }
+          });
+
+          const editicon = row.querySelector(".edit");
+          editicon.addEventListener("click", function () {
+            const class_id = this.getAttribute("class_id");
+            console.log("Đã nhấn chỉnh sửa lớp có ID:", class_id);
+            document.getElementById("class-name-replace").value =
+              classInfo.class_name;
+            document.getElementById("enrollment-key-replace").value =
+              classInfo.class_key;
+            // Chuyển đổi định dạng ngày sang YYYY-MM-DD
+            const [month, day, year] = classInfo.end_day.split("/"); // Tách chuỗi
+            const formattedDate = `${year}-${month.padStart(
+              2,
+              "0"
+            )}-${day.padStart(2, "0")}`; // Định dạng lại
+            document.getElementById("end-day-replace").value = formattedDate;
+
+            const deletebutton = document.getElementById("update_btn");
+            deletebutton.addEventListener("click", function () {
+              const class_name_replace =
+                document.getElementById("class-name-replace");
+              const class_key_replace = document.getElementById(
+                "enrollment-key-replace"
+              );
+              const end_day_replace =
+                document.getElementById("end-day-replace");
+
+              const convertedEndDay = convertDateFormat(end_day_replace.value);
+              fetch(`/api/update_class@school=${school_id}-class=${class_id}`, {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  class_name: class_name_replace.value,
+                  class_key: class_key_replace.value,
+                  end_day: convertedEndDay,
+                }),
+              })
+                .then((response) => response.json())
+                .then((data) => {
+                  if (data.success) {
+                    console.log(data.message);
+                    location.reload();
+                  } else {
+                    console.log(data.message);
+                  }
+                })
+                .catch((error) => {
+                  console.error("Error:", error);
+                });
+            });
+          });
+        });
+      } else {
+        console.error("Không thể tải dữ liệu trường học");
+      }
     })
-    .catch(error => console.error('Lỗi:', error));
+    .catch((error) => console.error("Lỗi:", error));
 });
 
-
-
 document.addEventListener("DOMContentLoaded", function () {
-const startDayInput = document.getElementById("startDay");
-const today = new Date();
+  const startDayInput = document.getElementById("startDay");
+  const today = new Date();
 
-// Lấy ngày hiện tại và định dạng theo mm/dd/yyyy
-const formattedDate =
+  // Lấy ngày hiện tại và định dạng theo mm/dd/yyyy
+  const formattedDate =
     ("0" + (today.getMonth() + 1)).slice(-2) +
     "/" +
     ("0" + today.getDate()).slice(-2) +
     "/" +
     today.getFullYear();
 
-startDayInput.value = formattedDate; // Tự động điền ngày đã định dạng
+  startDayInput.value = formattedDate; // Tự động điền ngày đã định dạng
 });
 
 function convertDateFormat(dateString) {
-    const [year, month, day] = dateString.split('-'); // Tách phần ngày tháng năm
-    return `${month}/${day}/${year}`; // Trả về định dạng MM/DD/YYYY
+  const [year, month, day] = dateString.split("-"); // Tách phần ngày tháng năm
+  return `${month}/${day}/${year}`; // Trả về định dạng MM/DD/YYYY
 }
 
-
-
-document.getElementById("button_create_class").addEventListener("click", function(event) {
+document
+  .getElementById("button_create_class")
+  .addEventListener("click", function (event) {
     event.preventDefault();
 
     const className = document.getElementById("className");
@@ -159,69 +162,82 @@ document.getElementById("button_create_class").addEventListener("click", functio
     const startDay = document.getElementById("startDay");
     const endDay = document.getElementById("endDay");
     const messageDiv = document.getElementById("signupMessage");
-   
-    messageDiv.textContent = '';
+
+    messageDiv.textContent = "";
 
     let allFilled = true;
 
     if (!className.value) {
-        messageDiv.textContent += "Please give class name! ";
-        allFilled = false;
+      messageDiv.textContent += "Please give class name! ";
+      messageDiv.style.color = "red";
+
+      allFilled = false;
     }
     if (!enrollmentKey.value) {
-        messageDiv.textContent += "Please give class key! ";
-        allFilled = false;
+      messageDiv.textContent += "Please give class key! ";
+      messageDiv.style.color = "red";
+
+      allFilled = false;
     } else if (enrollmentKey.value.length < 6) {
-        messageDiv.textContent += "Class key must be at least 6 characters! ";
-        allFilled = false;
+      messageDiv.textContent += "Class key must be at least 6 characters! ";
+      messageDiv.style.color = "red";
+
+      allFilled = false;
     }
 
     if (!endDay.value) {
-        messageDiv.textContent += "Please chose end day! ";
-        allFilled = false;
+      messageDiv.textContent += "Please chose end day! ";
+      messageDiv.style.color = "red";
+
+      allFilled = false;
     }
 
-    
-    const convertedEndDay = convertDateFormat(endDay.value  );
-
+    const convertedEndDay = convertDateFormat(endDay.value);
 
     if (allFilled) {
-        fetch(`/api/create_class@school=${school_id}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ class_name: className.value,
-                class_key: enrollmentKey.value,
-                start_day: startDay.value,
-                end_day:convertedEndDay
-             })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                messageDiv.textContent = data.message; 
-                console.log("thanh cong tao lop")
-                document.getElementById("modal_add_class").style.display = "none";
+      fetch(`/api/create_class@school=${school_id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          class_name: className.value,
+          class_key: enrollmentKey.value,
+          start_day: startDay.value,
+          end_day: convertedEndDay,
+        }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            messageDiv.textContent = data.message;
+            messageDiv.style.color = "#0369C3";
+            console.log("thanh cong tao lop");
+            document.getElementById("modal_add_class").style.display = "none";
 
-                // Hiển thị phần thông báo thành công
-                document.getElementById('new_class_name').textContent  =className.value
-                document.getElementById('new_class_id').textContent  =data.class_id
-                document.getElementById('new_class_key').textContent  =enrollmentKey.value
+            // Hiển thị phần thông báo thành công
+            document.getElementById("new_class_name").textContent =
+              className.value;
+            document.getElementById("new_class_id").textContent = data.class_id;
+            document.getElementById("new_class_key").textContent =
+              enrollmentKey.value;
 
-                document.getElementById("success_add_class").style.display = "block";
-                document.getElementById("continue").addEventListener("click", function() {
-                    location.reload()
-                });
-            } else {
-                messageDiv.textContent = data.message; 
-            }
+            document.getElementById("success_add_class").style.display =
+              "block";
+            document
+              .getElementById("continue")
+              .addEventListener("click", function () {
+                location.reload();
+              });
+          } else {
+            messageDiv.textContent = data.message;
+            messageDiv.style.color = "red";
+          }
         })
-        .catch(error => {
-            console.error('Error:', error);
-            messageDiv.textContent = "Đã xảy ra lỗi. Vui lòng thử lại.";
+        .catch((error) => {
+          console.error("Error:", error);
+          messageDiv.textContent = "An error occurred. Please try again.";
+          messageDiv.style.color = "red";
         });
     }
-});
-
-
+  });

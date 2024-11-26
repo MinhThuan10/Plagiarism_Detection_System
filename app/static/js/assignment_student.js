@@ -40,8 +40,7 @@ const match = url.match(/class=(\d+)/);
 if (match) {
   class_id = match[1];
 }
-let userId = document.getElementById('user-info').getAttribute('data-user-id');
-
+let userId = document.getElementById("user-info").getAttribute("data-user-id");
 
 document.addEventListener("DOMContentLoaded", function () {
   fetch(`/api/assignments@class=${class_id}`, {
@@ -67,15 +66,17 @@ document.addEventListener("DOMContentLoaded", function () {
             link,
             file_id;
           if (student_submited.includes(userId)) {
-            file_id = assignmentInfo.file_id
+            file_id = assignmentInfo.file_id;
             title = assignmentInfo.title;
             submitDay = assignmentInfo.submit_day;
             link = `/api/download_pdf@school=${school_id}-class=${class_id}-assignment=${assignmentInfo.assignment_id}-student=${userId}`;
-            similarity = assignmentInfo.plagiarism ? assignmentInfo.plagiarism + "%" : "--";
+            similarity = assignmentInfo.plagiarism
+              ? assignmentInfo.plagiarism + "%"
+              : "--";
             modal_upload = "";
             modal_download = "modal";
           } else {
-            file_id = "0"
+            file_id = "0";
             title = "--";
             submitDay = "--";
             link = "#";
@@ -94,7 +95,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         <a href="/report/file_id=${file_id}" class="text-body" style="color: #35509a !important">${title}</a>
                     </td>
                     <td>${submitDay}</td>
-                    <td>${similarity}</td>
+                    <td style="text-align: center;">${similarity}</td>
                     <td>
                         <ul class="list-inline mb-0">
                             <li class="list-inline-item">
@@ -135,7 +136,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
           tbody.appendChild(row);
 
-
           const uploadIcon = row.querySelector(".upload");
           uploadIcon.addEventListener("click", function () {
             let assignment_id = this.getAttribute("assignment_id");
@@ -152,6 +152,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
               if (!submissionFile.value) {
                 messageDiv.textContent += "Please chose File! ";
+                messageDiv.style.color = "red";
+
                 allFilled = false;
               }
 
@@ -172,9 +174,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then((data) => {
                   if (data.success) {
                     messageDiv.textContent = data.message;
+                    messageDiv.style.color = "#0369C3";
                     location.reload();
                   } else {
                     messageDiv.textContent = data.message;
+                    messageDiv.style.color = "red";
                   }
                 })
                 .catch((error) => {
@@ -182,7 +186,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
             });
           });
-
 
           const deleteicon = row.querySelector(".delete");
           deleteicon.addEventListener("click", function () {
@@ -213,12 +216,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
             });
           });
-
-
         });
-
       } else {
-        console.error("Không thể tải dữ liệu trường học");
+        console.error("Unable to load school data");
       }
     })
     .catch((error) => console.error("Lỗi:", error));

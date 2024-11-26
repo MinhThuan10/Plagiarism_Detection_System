@@ -86,10 +86,7 @@
               </tr>
             </thead>
 
-            <tbody id = 'file_table_body'>
-
-            </tbody>
-
+            <tbody id="file_table_body"></tbody>
           </table>
         </div>
       </div>
@@ -206,13 +203,19 @@
           </div>
         </form>
       </div>
-      <div id="signupMessage" class="text-danger mb-3"></div>
+      <div
+        id="signupMessage"
+        class="text mb-3"
+        style="text-align: center"
+      ></div>
 
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
           Cancel
         </button>
-        <button type="button" id="submit_button" class="btn btn-primary">Submit</button>
+        <button type="button" id="submit_button" class="btn btn-primary">
+          Submit
+        </button>
       </div>
     </div>
   </div>
@@ -255,8 +258,6 @@
   </div>
 </div>
 {% endblock %} {% block extra_js %}
-<script
-  src="{{ url_for('static', filename='js/quick_submit.js') }}"
-></script>
+<script src="{{ url_for('static', filename='js/quick_submit.js') }}"></script>
 
 {% endblock %}

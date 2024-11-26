@@ -249,14 +249,17 @@ document
 
     if (!assignmentName.value) {
       messageDiv.textContent += "Please give assignment name! ";
+      messageDiv.style.color = "red";
       allFilled = false;
     }
     if (!startDay.value) {
       messageDiv.textContent += "Please give start day name! ";
+      messageDiv.style.color = "red";
       allFilled = false;
     }
     if (!dueDay.value) {
       messageDiv.textContent += "Please chose due day! ";
+      messageDiv.style.color = "red";
       allFilled = false;
     }
 
@@ -282,14 +285,17 @@ document
         .then((data) => {
           if (data.success) {
             messageDiv.textContent = data.message;
+            messageDiv.style.color = "#0369C3";
             location.reload();
           } else {
             messageDiv.textContent = data.message;
+            messageDiv.style.color = "red";
           }
         })
         .catch((error) => {
           console.error("Error:", error);
-          messageDiv.textContent = "Đã xảy ra lỗi. Vui lòng thử lại.";
+          messageDiv.textContent = "An error occurred. Please try again.";
+          messageDiv.style.color = "red";
         });
     }
   });
