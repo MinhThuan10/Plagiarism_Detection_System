@@ -5,7 +5,8 @@ from app.extensions import db
 from app.models.file import  find_assignment_id, load_files, add_file, add_file_quick_submit, delete_file_teacher, delete_file_student, delete_file_quick_submit, load_files_quick_submit, \
 get_file_report , remove_source_school, add_source_school, remove_text_school, add_text_school, add_all_source_school, add_all_text_school, apply_filter
 from app.models.assignment import  load_student_in_class, add_student_submit, delete_student_submit
-from app.models.search_system.main import main, add_file_to_elasticsearch
+from app.models.search_system.main import main
+from app.models.search_system.models import add_file_to_elasticsearch, import_file_to_elastic
 
 import io
 
@@ -48,7 +49,6 @@ def create_file_api(school_id, class_id, assignment_id):
     if user:
         if school_id == user['school_id']:
             if user['role'] == "Teacher":
-                print("Them file")
                 student_id = request.form.get('student_id')
                 submission_title = request.form.get('submissionTitle')
                 storage_option = request.form.get('storageOption')
@@ -65,7 +65,6 @@ def create_file_api(school_id, class_id, assignment_id):
                     return jsonify(success = False, message = "The assignment name is duplicated.") 
                 return jsonify(success = False, message = "File upload failed") 
             if user['role'] == "Student":
-                print("Them file")
                 student_id = user['user_id']
                 uploaded_file = request.files['file']
                 submission_title = uploaded_file.filename
@@ -374,3 +373,18 @@ def apply_filter_api(file_id):
         apply_filter(file_id, studentData, internet, paper, references, curlybracket, minWord, minWordValue)
         return jsonify(success = True, message = "Updated successfully") 
     return jsonify(success = False, message = "Error occurred during update") 
+
+@file.route("/api/import_file", methods=['POST'])
+def import_file_api():
+    if 'user_id' not in session:
+        return render_template('login.html')
+    user = db.users.find_one({'_id': ObjectId(session['user_id'])})
+    if user['role'] == "Teacher":
+        file = request.files.get('file')
+        school_cursor = db.schools.find_one({'school_id': user['school_id']})
+        if file:
+            print(file.filename)
+            import_file_to_elastic(school_cursor['ip_cluster'], school_cursor['index_name'], user['school_id'], school_cursor['school_name'], file, file.filename, "Ấn bản")
+            return jsonify(success = True, message = "File upload success") 
+        return jsonify(success = False, message = "Document not found") 
+    return jsonify(success = False, message = "You do not have permission to submit the file.") 

@@ -1,4 +1,8 @@
 from app.extensions import db
+import fitz
+import io
+from app.models.search_system.processing_sentence import embedding_vietnamese, preprocess_text_vietnamese, remove_sentences, split_sentences, extract_pdf_text
+from elasticsearch import Elasticsearch
 
 def cluster_remote():
     clusters = []
@@ -262,4 +266,99 @@ def retrieve_pdf_from_mongodb(file_id):
         return file_data['content_file']
     return None
 
+def add_file_to_elasticsearch(ip_cluster, school_id, school_name, file_id, index_name, type):
+    file_cursor = find_file(file_id)
+    pdf_binary = file_cursor['content_file']
 
+    pdf_document = fitz.open(stream=io.BytesIO(pdf_binary), filetype="pdf")
+    text = ""
+    for page_num in range(pdf_document.page_count):
+        page = pdf_document.load_page(page_num)
+        page_text = page.get_text("text")
+        text += page_text
+
+    if text:
+        sentences = split_sentences(text)
+        if sentences:
+            sentences = remove_sentences(sentences)
+            if sentences:
+                processed_sentences = [preprocess_text_vietnamese(sentence)[0] for sentence in sentences]
+                if processed_sentences:
+                    vector_sentences = embedding_vietnamese(processed_sentences)
+                    if vector_sentences is not None and vector_sentences.any():
+                        save_to_elasticsearch(ip_cluster, sentences, vector_sentences, school_id, school_name, int(file_id), file_cursor['title'], index_name, type)
+
+def import_file_to_elastic(ip_cluster, index_name, school_id, school_name, file, title, type):
+    text = extract_pdf_text(file)
+    if text:
+        sentences = split_sentences(text)
+        if sentences:
+            sentences = remove_sentences(sentences)
+            if sentences:
+                processed_sentences = [preprocess_text_vietnamese(sentence)[0] for sentence in sentences]
+                if processed_sentences:
+                    vector_sentences = embedding_vietnamese(processed_sentences)
+                    if vector_sentences is not None and vector_sentences.any():
+                        add_to_elasticsearch(ip_cluster, sentences, vector_sentences, school_id, school_name, title, index_name, type)
+
+
+from elasticsearch.helpers import bulk
+def save_to_elasticsearch(ip_cluster, processed_sentences, vectors, school_id, school_name, file_id, file_name, index_name, type):
+    es_school = Elasticsearch([ip_cluster], timeout=1000)
+    bulk_data = []
+    # Chuẩn bị dữ liệu để chèn vào Elasticsearch
+    for i, sentence in enumerate(processed_sentences):
+        document = {
+            '_index': index_name,  
+            '_source': {  
+                'school_id': school_id,
+                'school_name': school_name,
+                'file_id': file_id,
+                'file_name': file_name,
+                'sentence': sentence,
+                'vector': vectors[i],
+                'type': type
+            }
+        }
+
+        bulk_data.append(document)
+
+    bulk(es_school, bulk_data)
+
+
+def add_to_elasticsearch(ip_cluster, processed_sentences, vector_sentences, school_id, school_name, title, index_name, type):
+    es_school = Elasticsearch([ip_cluster], timeout=1000)
+
+    query = {
+        "size": 1,
+        "sort": [
+            {"file_id": {"order": "asc"}}
+        ],
+        "_source": ["file_id"]  
+    }
+
+    response = es_school.search(index=index_name, body=query)
+    file_id_min = 0
+    if response['hits']['hits']:
+        file_id_min = response['hits']['hits'][0]['_source']['file_id']
+
+    print(file_id_min)
+    bulk_data = []
+    # Chuẩn bị dữ liệu để chèn vào Elasticsearch
+    for i, sentence in enumerate(processed_sentences):
+        document = {
+            '_index': index_name,  
+            '_source': {  
+                'school_id': school_id,
+                'school_name': school_name,
+                'file_id': file_id_min - 1,
+                'file_name': title,
+                'sentence': sentence,
+                'vector': vector_sentences[i],
+                'type': type
+            }
+        }
+
+        bulk_data.append(document)
+
+    bulk(es_school, bulk_data)

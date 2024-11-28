@@ -13,25 +13,15 @@ if index.endswith(','):
 print(index)
 
 def search_top10_vector_elastic(vector_sentence):
+
     search_body = {
-        "size": 10,
-        "query": {
-            "script_score": {
-                "query": {
-                    "match_all": {}
-                },
-                "script": {
-                    "source": """
-                        cosineSimilarity(params.query_vector, 'vector') + 1.0
-                    """,
-                    "params": {
-                        "query_vector": vector_sentence
-                    }
-                }
-            }
+        "knn": {
+            "field": "vector",           
+            "query_vector": vector_sentence, 
+            "k": 10,                   
+            "num_candidates": 100      
         }
     }
-
 
     # res = es.search(index="plagiarism_vector", body=search_body)
     res = es.search(index=index, body=search_body)

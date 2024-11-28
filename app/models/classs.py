@@ -77,8 +77,7 @@ def add_user_to_class(user_id, class_id, class_key):
     classs =  db.classs.find_one({'class_id': class_id})
     if not classs:
         return False
-    if any(student[0] == user_id for student in classs['student_ids']):
-        return False
+        
     if class_key == classs['class_key']:
         day = datetime.now().strftime('%m/%d/%Y')
         classs['student_ids'].append([user_id, day])

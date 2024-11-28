@@ -160,12 +160,13 @@ def add_user_to_class_api():
             classs = db.classs.find_one({'class_id': class_id})
             if classs:
                 end_day = datetime.strptime(classs['end_day'], "%m/%d/%Y")
+                if any(student[0] == user['user_id'] for student in classs['student_ids']):
+                    return jsonify(success = False, message = "You have already joined the class") 
                 if classs['school_id'] == user['school_id'] and datetime.now() < end_day:
                     if add_user_to_class(user['user_id'], class_id, class_key):
                         return jsonify(success = True, message = "Successfully joined the class")
                     else:
                         return jsonify(success = False, message = "Wrong enrollment key")
-                    
                 return jsonify(success = False, message = "The class has ended and you can no longer join") 
             return jsonify(success = False, message = "Class does not exist") 
         return jsonify(success = False, message = "You do not have permission to join this class")      

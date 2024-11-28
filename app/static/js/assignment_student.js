@@ -163,6 +163,7 @@ document.addEventListener("DOMContentLoaded", function () {
               formData.append("storageOption", storageOption.value);
               formData.append("submitDay", submitDay.value);
 
+              document.getElementById("loadingSpinner").style.display ="block";
               fetch(
                 `/api/upload_file@school=${school_id}-class=${class_id}-assignment=${assignment_id}`,
                 {
@@ -183,7 +184,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 })
                 .catch((error) => {
                   console.error("Error:", error);
-                });
+                })
+                .finally(() => {
+                  // Hide the loading spinner
+                  document.getElementById("loadingSpinner").style.display =
+                    "none";
+                });;
             });
           });
 

@@ -182,9 +182,39 @@
       );
       const dropdownInstance = new bootstrap.Dropdown(dropdownElement);
     </script>
-    {% block extra_js %}
-    <!-- Block cho CSS riêng -->
 
+    <script>
+      document.getElementById('fileUpload').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        const formData = new FormData();
+        formData.append("file", file);
+        if (file) {
+            fetch(
+          `/api/import_file`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              location.reload();
+            } else {
+              console.error("Error:", error);
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+        }
+      });
+
+      
+
+    </script>
+    {% block extra_js %}
+    
     {% endblock %}
   </body>
 </html>

@@ -232,3 +232,10 @@ table.project-list-table thead th {
   color: #35509a !important;
   font-weight: 700 !important;
 }
+
+#loadingSpinner {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 1600;
+}

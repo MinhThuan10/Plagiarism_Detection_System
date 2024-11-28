@@ -234,6 +234,14 @@
     </div>
   </div>
 </div>
+<div
+  id="loadingSpinner"
+  class="spinner-border text-primary"
+  role="status"
+  style="display: none"
+>
+  <span class="sr-only">Loading...</span>
+</div>
 <div id="user-info" data-user-id="{{ user_id }}" style="display: none"></div>
 {% endblock %} {% block extra_js %}
 <script src="{{ url_for('static', filename='js/assignment_student.js') }}"></script>

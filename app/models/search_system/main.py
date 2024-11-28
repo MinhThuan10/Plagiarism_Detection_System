@@ -52,17 +52,16 @@ def process_page(word_count, page_num, page, file_id, file_cursor, sentence_inde
 
                             result_sentences = search_top10_vector_elastic(vector_sentences[i])
                             source_id = 0
+                            query_length = len(processed_sentences[i].split())
+                            dynamic_threshold = calculate_dynamic_threshold(query_length)
                             if result_sentences:
-                                query_length = len(processed_sentences[i].split())
-                                dynamic_threshold = calculate_dynamic_threshold(query_length)
-                                
                                 for result_sentence in result_sentences:
-                                    if float(result_sentence['score']) - 1.0 >= dynamic_threshold:
+                                    if float(result_sentence['score']) >= dynamic_threshold:
                                         school_name = result_sentence['school_name']
                                         file_id_source = result_sentence['file_name']
                                         best_match = result_sentence['sentence']
                                         type = result_sentence['type']
-                                        score = float(result_sentence['score']) - 1.0
+                                        score = float(result_sentence['score'])
                                         
                                         school_id = school_cache.get(school_name, current_school_id)
                                         if school_name not in school_cache:
@@ -178,35 +177,35 @@ def main(file_id):
     school_cache = {}  # Cache for schools
     current_school_id = 1  # Initialize school_id
 
-    # with concurrent.futures.ThreadPoolExecutor(cpu_cores * 2) as executor:
-    #     futures = []
-    #     for page_num in range(pdf_document.page_count):
-    #         page = pdf_document.load_page(page_num)
-    #         futures.append(
-    #             executor.submit(
-    #                 process_page,
-    #                 word_count, page_num, page, file_id, file_cursor, sentence_index,
-    #                 sentences_cache, school_cache, current_school_id
-    #             )
-    #         )
+    with concurrent.futures.ThreadPoolExecutor(cpu_cores * 2) as executor:
+        futures = []
+        for page_num in range(pdf_document.page_count):
+            page = pdf_document.load_page(page_num)
+            futures.append(
+                executor.submit(
+                    process_page,
+                    word_count, page_num, page, file_id, file_cursor, sentence_index,
+                    sentences_cache, school_cache, current_school_id
+                )
+            )
 
-    #     for future in concurrent.futures.as_completed(futures):
-    #         result = future.result()
-    #         if result:  # Kiểm tra nếu result không phải là None
-    #             a, b, c, d, e = result
-    #             word_count += a  # Cộng dồn word_count
-    #             sentence_index = max(sentence_index, b)  # Cập nhật sentence_index lớn nhất
-    #             sentences_cache.update(c)  # Hợp nhất sentences_cache
-    #             school_cache.update(d)  # Hợp nhất school_cache
-    #             current_school_id = max(current_school_id, e)  # Giữ giá trị lớn nhất
-    for page_num in range(pdf_document.page_count):
-        page = pdf_document.load_page(page_num)
-        a, b,  c, d, e = process_page(word_count, page_num, page, file_id, file_cursor, sentence_index, sentences_cache, school_cache, current_school_id)
-        word_count = a
-        sentence_index = b
-        sentences_cache = c
-        school_cache = d
-        current_school_id = e
+        for future in concurrent.futures.as_completed(futures):
+            result = future.result()
+            if result:  # Kiểm tra nếu result không phải là None
+                a, b, c, d, e = result
+                word_count += a  # Cộng dồn word_count
+                sentence_index = max(sentence_index, b)  # Cập nhật sentence_index lớn nhất
+                sentences_cache.update(c)  # Hợp nhất sentences_cache
+                school_cache.update(d)  # Hợp nhất school_cache
+                current_school_id = max(current_school_id, e)  # Giữ giá trị lớn nhất
+    # for page_num in range(pdf_document.page_count):
+    #     page = pdf_document.load_page(page_num)
+    #     a, b,  c, d, e = process_page(word_count, page_num, page, file_id, file_cursor, sentence_index, sentences_cache, school_cache, current_school_id)
+    #     word_count = a
+    #     sentence_index = b
+    #     sentences_cache = c
+    #     school_cache = d
+    #     current_school_id = e
 
     # Final steps
     insert_file(file_cursor['school_id'], file_cursor['class_id'], file_cursor['assignment_id'],
@@ -227,25 +226,6 @@ def main(file_id):
         update_file_checked(file_id, Binary(pdf_output_stream.getvalue()))
 
 
-def add_file_to_elasticsearch(ip_cluster, school_id, school_name, file_id, index_name, type):
-    file_cursor = find_file(file_id)
-    pdf_binary = file_cursor['content_file']
 
-    pdf_document = fitz.open(stream=io.BytesIO(pdf_binary), filetype="pdf")
-    text = ""
-    for page_num in range(pdf_document.page_count):
-        page = pdf_document.load_page(page_num)
-        page_text = page.get_text("text")
-        text += page_text
 
-    if text:
-        sentences = split_sentences(text)
-        if sentences:
-            sentences = remove_sentences(sentences)
-            if sentences:
-                processed_sentences = [preprocess_text_vietnamese(sentence)[0] for sentence in sentences]
-                if processed_sentences:
-                    vector_sentences = embedding_vietnamese(processed_sentences)
-                    if vector_sentences is not None and vector_sentences.any():
-                        save_to_elasticsearch(ip_cluster, processed_sentences, vector_sentences, school_id, school_name, file_id, file_cursor['title'], index_name, type)
 

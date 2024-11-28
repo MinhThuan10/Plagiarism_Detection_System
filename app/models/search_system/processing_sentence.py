@@ -5,6 +5,9 @@ from sentence_transformers import SentenceTransformer
 import difflib
 from sklearn.metrics.pairwise import cosine_similarity
 from langdetect import detect
+import fitz
+import tempfile
+import os
 
 # Load Vietnamese spaCy model
 nlp = spacy.blank("vi")
@@ -261,4 +264,20 @@ def split_snippet(text):
                             combined_sentences.append(phrase)
 
     return combined_sentences
+
+def extract_pdf_text(pdf_path):
+    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+        temp_file.write(pdf_path.read()) 
+        temp_file_path = temp_file.name
+
+    doc = fitz.open(temp_file_path)
+    text = ""
+    for page in doc:
+        page_text = page.get_text()
+        text += page_text
+    doc.close()
+
+    os.remove(temp_file_path)
+
+    return text
 
