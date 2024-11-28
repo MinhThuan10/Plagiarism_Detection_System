@@ -86,6 +86,28 @@
             >
           </li>
         </ul>
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="importFileDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              Import file
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="importFileDropdown">
+              <li>
+                <label class="dropdown-item" for="fileUpload">
+                  Choose File
+                </label>
+                <input type="file" id="fileUpload" style="display: none" />
+              </li>
+            </ul>
+          </li>
+        </ul>
         <!-- Collapsible wrapper -->
 
         <!-- Right elements -->
@@ -115,7 +137,11 @@
               aria-labelledby="navbarDropdownMenuAvatar"
             >
               <li>
-                <a class="dropdown-item" href="{{ url_for('user.account_profile') }}">My profile</a>
+                <a
+                  class="dropdown-item"
+                  href="{{ url_for('user.account_profile') }}"
+                  >My profile</a
+                >
               </li>
               <li>
                 <a class="dropdown-item" href="{{ url_for('user.logout') }}"
