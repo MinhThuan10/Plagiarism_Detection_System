@@ -424,3 +424,11 @@ def add_to_elasticsearch(ip_cluster, processed_sentences, vector_sentences, scho
         bulk_data.append(document)
 
     bulk(es_school, bulk_data)
+
+
+def word_count_function(file_id):
+    word_count = 0
+    sentences = db.sentences.find({'file_id': file_id})
+    for sentence in sentences:
+        word_count += len(sentence['sentence'].split())
+    return word_count

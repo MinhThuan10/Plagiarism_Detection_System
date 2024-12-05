@@ -53,31 +53,34 @@ let fileId = document.getElementById("file-info").getAttribute("data-file-id");
 
 function toggleContainer2(school_id) {
   schoolSource = ".container-text-school_id-" + school_id;
-  console.log(schoolSource);
   const container = document.querySelector(schoolSource);
   // Kiểm tra trạng thái hiển thị ban đầu
   const isHidden = container.style.display === "none";
 
   // Chuyển trạng thái hiển thị
   container.style.display = isHidden ? "block" : "none";
-  if (isHidden) {
-    console.log("highlight theo trương")
-    fetch(`/api/highlight_school@file_id=${fileId}-school_id=${school_id}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          loadPDF(fileId, "view_all");
-        } else {
-          console.error("Không thể tải dữ liệu trường học");
-        }
+
+  if (flexSwitchCheckDefault.checked) {
+    if (isHidden) {
+      console.log("highlight theo trương")
+      fetch(`/api/highlight_school@file_id=${fileId}-school_id=${school_id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
       })
-      .catch((error) => console.error("Lỗi:", error));
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            loadPDF(fileId, "view_all");
+          } else {
+            console.error("Không thể tải dữ liệu trường học");
+          }
+        })
+        .catch((error) => console.error("Lỗi:", error));
+    }
   }
+  
 
 }
 
@@ -205,56 +208,58 @@ function loadFileInfo(sourceType) {
             typeof details.sentences === "object" &&
             details.sentences !== null
           ) {
-            for (const key in details.sentences) {
-              if (details.sentences.hasOwnProperty(key)) {
-                const sentence = details.sentences[key];
+            for (const page in details.sentences) {
+              for (const key in details.sentences[page]) {
 
-                const sectionSource = document.createElement("div");
-                sectionSource.className = "section-source";
-                sectionSource.id = `text-${key}`; // Sử dụng khóa làm ID
+                if (details.sentences[page].hasOwnProperty(key)) {
+                  const sentence = details.sentences[page][key];
 
-                const sectionText = document.createElement("div");
-                sectionText.className = "section-text";
+                  const sectionSource = document.createElement("div");
+                  sectionSource.className = "section-source";
+                  sectionSource.id = `text-${key}`; // Sử dụng khóa làm ID
 
-                const textSection = document.createElement("div");
-                textSection.className = "text-section";
-                textSection.innerHTML = sentence.best_match;
+                  const sectionText = document.createElement("div");
+                  sectionText.className = "section-text";
 
-                const sectionLink = document.createElement("div");
-                sectionLink.className = "section-link2";
-                sectionLink.textContent = sentence.file_id;
+                  const textSection = document.createElement("div");
+                  textSection.className = "text-section";
+                  textSection.innerHTML = sentence.best_match;
 
-                const icon = document.createElement("i");
-                icon.className = "fas fa-xmark";
+                  const sectionLink = document.createElement("div");
+                  sectionLink.className = "section-link2";
+                  sectionLink.textContent = sentence.file_id;
 
-                // Gán sự kiện click cho icon
-                icon.addEventListener("click", function () {
-                  fetch(
-                    `/api/remove_text_school@file_id=${fileId}-school_id=${school_id}-sentence=${key}`,
-                    {
-                      method: "POST",
-                      headers: {
-                        "Content-Type": "application/json",
-                      },
-                    }
-                  )
-                    .then((response) => response.json())
-                    .then((data) => {
-                      if (data.success) {
-                        console.log("Thành công");
-                        location.reload();
-                      } else {
-                        console.error("Không thể tải dữ liệu trường học");
+                  const icon = document.createElement("i");
+                  icon.className = "fas fa-xmark";
+                  // Gán sự kiện click cho icon
+                  icon.addEventListener("click", function () {
+                    fetch(
+                      `/api/remove_text_school@file_id=${fileId}-school_id=${school_id}-page=${page}-sentence=${key}`,
+                      {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
                       }
-                    })
-                    .catch((error) => console.error("Error", error));
-                });
+                    )
+                      .then((response) => response.json())
+                      .then((data) => {
+                        if (data.success) {
+                          console.log("Thành công");
+                          location.reload();
+                        } else {
+                          console.error("Không thể tải dữ liệu trường học");
+                        }
+                      })
+                      .catch((error) => console.error("Error", error));
+                  });
 
-                sectionText.appendChild(textSection);
-                sectionText.appendChild(sectionLink);
-                sectionSource.appendChild(sectionText);
-                sectionSource.appendChild(icon);
-                containerText.appendChild(sectionSource);
+                  sectionText.appendChild(textSection);
+                  sectionText.appendChild(sectionLink);
+                  sectionSource.appendChild(sectionText);
+                  sectionSource.appendChild(icon);
+                  containerText.appendChild(sectionSource);
+                }
               }
             }
           } else {
@@ -334,65 +339,66 @@ function loadFileInfo(sourceType) {
         );
 
         const containerTextExclude = document.getElementById("textContainer");
-
         Object.entries(data.school_exclusion_text).forEach(
-          ([index, sources]) => {
+          ([page, sources]) => {
             // Lặp qua từng nguồn trong khóa chính
-            Object.entries(sources).forEach(([subIndex, source]) => {
-              const sectionSource = document.createElement("div");
-              sectionSource.className = "section-source";
-              sectionSource.id = `text-exclude-${index}-${subIndex}`; // Sử dụng khóa chính và phụ làm ID
+            Object.entries(sources).forEach(([sentence_id, source_page]) => {
+              Object.entries(source_page).forEach(([index, source]) => {
+                console.log(index)
+                const sectionSource = document.createElement("div");
+                sectionSource.className = "section-source";
+                sectionSource.id = `text-exclude-${page}-${sentence_id}-${index}`; // Sử dụng khóa chính và phụ làm ID
 
-              const sectionText = document.createElement("div");
-              sectionText.className = "section-text";
+                const sectionText = document.createElement("div");
+                sectionText.className = "section-text";
 
-              const textSection = document.createElement("div");
-              textSection.className = "text-section";
-              textSection.innerHTML = source.best_match;
+                const textSection = document.createElement("div");
+                textSection.className = "text-section";
+                textSection.innerHTML = source.best_match;
 
-              const sectionLink = document.createElement("div");
-              sectionLink.className = "section-link2";
-              sectionLink.textContent = source.school_name; // Sửa thành school_name
+                const sectionLink = document.createElement("div");
+                sectionLink.className = "section-link2";
+                sectionLink.textContent = source.school_name; // Sửa thành school_name
 
-              const icon = document.createElement("i");
-              icon.className = "fas fa-xmark";
+                const icon = document.createElement("i");
+                icon.className = "fas fa-xmark";
 
-              // Gán sự kiện click cho icon
-              icon.addEventListener("click", function () {
-                const sectionToRemove = document.getElementById(
-                  sectionSource.id
-                );
-                if (sectionToRemove) {
-                  sectionToRemove.remove();
-                  console.log(`Đã loại bỏ trường học: ${index}-${subIndex}`); // Sử dụng khóa chính và phụ
-                }
-                fetch(
-                  `/api/add_text_school@file_id=${fileId}-sentence=${index}-${subIndex}`,
-                  {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
+                // Gán sự kiện click cho icon
+                icon.addEventListener("click", function () {
+                  const sectionToRemove = document.getElementById(
+                    sectionSource.id
+                  );
+                  if (sectionToRemove) {
+                    sectionToRemove.remove();
                   }
-                )
-                  .then((response) => response.json())
-                  .then((data) => {
-                    if (data.success) {
-                      console.log("Thành công");
-                      location.reload();
-                    } else {
-                      console.error("Không thể tải dữ liệu trường học");
+                  fetch(
+                    `/api/add_text_school@file_id=${fileId}-page=${page}-sentence=${sentence_id}-${index}`,
+                    {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
                     }
-                  })
-                  .catch((error) => console.error("Lỗi:", error));
-              });
+                  )
+                    .then((response) => response.json())
+                    .then((data) => {
+                      if (data.success) {
+                        console.log("Thành công");
+                        location.reload();
+                      } else {
+                        console.error("Không thể tải dữ liệu trường học");
+                      }
+                    })
+                    .catch((error) => console.error("Lỗi:", error));
+                });
 
-              sectionText.appendChild(textSection);
-              sectionText.appendChild(sectionLink);
-              sectionSource.appendChild(sectionText);
-              sectionSource.appendChild(icon);
-              containerTextExclude.appendChild(sectionSource);
-            });
+                sectionText.appendChild(textSection);
+                sectionText.appendChild(sectionLink);
+                sectionSource.appendChild(sectionText);
+                sectionSource.appendChild(icon);
+                containerTextExclude.appendChild(sectionSource);
+              });
+            })
           }
         );
 

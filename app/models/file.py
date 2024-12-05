@@ -282,8 +282,9 @@ def get_file_report(file_id):
                             "sentences": {}  
                         }
                     school_source_off[school_id]['word_count'] += highlight.get('word_count_sml', 0)
-                    school_source_off[school_id]['sentences'][sentence_index] = {
-                        "page": page,
+                    if page not in school_source_off[school_id]['sentences']:
+                        school_source_off[school_id]['sentences'][page] = {}
+                    school_source_off[school_id]['sentences'][page][sentence_index] = {
                         "file_id": file_id,
                         "best_match": best_match,
                         "word_count_sml": highlight.get('word_count_sml', 0),
@@ -318,8 +319,9 @@ def get_file_report(file_id):
                             }
                         
                         school_source_on[school_id]['word_count'] += highlight.get('word_count_sml', 0)
-                        school_source_on[school_id]['sentences'][sentence_index] = {
-                            "page": page,
+                        if page not in school_source_on[school_id]['sentences']:
+                            school_source_on[school_id]['sentences'][page] = {}
+                        school_source_on[school_id]['sentences'][page][sentence_index] = {
                             "file_id": file_id,
                             "best_match": best_match,
                             "word_count_sml": highlight.get('word_count_sml', 0),
@@ -340,15 +342,17 @@ def get_file_report(file_id):
             filtered_text = [source for source in sources if (source['except'] == 'text')]
             if filtered_text :
                 for source in filtered_text :
-                    sentence_index = sentence.get('sentence_index', "")
+                    page = sentence.get('page')
+                    sentence_index = sentence.get('sentence_index')
                     school_name = source['school_name']
                     best_match = source['best_match']
                     source_id = source['source_id']
+                    if page not in school_exclusion_text:
+                        school_exclusion_text[page] = {}
+                    if sentence_index not in school_exclusion_text[page]:
+                        school_exclusion_text[page][sentence_index] = {}  # Khởi tạo nếu chưa có
 
-                    if sentence_index not in school_exclusion_text:
-                        school_exclusion_text[sentence_index] = {}  # Khởi tạo nếu chưa có
-
-                    school_exclusion_text[sentence_index][source_id] = {
+                    school_exclusion_text[page][sentence_index][source_id] = {
                         "school_name": school_name,
                         "best_match": best_match,
                     }
@@ -433,9 +437,9 @@ def add_all_source_school(file_id):
         file_highlighted.close()
         update_file_checked(file_id, Binary(pdf_output_stream.getvalue()))
 
-def remove_text_school(file_id, school_id, sentence_index):
+def remove_text_school(file_id, school_id, page, sentence_index):
     db.sentences.update_many(
-        {"file_id": file_id, "sources.school_id": int(school_id), "sentence_index": int(sentence_index) ,"sources.except": "no"},
+        {"file_id": file_id, "sources.school_id": int(school_id), "page": int(page), "sentence_index": int(sentence_index) ,"sources.except": "no"},
         {"$set": {"sources.$[elem].except": "text"}},
         array_filters=[{"elem.school_id": int(school_id), "elem.except": "no"}]  
     )
@@ -483,9 +487,10 @@ def add_all_text_school(file_id):
         file_highlighted.close()
         update_file_checked(file_id, Binary(pdf_output_stream.getvalue()))
 
-def add_text_school(file_id, sentence_index, source_id):
+def add_text_school(file_id, page, sentence_index, source_id):
+    print(page, sentence_index, source_id)
     db.sentences.update_many(
-        {"file_id": file_id, "sources.source_id": int(source_id), "sentence_index":  int(sentence_index) ,"sources.except": "text"},
+        {"file_id": file_id, "page": int(page), "sentence_index":  int(sentence_index) , "sources.source_id":  int(source_id), "sources.except": "text"},
         {"$set": {"sources.$[elem].except": "no"}},
         array_filters=[{"elem.source_id": int(source_id), "elem.except": "text"}]  
     )

@@ -8,7 +8,7 @@ import fitz
 import io
 import os
 import concurrent.futures
-from app.models.search_system.models import find_file, insert_sentence, insert_file, update_file, update_file_checked
+from app.models.search_system.models import find_file, insert_sentence, insert_file, update_file, update_file_checked, word_count_function
 from app.models.search_system.elastic_search import search_top10_vector_elastic, save_to_elasticsearch
 from app.models.search_system.search_google import search_google, fetch_url
 import threading
@@ -18,13 +18,11 @@ from app.models.search_system.processing_sentence import split_sentences, remove
 embedding_vietnamese, check_type_setence, calculate_dynamic_threshold, common_ordered_words, compare_sentences, compare_with_sentences
 
 
-def process_page(word_count, page_num, page, file_id, file_cursor, sentence_index, sentences_cache, school_cache, current_school_id):
+def process_page(page_num, page, file_id, file_cursor, sentences_cache, school_cache):
+    sentence_index = 0
     text = page.get_text("text")
     print(text)
     if text:
-        # Cập nhật word_count bằng cách tính số từ của từng câu
-        sentence_word_count = len(text.split())
-        word_count += sentence_word_count
         sentences = split_sentences(text)
         if sentences:
             sentences = remove_sentences(sentences)
@@ -63,11 +61,11 @@ def process_page(word_count, page_num, page, file_id, file_cursor, sentence_inde
                                         type = result_sentence['type']
                                         score = float(result_sentence['score'])
                                         
-                                        school_id = school_cache.get(school_name, current_school_id)
+                                        # school_id = school_cache.get(school_name, school_name)
                                         if school_name not in school_cache:
-                                            school_cache[school_name] = current_school_id
-                                            current_school_id += 1
-
+                                            school_cache[school_name] = school_name
+                                            # current_school_id += 1
+                                        school_id = list(school_cache.keys()).index(school_name) + 1
                                         positions = []
                                         word_count_sml, paragraphs_best_math, paragraphs = common_ordered_words(best_match, sentence)
                                         quads_sentence = page.search_for(sentence, quads=True)
@@ -123,10 +121,11 @@ def process_page(word_count, page_num, page, file_id, file_cursor, sentence_inde
                                             if similarity_sentence > dynamic_threshold:
                                                 parsed_url = urlparse(url)
                                                 domain = parsed_url.netloc.replace('www.', '')
-                                                school_id = school_cache.get(domain, current_school_id)
+                                                # school_id = school_cache.get(domain, domain)
                                                 if domain not in school_cache:
-                                                    school_cache[domain] = current_school_id
-                                                    current_school_id += 1
+                                                    school_cache[domain] = domain
+                                                    # current_school_id += 1
+                                                school_id = list(school_cache.keys()).index(domain) + 1
 
                                                 positions = []
                                                 word_count_sml, paragraphs_best_math, paragraphs = common_ordered_words(match_sentence, sentence)
@@ -161,13 +160,11 @@ def process_page(word_count, page_num, page, file_id, file_cursor, sentence_inde
                                                 "yes" if references else "no", quotation_marks, [])
                             sentence_index += 1
             
-    return word_count, sentence_index,  sentences_cache, school_cache, current_school_id  # Trả về word_count để kiểm tra
+    return sentences_cache, school_cache
 
 cpu_cores = os.cpu_count()
 
 def main(file_id):
-    word_count = 0
-    sentence_index = 0  # Initialize sentence_index
     file_cursor = find_file(file_id)
     pdf_binary = file_cursor['content_file']
 
@@ -175,76 +172,39 @@ def main(file_id):
 
     sentences_cache = {} 
     school_cache = {}  
-    current_school_id = 1 
-
-
-    # lock = threading.Lock()
-
-    # def process_page_thread_safe(page_num, page, file_id, file_cursor):
-    #     nonlocal word_count, sentence_index, sentences_cache, school_cache, current_school_id
-    #     a, b, c, d, e = process_page(
-    #         word_count, page_num, page, file_id, file_cursor,
-    #         sentence_index, sentences_cache, school_cache, current_school_id
-    #     )
-    #     with lock:
-    #         word_count = a
-    #         sentence_index = b
-    #         sentences_cache.update(c)
-    #         school_cache.update(d) 
-    #         current_school_id = e
-
-    # def process_pdf_multithreaded(pdf_document, file_id, file_cursor):
-    #     with ThreadPoolExecutor() as executor:
-    #         futures = []
-    #         for page_num in range(pdf_document.page_count):
-    #             page = pdf_document.load_page(page_num)
-    #             futures.append(
-    #                 executor.submit(process_page_thread_safe, page_num, page, file_id, file_cursor)
-    #             )
-    #         for future in futures:
-    #             future.result()
-
-    # process_pdf_multithreaded(pdf_document, file_id, file_cursor)
    
-   
-   
-    # with concurrent.futures.ThreadPoolExecutor(cpu_cores * 2) as executor:
-    #     futures = []
-    #     for page_num in range(pdf_document.page_count):
-    #         page = pdf_document.load_page(page_num)
-    #         futures.append(
-    #             executor.submit(
-    #                 process_page,
-    #                 word_count, page_num, page, file_id, file_cursor, sentence_index,
-    #                 sentences_cache, school_cache, current_school_id
-    #             )
-    #         )
+    with concurrent.futures.ThreadPoolExecutor(cpu_cores * 2) as executor:
+        futures = []
+        for page_num in range(pdf_document.page_count):
+            page = pdf_document.load_page(page_num)
+            futures.append(
+                executor.submit(
+                    process_page,
+                    page_num, page, file_id, file_cursor, sentences_cache, school_cache
+                )
+            )
 
-    #     for future in concurrent.futures.as_completed(futures):
-    #         result = future.result()
-    #         if result:  
-    #             a, b, c, d, e = result
-    #             word_count += a 
-    #             sentence_index = max(sentence_index, b) 
-    #             sentences_cache.update(c) 
-    #             school_cache.update(d)
-    #             current_school_id = max(current_school_id, e)  
+        for future in concurrent.futures.as_completed(futures):
+            result = future.result()
+            if result:  
+                b, c = result
+                sentences_cache.update(b) 
+                school_cache.update(c)
 
-    for page_num in range(pdf_document.page_count):
-        page = pdf_document.load_page(page_num)
-        a, b,  c, d, e = process_page(word_count, page_num, page, file_id, file_cursor, sentence_index, sentences_cache, school_cache, current_school_id)
-        word_count = a
-        sentence_index = b
-        sentences_cache = c
-        school_cache = d
-        current_school_id = e
+    # for page_num in range(pdf_document.page_count):
+    #     page = pdf_document.load_page(page_num)
+    #     c, d= process_page(page_num, page, file_id, file_cursor, sentences_cache, school_cache)
+    #     sentences_cache = c
+    #     school_cache = d
 
+    word_count = word_count_function(file_id)
     # Final steps   
     insert_file(file_cursor['school_id'], file_cursor['class_id'], file_cursor['assignment_id'],
                 file_id, file_cursor['title'], file_cursor['author_id'], "", file_cursor['submit_day'],
                 pdf_document.page_count, word_count, 0, "",
                 file_cursor['storage'], file_cursor['quick_submit'], "checked", True, True,
                 True, "", "", "", 3)
+    
     insert_file(file_cursor['school_id'], file_cursor['class_id'], file_cursor['assignment_id'],
                 file_id, file_cursor['title'], file_cursor['author_id'], "", file_cursor['submit_day'],
                 pdf_document.page_count, word_count, 0, file_cursor['content_file'],

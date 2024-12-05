@@ -292,7 +292,6 @@ def load_fileInfo_checked(file_id):
     user = db.users.find_one({'_id': ObjectId(session['user_id'])})
     list_files, school_source_off, school_source_on, school_exclusion_source, school_exclusion_text = get_file_report(file_id)
     if user:
-        print(school_source_off)
         return jsonify(success = True, message = "Data loaded successfully", list_files = list_files, school_source_off = school_source_off, school_source_on = school_source_on, school_exclusion_source = school_exclusion_source, school_exclusion_text = school_exclusion_text )
     return jsonify(success = False, message = "Error occurred while loading data") 
 
@@ -340,23 +339,23 @@ def add_source_school_api(file_id, school_id):
     return jsonify(success = False, message = "Error occurred during update") 
 
 
-@file.route("/api/remove_text_school@file_id=<file_id>-school_id=<school_id>-sentence=<sentence_index>", methods=['POST'])
-def remove_source_school_text(file_id, school_id, sentence_index):
+@file.route("/api/remove_text_school@file_id=<file_id>-school_id=<school_id>-page=<page>-sentence=<sentence_index>", methods=['POST'])
+def remove_source_school_text(file_id, school_id, page, sentence_index):
     if 'user_id' not in session:
         return render_template('login.html')
     user = db.users.find_one({'_id': ObjectId(session['user_id'])})
     if user:
-        remove_text_school(file_id, school_id, sentence_index)
+        remove_text_school(file_id, school_id, page, sentence_index)
         return jsonify(success = True, message = "Updated successfully") 
     return jsonify(success = False, message = "Error occurred during update") 
     
-@file.route("/api/add_text_school@file_id=<file_id>-sentence=<sentence_index>-<source_id>", methods=['POST'])
-def add_source_school_text(file_id, sentence_index, source_id):
+@file.route("/api/add_text_school@file_id=<file_id>-page=<page>-sentence=<sentence_index>-<source_id>", methods=['POST'])
+def add_source_school_text(file_id, page, sentence_index, source_id):
     if 'user_id' not in session:
         return render_template('login.html')
     user = db.users.find_one({'_id': ObjectId(session['user_id'])})
     if user:
-        add_text_school(file_id, sentence_index, source_id)
+        add_text_school(file_id, page, sentence_index, source_id)
         return jsonify(success = True, message = "Updated successfully") 
     return jsonify(success = False, message = "Error occurred during update") 
 
