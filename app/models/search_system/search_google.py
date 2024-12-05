@@ -33,6 +33,14 @@ def get_current_api_key():
         # Kiểm tra nếu còn key trong API_KEYS4
         if current_api_key_index < len(Config.API_KEYS4):
             return Config.API_KEYS4[current_api_key_index]
+    elif current_list == 5:
+        # Kiểm tra nếu còn key trong API_KEYS4
+        if current_api_key_index < len(Config.API_KEYS5):
+            return Config.API_KEYS5[current_api_key_index]
+    elif current_list == 6:
+        # Kiểm tra nếu còn key trong API_KEYS4
+        if current_api_key_index < len(Config.API_KEYS6):
+            return Config.API_KEYS4[current_api_key_index]
     return None
 
 def get_next_api_key():
@@ -54,6 +62,14 @@ def get_next_api_key():
         current_list = 4
         current_api_key_index = 0  # Reset lại index cho API_KEYS2
     elif current_list == 4 and current_api_key_index >= len(Config.API_KEYS4):
+        # Chuyển sang danh sách API_KEYS2
+        current_list = 5
+        current_api_key_index = 0  # Reset lại index cho API_KEYS2
+    elif current_list == 5 and current_api_key_index >= len(Config.API_KEYS5):
+        # Chuyển sang danh sách API_KEYS2
+        current_list = 6
+        current_api_key_index = 0  # Reset lại index cho API_KEYS2
+    elif current_list == 6 and current_api_key_index >= len(Config.API_KEYS6):
         return None  # Đã dùng hết cả hai danh sách
 
     return get_current_api_key()

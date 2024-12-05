@@ -89,7 +89,7 @@ def check_type_setence(sentence):
         return "yes"
     return "no"
 
-def calculate_dynamic_threshold(length, max_threshold=0.85, min_threshold=0.65):
+def calculate_dynamic_threshold(length, max_threshold=0.8, min_threshold=0.6):
     if length < 10:
         return max_threshold
     elif length > 50:
@@ -99,11 +99,10 @@ def calculate_dynamic_threshold(length, max_threshold=0.85, min_threshold=0.65):
         threshold = max_threshold - (length - 10) * scaling_factor
         return threshold
     
-
+def clean_text(text):
+    return re.findall(r'\w+|\W+', text) 
 def common_ordered_words(best_match, sentence):
-    def clean_text(text):
-        return re.findall(r'\w+|\W+', text) 
-
+    
     words_best_match = clean_text(best_match)
     words_sentence = clean_text(sentence)
 
@@ -280,4 +279,3 @@ def extract_pdf_text(pdf_path):
     os.remove(temp_file_path)
 
     return text
-

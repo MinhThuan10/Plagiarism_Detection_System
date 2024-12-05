@@ -42,7 +42,7 @@ closeButtons.forEach((button) => {
   });
 });
 
-// khi nhấn loại trừ source
+
 function toggleContainer() {
   const container = document.querySelector(".container-source");
   container.style.display =
@@ -50,13 +50,35 @@ function toggleContainer() {
 }
 let fileId = document.getElementById("file-info").getAttribute("data-file-id");
 
-// khi nhấn loại trừ text
+
 function toggleContainer2(school_id) {
   schoolSource = ".container-text-school_id-" + school_id;
   console.log(schoolSource);
   const container = document.querySelector(schoolSource);
-  container.style.display =
-    container.style.display === "none" ? "block" : "none";
+  // Kiểm tra trạng thái hiển thị ban đầu
+  const isHidden = container.style.display === "none";
+
+  // Chuyển trạng thái hiển thị
+  container.style.display = isHidden ? "block" : "none";
+  if (isHidden) {
+    console.log("highlight theo trương")
+    fetch(`/api/highlight_school@file_id=${fileId}-school_id=${school_id}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          loadPDF(fileId, "view_all");
+        } else {
+          console.error("Không thể tải dữ liệu trường học");
+        }
+      })
+      .catch((error) => console.error("Lỗi:", error));
+  }
+
 }
 
 async function loadPDF(pdfId, type) {
@@ -89,7 +111,7 @@ const toggleSwitch = document.getElementById("flexSwitchCheckDefault");
 
 toggleSwitch.addEventListener("change", (event) => {
   if (event.target.checked) {
-    loadPDF(fileId, "view_all");
+    loadPDF(fileId, "raw");
     loadFileInfo("school_source_on");
   } else {
     loadPDF(fileId, "checked");

@@ -8,6 +8,7 @@ from app.models.search_system.highlight import highlight
 from app.models.search_system.models import update_file_checked
 import os
 from datetime import datetime
+from itertools import groupby
 
 def find_assignment_id(assignment_id):
     file_cursor = db.assignments.find_one({'assignment_id':assignment_id})
@@ -291,7 +292,13 @@ def get_file_report(file_id):
 
 
                     # ON NÈ NHÉ
-                    for source in filtered_no:
+                    filtered_no.sort(key=lambda x: x["school_id"])
+                    highest_per_school = []
+                    for school_id, group in groupby(filtered_no, key=lambda x: x["school_id"]):
+                        highest = max(group, key=lambda x: x["score"])
+                        highest_per_school.append(highest)
+                    for source in highest_per_school:
+                        
                         school_id = source['school_id']
                         school_name = source['school_name']
                         color = source['color']
@@ -309,6 +316,7 @@ def get_file_report(file_id):
                                 "type_source":type_source,
                                 "sentences": {}  
                             }
+                        
                         school_source_on[school_id]['word_count'] += highlight.get('word_count_sml', 0)
                         school_source_on[school_id]['sentences'][sentence_index] = {
                             "page": page,
@@ -500,15 +508,7 @@ def add_text_school(file_id, sentence_index, source_id):
         file_highlighted.close()
         update_file_checked(file_id, Binary(pdf_output_stream.getvalue()))
 
-def apply_filter(file_id, studentData, internet, paper, references, curlybracket, minWord, minWordValue):
-    print(studentData)
-    print(internet)
-    print(paper)
-    print(references)
-    print(curlybracket)
-    print(minWord)
-    print(minWordValue)
-   
+def apply_filter(file_id, studentData, internet, paper, references, curlybracket, minWord, minWordValue):   
     if minWord == True:
         result = {
             "source.student_data": studentData,
@@ -537,6 +537,30 @@ def apply_filter(file_id, studentData, internet, paper, references, curlybracket
                 {"$set": result} 
             )
        
+    if references == True:
+        db.sentences.update_many(
+            {"file_id": file_id, "references": "yes"},
+            {"$set": {"references": "checked"}}
+        )
+
+    else:
+        db.sentences.update_many(
+            {"file_id": file_id, "references": "checked"},
+            {"$set": {"references": "yes"}}
+        )
+
+    if curlybracket == "true":
+        db.sentences.update_many(
+            {"file_id": file_id, "quotation_marks": "yes"},
+            {"$set": {"quotation_marks": "checked"}}
+        )
+    else:
+        db.sentences.update_many(
+            {"file_id": file_id, "quotation_marks": "checked"},
+            {"$set": {"quotation_marks": "yes"}}
+        )
+
+    
     file_data_checked = db.files.find_one({"file_id": file_id, "type": "checked"})
     source_file   = file_data_checked.get('source')  
 

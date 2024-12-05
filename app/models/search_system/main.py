@@ -11,9 +11,9 @@ import concurrent.futures
 from app.models.search_system.models import find_file, insert_sentence, insert_file, update_file, update_file_checked
 from app.models.search_system.elastic_search import search_top10_vector_elastic, save_to_elasticsearch
 from app.models.search_system.search_google import search_google, fetch_url
-
+import threading
 from app.models.search_system.highlight import is_within, is_position, wrap_paragraphs_with_color, source_append, highlight
-
+from concurrent.futures import ThreadPoolExecutor
 from app.models.search_system.processing_sentence import split_sentences, remove_sentences, preprocess_text_vietnamese, \
 embedding_vietnamese, check_type_setence, calculate_dynamic_threshold, common_ordered_words, compare_sentences, compare_with_sentences
 
@@ -161,7 +161,7 @@ def process_page(word_count, page_num, page, file_id, file_cursor, sentence_inde
                                                 "yes" if references else "no", quotation_marks, [])
                             sentence_index += 1
             
-    return word_count,sentence_index,  sentences_cache, school_cache, current_school_id  # Trả về word_count để kiểm tra
+    return word_count, sentence_index,  sentences_cache, school_cache, current_school_id  # Trả về word_count để kiểm tra
 
 cpu_cores = os.cpu_count()
 
@@ -173,41 +173,73 @@ def main(file_id):
 
     pdf_document = fitz.open(stream=io.BytesIO(pdf_binary), filetype="pdf")
 
-    sentences_cache = {}  # Cache for sentences from URLs
-    school_cache = {}  # Cache for schools
-    current_school_id = 1  # Initialize school_id
+    sentences_cache = {} 
+    school_cache = {}  
+    current_school_id = 1 
 
-    with concurrent.futures.ThreadPoolExecutor(cpu_cores * 2) as executor:
-        futures = []
-        for page_num in range(pdf_document.page_count):
-            page = pdf_document.load_page(page_num)
-            futures.append(
-                executor.submit(
-                    process_page,
-                    word_count, page_num, page, file_id, file_cursor, sentence_index,
-                    sentences_cache, school_cache, current_school_id
-                )
-            )
 
-        for future in concurrent.futures.as_completed(futures):
-            result = future.result()
-            if result:  # Kiểm tra nếu result không phải là None
-                a, b, c, d, e = result
-                word_count += a  # Cộng dồn word_count
-                sentence_index = max(sentence_index, b)  # Cập nhật sentence_index lớn nhất
-                sentences_cache.update(c)  # Hợp nhất sentences_cache
-                school_cache.update(d)  # Hợp nhất school_cache
-                current_school_id = max(current_school_id, e)  # Giữ giá trị lớn nhất
-    # for page_num in range(pdf_document.page_count):
-    #     page = pdf_document.load_page(page_num)
-    #     a, b,  c, d, e = process_page(word_count, page_num, page, file_id, file_cursor, sentence_index, sentences_cache, school_cache, current_school_id)
-    #     word_count = a
-    #     sentence_index = b
-    #     sentences_cache = c
-    #     school_cache = d
-    #     current_school_id = e
+    # lock = threading.Lock()
 
-    # Final steps
+    # def process_page_thread_safe(page_num, page, file_id, file_cursor):
+    #     nonlocal word_count, sentence_index, sentences_cache, school_cache, current_school_id
+    #     a, b, c, d, e = process_page(
+    #         word_count, page_num, page, file_id, file_cursor,
+    #         sentence_index, sentences_cache, school_cache, current_school_id
+    #     )
+    #     with lock:
+    #         word_count = a
+    #         sentence_index = b
+    #         sentences_cache.update(c)
+    #         school_cache.update(d) 
+    #         current_school_id = e
+
+    # def process_pdf_multithreaded(pdf_document, file_id, file_cursor):
+    #     with ThreadPoolExecutor() as executor:
+    #         futures = []
+    #         for page_num in range(pdf_document.page_count):
+    #             page = pdf_document.load_page(page_num)
+    #             futures.append(
+    #                 executor.submit(process_page_thread_safe, page_num, page, file_id, file_cursor)
+    #             )
+    #         for future in futures:
+    #             future.result()
+
+    # process_pdf_multithreaded(pdf_document, file_id, file_cursor)
+   
+   
+   
+    # with concurrent.futures.ThreadPoolExecutor(cpu_cores * 2) as executor:
+    #     futures = []
+    #     for page_num in range(pdf_document.page_count):
+    #         page = pdf_document.load_page(page_num)
+    #         futures.append(
+    #             executor.submit(
+    #                 process_page,
+    #                 word_count, page_num, page, file_id, file_cursor, sentence_index,
+    #                 sentences_cache, school_cache, current_school_id
+    #             )
+    #         )
+
+    #     for future in concurrent.futures.as_completed(futures):
+    #         result = future.result()
+    #         if result:  
+    #             a, b, c, d, e = result
+    #             word_count += a 
+    #             sentence_index = max(sentence_index, b) 
+    #             sentences_cache.update(c) 
+    #             school_cache.update(d)
+    #             current_school_id = max(current_school_id, e)  
+
+    for page_num in range(pdf_document.page_count):
+        page = pdf_document.load_page(page_num)
+        a, b,  c, d, e = process_page(word_count, page_num, page, file_id, file_cursor, sentence_index, sentences_cache, school_cache, current_school_id)
+        word_count = a
+        sentence_index = b
+        sentences_cache = c
+        school_cache = d
+        current_school_id = e
+
+    # Final steps   
     insert_file(file_cursor['school_id'], file_cursor['class_id'], file_cursor['assignment_id'],
                 file_id, file_cursor['title'], file_cursor['author_id'], "", file_cursor['submit_day'],
                 pdf_document.page_count, word_count, 0, "",

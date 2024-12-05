@@ -3,6 +3,7 @@ import fitz
 import io
 from app.models.search_system.processing_sentence import embedding_vietnamese, preprocess_text_vietnamese, remove_sentences, split_sentences, extract_pdf_text
 from elasticsearch import Elasticsearch
+from itertools import groupby
 
 def cluster_remote():
     clusters = []
@@ -72,6 +73,18 @@ def update_file_checked(file_id, content):
     db.files.update_one({
             "file_id": file_id,
             "type": "checked"
+        },
+        {
+            "$set": {
+                "content_file": content
+            }
+        }
+    )
+
+def update_file_view_all(file_id, content):
+    db.files.update_one({
+            "file_id": file_id,
+            "type": "view_all"
         },
         {
             "$set": {
@@ -259,6 +272,55 @@ def get_best_sources(file_id, type_source):
             best_sources_list.append(result)
 
     return best_sources_list
+
+def get_sources(file_id, type_source):
+    all_documents = db.sentences.find({
+        "file_id": file_id, 
+        "references": {"$ne": "checked"}, 
+        "quotation_marks": {"$ne": "checked"}, 
+        "sources": {"$ne": None, "$ne": []}
+    })
+
+    file_doc = db.files.find_one({"file_id": file_id, "type": 'checked'})
+
+    # Lấy minWordValue với giá trị mặc định là 3
+    if file_doc and 'fillter' in file_doc:
+        minWordValue = file_doc['fillter'].get('min_word', {}).get('minWordValue', 0)
+    else:
+        minWordValue = 3
+
+    sources_list = []
+    for doc in all_documents:
+        sources = doc.get('sources', [])
+        sources_dict = {}
+        filtered_sources = []
+
+        filtered_sources = [source for source in sources if source['except'] == 'no' and source['type_source'] in type_source and int(source['highlight']['word_count_sml']) >= int(minWordValue)]
+
+        if filtered_sources:
+            filtered_sources.sort(key=lambda x: x["school_id"])
+            highest_per_school = []
+            for school_id, group in groupby(filtered_sources, key=lambda x: x["school_id"]):
+                highest = max(group, key=lambda x: x["score"])
+                highest_per_school.append(highest)
+            for source in highest_per_school:
+                school_id = source['school_id']
+                score = source['score']
+                if school_id not in sources_dict or score > sources_dict[school_id]['score']:
+                    sources_dict[school_id] = {
+                        "page": doc.get('page', None),
+                        "school_id": source['school_id'],
+                        "school_name": source['school_name'],
+                        "color": source['color'],
+                        "school_stt": source['school_stt'],
+                        "file_id": source['file_id'],
+                        "best_match": source['best_match'],
+                        "score": source['score'],
+                        "highlight": source['highlight']
+                    }
+            sources_list.extend(sources_dict.values())
+
+    return sources_list
 
 def retrieve_pdf_from_mongodb(file_id):
     file_data = db.files.find_one({"file_id": file_id, "type": 'raw'})

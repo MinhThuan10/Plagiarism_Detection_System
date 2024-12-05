@@ -6,8 +6,9 @@ from app.models.file import  find_assignment_id, load_files, add_file, add_file_
 get_file_report , remove_source_school, add_source_school, remove_text_school, add_text_school, add_all_source_school, add_all_text_school, apply_filter
 from app.models.assignment import  load_student_in_class, add_student_submit, delete_student_submit
 from app.models.search_system.main import main
-from app.models.search_system.models import add_file_to_elasticsearch, import_file_to_elastic
-
+from app.models.search_system.models import add_file_to_elasticsearch, import_file_to_elastic, update_file_view_all
+from app.models.search_system.highlight import highlight_school
+from bson import Binary
 import io
 
 file = Blueprint('file', __name__)
@@ -291,8 +292,31 @@ def load_fileInfo_checked(file_id):
     user = db.users.find_one({'_id': ObjectId(session['user_id'])})
     list_files, school_source_off, school_source_on, school_exclusion_source, school_exclusion_text = get_file_report(file_id)
     if user:
+        print(school_source_off)
         return jsonify(success = True, message = "Data loaded successfully", list_files = list_files, school_source_off = school_source_off, school_source_on = school_source_on, school_exclusion_source = school_exclusion_source, school_exclusion_text = school_exclusion_text )
     return jsonify(success = False, message = "Error occurred while loading data") 
+
+@file.route("/api/highlight_school@file_id=<file_id>-school_id=<school_id>", methods=['POST'])
+def highlight_school_api(file_id, school_id):
+    if 'user_id' not in session:
+        return render_template('login.html')
+    file_checked = db.files.find_one({"file_id": file_id, "type": "checked"})
+    source = file_checked.get('source')
+    type_source = []
+    if source['student_data']:
+        type_source.append('student_Data')
+    if source['internet']:
+        type_source.append('Internet')
+    if source['paper']:
+        type_source.append("Ấn bản")
+    file_highlighted = highlight_school(file_id, school_id, type_source)
+    if file_highlighted:
+        pdf_output_stream = io.BytesIO()
+        file_highlighted.save(pdf_output_stream)
+        file_highlighted.close()
+        update_file_view_all(file_id, Binary(pdf_output_stream.getvalue()))
+        return jsonify(success = True, message = "Source updated successfully") 
+    return jsonify(success = False, message = "Error occurred during source removal") 
 
 
 @file.route("/api/remove_source_school@file_id=<file_id>-school_id=<school_id>", methods=['POST'])

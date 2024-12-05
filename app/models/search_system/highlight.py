@@ -1,5 +1,5 @@
 import fitz
-from app.models.search_system.models import retrieve_pdf_from_mongodb, get_best_sources, update_school_stt
+from app.models.search_system.models import retrieve_pdf_from_mongodb, get_best_sources, update_school_stt, get_sources
 
 def is_within(qua_t, qua_s):
     if (qua_t[0].x >= qua_s[0].x and qua_t[0].y == qua_s[0].y and qua_t[-1].x <= qua_s[-1].x and qua_t[-1].y == qua_s[-1].y):
@@ -196,3 +196,70 @@ def highlight(file_id, type_source):
 
     return pdf_stream
 
+def highlight_school(file_id, school_id, type_source):
+    # Khởi tạo defaultdict với 'highlighted' là set và 'text' là dict
+    highlighted_positions = defaultdict(lambda: {'highlighted': set(), 'text': {}})
+
+    update_school_stt(file_id, "view_all", type_source)
+    best_sources = get_sources(file_id, type_source)
+    pdf_binary = retrieve_pdf_from_mongodb(file_id)
+
+    if pdf_binary is None:
+        print("Không tìm thấy file PDF trong MongoDB.")
+        return
+    # Mở file PDF từ dữ liệu nhị phân
+    pdf_stream = fitz.open(stream=pdf_binary, filetype='pdf')
+    for source in best_sources:
+        if source['school_id'] == int(school_id):
+            page_num = source['page']
+            positions = source['highlight']['position']
+            school_id = source['school_id']
+            school_stt = source['school_stt']
+            
+            color_index = school_id % len(color_rbg)  
+            color = color_rbg[color_index]
+
+            if page_num is not None and positions:
+                page = pdf_stream.load_page(page_num)
+
+                for position in positions:
+                    x_0 = position.get('x_0')
+                    y_0 = position.get('y_0')
+                    x_1 = position.get('x_1')
+                    y_1 = position.get('y_1')
+                    
+                    # Chuyển vùng đánh dấu thành tuple để sử dụng làm key trong dictionary
+                    position_tuple = (x_0, y_0, x_1, y_1)
+                    
+                    # Kiểm tra nếu vùng đã được đánh dấu chưa
+                    if position_tuple not in highlighted_positions[page_num]['highlighted']:
+                        try:
+                            highlight = page.add_highlight_annot(fitz.Rect(x_0, y_0, x_1, y_1))
+                            highlight.set_colors(stroke=color)
+                            highlight.update()
+                            
+                            text_position = (10, y_0 + 10)
+                            text = str(school_stt)
+                            font_size = 12
+
+                            # Kiểm tra nếu vị trí chưa có văn bản nào
+                            if text_position not in highlighted_positions[page_num]['text']:
+                                page.insert_text(text_position, text, fontsize=font_size, fontname="helv", color=color)
+                                highlighted_positions[page_num]['text'][text_position] = [text]
+                            else:
+                                # Kiểm tra nếu văn bản đã tồn tại trong danh sách tại vị trí này
+                                if text not in highlighted_positions[page_num]['text'][text_position]:
+                                    new_x_position = text_position[0] + len(" ".join(highlighted_positions[page_num]['text'][text_position])) * font_size * 0.5
+                                    new_text_position = (new_x_position, text_position[1])
+                                    page.insert_text(new_text_position, text, fontsize=font_size, fontname="helv", color=color)
+                                    highlighted_positions[page_num]['text'][new_text_position] = [text]
+
+                            # Ghi nhận vùng đã đánh dấu
+                            highlighted_positions[page_num]['highlighted'].add(position_tuple)
+                        except ValueError as e:
+                            print(f"Lỗi khi thêm highlight: {e}, tọa độ: {x_0}, {y_0}, {x_1}, {y_1}")
+                            print(page_num)
+                            print(source['best_match'])
+
+
+    return pdf_stream
