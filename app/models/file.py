@@ -229,7 +229,7 @@ def get_file_report(file_id):
         list_files.append(file_data)
     sentences_data = db.sentences.find({"file_id": file_id,
                                             "references": {"$ne": "checked"}, 
-                                            "quotation_marks": {"$ne": "checked"}, 
+                                            "quotation_ marks": {"$ne": "checked"}, 
                                             "sources": {"$ne": None, "$ne": []}})
     if sentences_data:
         source_file   = file_data_checked.get('source')  
@@ -554,7 +554,7 @@ def apply_filter(file_id, studentData, internet, paper, references, curlybracket
             {"$set": {"references": "yes"}}
         )
 
-    if curlybracket == "true":
+    if curlybracket == True:
         db.sentences.update_many(
             {"file_id": file_id, "quotation_marks": "yes"},
             {"$set": {"quotation_marks": "checked"}}

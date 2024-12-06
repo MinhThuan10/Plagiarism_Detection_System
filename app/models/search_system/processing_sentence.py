@@ -45,21 +45,20 @@ def split_sentences(text):
     
 def remove_sentences(sentences):
     filtered_sentences = []
+    tokenizer = model.tokenizer
     for sentence in sentences:
         # Đếm số lượng tokens trong câu
-        o = model.tokenizer(sentence, return_attention_mask=False, return_token_type_ids=False)
-        if len(o.input_ids) > 256:
-            sentence_minis = re.split(r'[,:-]\s*', sentence)
-            for sentence_mini in sentence_minis:
-                sentence_mini = sentence_mini.strip()
-                if sentence_mini:
-                    o_mini = model.tokenizer(sentence_mini, return_attention_mask=False, return_token_type_ids=False)
-                    if len(o_mini.input_ids) > 256:
-                        print(sentence_mini)
-                        print(len(o_mini.input_ids))
-                    if len(o_mini.input_ids) < 256 and len(o_mini.input_ids) > 10:
-                        filtered_sentences.append(sentence_mini)
-        if len(o.input_ids) < 256 and len(o.input_ids) > 10:
+        processed_sentences_text = preprocess_text_vietnamese(sentence)[0]
+        tokens = tokenizer.tokenize(processed_sentences_text)
+        if len(tokens) >= 250:
+            sentences_split = re.split(r'[;,:-]', sentence)
+            sentences_split = [s.strip() for s in sentences_split if s.strip()]
+            for sentence_split in sentences_split:
+                processed_sentences_text_split = preprocess_text_vietnamese(sentence_split)[0]
+                tokens_split = tokenizer.tokenize(processed_sentences_text_split)
+                if 3 < len(tokens_split) < 250:
+                    filtered_sentences.append(sentence_split)
+        if 3 < len(tokens) < 250:
             filtered_sentences.append(sentence)
     return filtered_sentences
 
@@ -85,9 +84,16 @@ def embedding_vietnamese(text):
 def check_type_setence(sentence):
         # Kiểm tra câu có ngoặc kép
     match = re.search(r'“(.*?)”|"(.*?)"', sentence)
+
+    last_word = sentence.split(" ")[-1]
+    match_last_word = re.match(r'\d+', last_word[1:-1])
     if match:
         return "yes"
+    else:
+        if last_word.startswith("[") and last_word.endswith("]") and match_last_word:
+            return "yes"
     return "no"
+
 
 def calculate_dynamic_threshold(length, max_threshold=0.85, min_threshold=0.65):
     if length < 10:

@@ -84,7 +84,7 @@ function toggleContainer2(school_id) {
 
 }
 
-async function loadPDF(pdfId, type) {
+async function loadPDF(pdfId, type, page) {
   try {
     const response = await fetch(
       `/api/load_file@file_id=${pdfId}-type=${type}`
@@ -96,10 +96,9 @@ async function loadPDF(pdfId, type) {
     const pdfBlob = await response.blob();
     const pdfURL = URL.createObjectURL(pdfBlob);
 
-    console.log(pdfURL);
 
     const viewer = document.getElementById("pdf-viewer");
-    viewer.innerHTML = `<iframe src="${pdfURL}" width="100%" height="600px" style="border: none;"></iframe>`;
+    viewer.innerHTML = `<iframe src="${pdfURL}#page=${page}" width="100%" height="600px" style="border: none;"></iframe>`;
   } catch (error) {
     console.error("Error loading PDF:", error);
   }
@@ -196,8 +195,9 @@ function loadFileInfo(sourceType) {
 
           const percentageDiv = document.createElement("div");
           percentageDiv.className = "percentage";
-          percentageDiv.textContent = `${Math.round(
-            (details.word_count / word_count) * 100
+          percentageDiv.textContent = `${Math.max(
+            Math.round((details.word_count / word_count) * 100),
+            1
           )}%`;
 
           const containerText = document.createElement("div");
@@ -220,6 +220,14 @@ function loadFileInfo(sourceType) {
 
                   const sectionText = document.createElement("div");
                   sectionText.className = "section-text";
+                  sectionText.addEventListener("click", function () {
+                    if (flexSwitchCheckDefault.checked) {
+                      loadPDF(fileId, "view_all", parseInt(page) + 1);
+                    }
+                    else {
+                      loadPDF(fileId, "checked", parseInt(page) + 1);
+                    }
+                  });
 
                   const textSection = document.createElement("div");
                   textSection.className = "text-section";

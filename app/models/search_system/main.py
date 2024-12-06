@@ -40,8 +40,6 @@ def process_page(page_num, page, file_id, file_cursor, sentences_cache, school_c
                             sources = []
                             quotation_marks = check_type_setence(sentence)
 
-
-
                             if processed_sentences[i] is None:
                                 insert_sentence(file_id, file_cursor['title'], page_num, sentence_index, sentence,
                                                 "yes" if references else "no", quotation_marks, [])
