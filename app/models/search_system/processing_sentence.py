@@ -56,9 +56,9 @@ def remove_sentences(sentences):
             for sentence_split in sentences_split:
                 processed_sentences_text_split = preprocess_text_vietnamese(sentence_split)[0]
                 tokens_split = tokenizer.tokenize(processed_sentences_text_split)
-                if 3 < len(tokens_split) < 250:
+                if 3 < len(tokens_split) < 250 and len(sentence_split.split()) > 3:
                     filtered_sentences.append(sentence_split)
-        if 3 < len(tokens) < 250:
+        if 3 < len(tokens) < 250  and len(sentence.split()) > 3:
             filtered_sentences.append(sentence)
     return filtered_sentences
 
@@ -68,6 +68,8 @@ def preprocess_text_vietnamese(text):
     processed_text = ' '.join(tokens)
     return processed_text, tokens
 
+def initialize_model_on_cpu():
+    return SentenceTransformer('dangvantuan/vietnamese-embedding', device='cpu')
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = SentenceTransformer('dangvantuan/vietnamese-embedding', device = device)
@@ -77,8 +79,13 @@ def embedding_vietnamese(text):
         embedding = model.encode(text)
         return embedding
     except Exception as e:
-        print(f"Error during embedding calculation: {e}")
-        print(text)
+        if "CUDA error" in str(e):
+            print("CUDA error detected. Resetting CUDA and switching to CPU.")
+            torch.cuda.empty_cache() 
+            model = initialize_model_on_cpu() 
+        else:
+            # Xử lý các lỗi khác
+            print(f"Error encoding text: {e}")
         return None 
 
 def check_type_setence(sentence):
@@ -98,7 +105,7 @@ def check_type_setence(sentence):
 def calculate_dynamic_threshold(length, max_threshold=0.85, min_threshold=0.65):
     if length < 10:
         return max_threshold
-    elif length > 50:
+    elif length > 40:
         return min_threshold
     else:
         scaling_factor = (max_threshold - min_threshold) / (40 - 10)

@@ -91,7 +91,7 @@ from threading import Thread
 from flask import jsonify, Response
 def call_test_function_async(file_id):
     # Khởi tạo và chạy luồng để gọi hàm main với file_id
-    thread = Thread(target=main, args=(file_id))
+    thread = Thread(target=main, args=(file_id,))
     thread.start()
 
 
