@@ -220,7 +220,12 @@ function loadFileInfo(sourceType) {
 
                   const sectionText = document.createElement("div");
                   sectionText.className = "section-text";
-                  sectionText.addEventListener("click", function () {
+                  
+
+                  const textSection = document.createElement("div");
+                  textSection.className = "text-section";
+                  textSection.innerHTML = sentence.best_match;
+                  textSection.addEventListener("click", function () {
                     if (flexSwitchCheckDefault.checked) {
                       loadPDF(fileId, "view_all", parseInt(page) + 1);
                     }
@@ -228,14 +233,18 @@ function loadFileInfo(sourceType) {
                       loadPDF(fileId, "checked", parseInt(page) + 1);
                     }
                   });
-
-                  const textSection = document.createElement("div");
-                  textSection.className = "text-section";
-                  textSection.innerHTML = sentence.best_match;
-
-                  const sectionLink = document.createElement("div");
-                  sectionLink.className = "section-link2";
-                  sectionLink.textContent = sentence.file_id;
+                  if (sentence.file_id.startsWith("http")) {
+                    sectionLink = document.createElement("a");
+                    sectionLink.className = "section-link2";
+                    sectionLink.textContent = sentence.file_id;
+                    sectionLink.href = sentence.file_id;
+                    sectionLink.target = "_blank"; // Mở liên kết trong tab mới
+                  } else {
+                    sectionLink = document.createElement("div");
+                    sectionLink.className = "section-link2";
+                    sectionLink.textContent = sentence.file_id;
+                  }
+                
 
                   const icon = document.createElement("i");
                   icon.className = "fas fa-xmark";
