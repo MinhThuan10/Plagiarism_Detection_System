@@ -11,11 +11,9 @@ import concurrent.futures
 from app.models.search_system.models import find_file, insert_sentence, insert_file, update_file, update_file_checked, word_count_function
 from app.models.search_system.elastic_search import search_top10_vector_elastic, save_to_elasticsearch
 from app.models.search_system.search_google import search_google, fetch_url
-import threading
 from app.models.search_system.highlight import is_within, is_position, wrap_paragraphs_with_color, source_append, highlight
-from concurrent.futures import ThreadPoolExecutor
 from app.models.search_system.processing_sentence import split_sentences, remove_sentences, preprocess_text_vietnamese, \
-embedding_vietnamese, check_type_setence, calculate_dynamic_threshold, common_ordered_words, compare_sentences, compare_with_sentences
+embedding_vietnamese, check_type_setence, calculate_dynamic_threshold, common_ordered_words, compare_sentences, compare_with_sentences, count_common_words
 
 
 def process_page(page_num, page, file_id, file_cursor, sentences_cache, school_cache):
@@ -52,7 +50,8 @@ def process_page(page_num, page, file_id, file_cursor, sentences_cache, school_c
                             dynamic_threshold = calculate_dynamic_threshold(query_length)
                             if result_sentences:
                                 for result_sentence in result_sentences:
-                                    if float(result_sentence['score']) >= dynamic_threshold:
+                                    # if float(result_sentence['score']) >= dynamic_threshold:
+                                    if count_common_words(sentence, result_sentence['sentence']) > (len(sentence.split())/2):
                                         school_name = result_sentence['school_name']
                                         file_id_source = result_sentence['file_name']
                                         best_match = result_sentence['sentence']
@@ -104,7 +103,9 @@ def process_page(page_num, page, file_id, file_cursor, sentences_cache, school_c
 
                             top_similarities = compare_sentences(sentence, all_snippets)
                             for snippet_score, idx in top_similarities:
-                                if snippet_score > dynamic_threshold - 0.2:
+                                # if snippet_score > dynamic_threshold - 0.3:
+                                if count_common_words(sentence, all_snippets[idx]) > (len(sentence.split())/2):
+                                
                                     url = items[idx].get('link')
                                     sentences = sentences_cache.get(url)
 
@@ -116,7 +117,8 @@ def process_page(page_num, page, file_id, file_cursor, sentences_cache, school_c
 
                                     if sentences:
                                         similarity_sentence, match_sentence, _ = compare_with_sentences(sentence, sentences)
-                                        if similarity_sentence > dynamic_threshold:
+                                        # if similarity_sentence > dynamic_threshold:
+                                        if count_common_words(sentence, match_sentence) > (len(sentence.split())/2):
                                             parsed_url = urlparse(url)
                                             domain = parsed_url.netloc.replace('www.', '')
                                             # school_id = school_cache.get(domain, domain)

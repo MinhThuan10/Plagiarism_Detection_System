@@ -31,13 +31,16 @@ def split_sentences(text):
     text = text.replace('\n', ' ')
     text = re.sub(r'[ ]{2,}', ' ', text)
     text = text.replace(' .', '.')
+    text = text.replace(' .', '.')
+    text = re.sub(r'\.{2,}', '.', text)
+
 
     abbreviations = ['TS.', 'Ths.', 'THS.',  'TP.', 'Dr.', 'PhD.', 'BS.', ' Th.', 'S.', 'PGS.', 'GS']
 
     for abbr in abbreviations:
         text = text.replace(abbr, abbr.replace('.', '__DOT__'))
 
-    sentences = re.split(r'[.!?]', text)
+    sentences = re.split(r'[.!?]\s+', text)
     sentences = [s.replace('__DOT__', '.') for s in sentences]
     sentences = [s.strip() for s in sentences if s.strip()]
 
@@ -102,7 +105,7 @@ def check_type_setence(sentence):
     return "no"
 
 
-def calculate_dynamic_threshold(length, max_threshold=0.85, min_threshold=0.65):
+def calculate_dynamic_threshold(length, max_threshold=0.9, min_threshold=0.75):
     if length < 10:
         return max_threshold
     elif length > 40:
@@ -114,6 +117,21 @@ def calculate_dynamic_threshold(length, max_threshold=0.85, min_threshold=0.65):
     
 def clean_text(text):
     return re.findall(r'\w+|\W+', text) 
+
+def count_common_words(sentence1, sentence2):
+    def preprocess(sentence):
+        sentence = sentence.lower()
+        sentence = re.sub(r'[^\w\s]', '', sentence) 
+        return sentence.split()
+
+    words1 = preprocess(sentence1)
+    words2 = preprocess(sentence2)
+
+    common_count = sum(1 for word in words1 if word in words2)
+
+    return common_count
+
+
 def common_ordered_words(best_match, sentence):
     
     words_best_match = clean_text(best_match)
