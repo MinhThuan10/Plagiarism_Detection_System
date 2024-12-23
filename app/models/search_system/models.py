@@ -1,7 +1,7 @@
 from app.extensions import db
 import fitz
 import io
-from app.models.search_system.processing_sentence import embedding_vietnamese, preprocess_text_vietnamese, remove_sentences, split_sentences, extract_pdf_text
+from app.models.search_system.processing_sentence import embedding_vietnamese, preprocess_text_vietnamese, remove_sentences, split_sentences, extract_pdf_text, clean_vietnamese_sentence
 from elasticsearch import Elasticsearch
 from itertools import groupby
 
@@ -426,9 +426,11 @@ def add_to_elasticsearch(ip_cluster, processed_sentences, vector_sentences, scho
     bulk(es_school, bulk_data)
 
 
+
 def word_count_function(file_id):
     word_count = 0
     sentences = db.sentences.find({'file_id': file_id})
     for sentence in sentences:
-        word_count += len(sentence['sentence'].split())
+        sentence_clean = clean_vietnamese_sentence(sentence['sentence']) 
+        word_count += len(sentence_clean.split())
     return word_count

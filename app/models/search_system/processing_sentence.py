@@ -8,6 +8,7 @@ from langdetect import detect
 import fitz
 import tempfile
 import os
+from pyvi.ViTokenizer import tokenize
 
 # Load Vietnamese spaCy model
 nlp = spacy.blank("vi")
@@ -22,7 +23,11 @@ def is_vietnamese(text):
     except:
         # Nếu có lỗi (ví dụ: văn bản quá ngắn), trả về False
         return False
-    
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+model = SentenceTransformer('dangvantuan/vietnamese-embedding', device = device)
+tokenizer = model.tokenizer
+
 def split_sentences(text):
     vietnamese_lowercase = 'aáàảãạăắằẳẵặâấầẩẫậbcdđeéèẻẽẹêếềểễệfghiíìỉĩịjklmnoóòỏõọôốồổỗộơớờởỡợpqrstuúùủũụưứừửữựvxyýỳỷỹỵ'
     text = re.sub(rf'\n(?=[{vietnamese_lowercase}])', ' ', text)
@@ -48,20 +53,21 @@ def split_sentences(text):
     
 def remove_sentences(sentences):
     filtered_sentences = []
-    tokenizer = model.tokenizer
     for sentence in sentences:
         # Đếm số lượng tokens trong câu
         processed_sentences_text = preprocess_text_vietnamese(sentence)[0]
-        tokens = tokenizer.tokenize(processed_sentences_text)
-        if len(tokens) >= 250:
+        tokenizer_sent = tokenize(processed_sentences_text)
+        o = model[0].tokenizer(tokenizer_sent, return_attention_mask=False, return_token_type_ids=False)
+        if len(o.input_ids) > 256:
             sentences_split = re.split(r'[;,:-]', sentence)
             sentences_split = [s.strip() for s in sentences_split if s.strip()]
             for sentence_split in sentences_split:
                 processed_sentences_text_split = preprocess_text_vietnamese(sentence_split)[0]
-                tokens_split = tokenizer.tokenize(processed_sentences_text_split)
-                if 3 < len(tokens_split) < 250 and len(sentence_split.split()) > 3:
+                tokenizer_sent_split = tokenize(processed_sentences_text_split)
+                o_split = model[0].tokenizer(tokenizer_sent_split, return_attention_mask=False, return_token_type_ids=False)
+                if 3 < len(o_split.input_ids) <= 256 and len(sentence_split.split()) > 3:
                     filtered_sentences.append(sentence_split)
-        if 3 < len(tokens) < 250  and len(sentence.split()) > 3:
+        if 3 < len(o.input_ids) <= 256  and len(sentence.split()) > 3:
             filtered_sentences.append(sentence)
     return filtered_sentences
 
@@ -74,12 +80,13 @@ def preprocess_text_vietnamese(text):
 def initialize_model_on_cpu():
     return SentenceTransformer('dangvantuan/vietnamese-embedding', device='cpu')
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model = SentenceTransformer('dangvantuan/vietnamese-embedding', device = device)
+
+
 def embedding_vietnamese(text):
     global model
     try:
-        embedding = model.encode(text)
+        tokenizer_sent = [tokenize(sent) for sent in text]
+        embedding = model.encode(tokenizer_sent, normalize_embeddings=True)
         return embedding
     except Exception as e:
         if "CUDA error" in str(e):
@@ -87,7 +94,6 @@ def embedding_vietnamese(text):
             torch.cuda.empty_cache() 
             model = initialize_model_on_cpu() 
         else:
-            # Xử lý các lỗi khác
             print(f"Error encoding text: {e}")
         return None 
 
@@ -103,6 +109,14 @@ def check_type_setence(sentence):
         if last_word.startswith("[") and last_word.endswith("]") and match_last_word:
             return "yes"
     return "no"
+
+def clean_vietnamese_sentence(sentence):
+    vietnamese_char_pattern = re.compile(
+        r"[a-zA-ZĂÂÊÔƠƯÁÀẢÃẠẮẰẲẴẶẤẦẨẪẬĐÉÈẺẼẸẾỀỂỄỆÍÌỈĨỊÓÒỎÕỌỐỒỔỖỘỚỜỞỠỢÚÙỦŨỤỨỪỬỮỰÝỲỶỸỴăâđêôơưáàảãạắằẳẵặấầẩẫậđéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ\d\s;,:-]"
+    )
+    cleaned_sentence = ''.join(vietnamese_char_pattern.findall(sentence))
+    cleaned_sentence = re.sub(r'\s+', ' ', cleaned_sentence).strip()
+    return cleaned_sentence
 
 
 def calculate_dynamic_threshold(length, max_threshold=0.9, min_threshold=0.75):

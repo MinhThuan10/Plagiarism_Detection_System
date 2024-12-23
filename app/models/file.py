@@ -109,7 +109,11 @@ def add_file(role, school_id, class_id, assignment_id, title, author_id, submit_
     if file_type == 'pdf':
         file = file.read()
 
-    max_file = db.files.find_one(sort=[('file_id', -1)])
+    max_file = max(
+        db.files.find({}, {"file_id": 1}),
+        key=lambda x: (len(x['file_id']), int(x['file_id'])),
+        default=None
+    )
     max_file = max_file['file_id'] if max_file else 0 
     db.files.insert_one({
         "school_id": school_id,
@@ -134,26 +138,22 @@ def add_file(role, school_id, class_id, assignment_id, title, author_id, submit_
 
 
 def add_file_quick_submit(school_id, author_name, author_id, submission_title, submit_day, file, storage_option):
-    base_dir = os.path.dirname(__file__)  
-    doc_filename = "word.docx"
-    pdf_filename = "change_to_pdf.pdf"
-    pdf_path = os.path.join(base_dir, pdf_filename)
-    doc_path = os.path.join(base_dir, doc_filename)
+
 
     file_type = get_file_type(file)
     if file_type == 'unknown':
         return False, ""
-    
-    if file_type == 'word':
-        file.save(doc_path)
-        convert(doc_path, pdf_path)
-        with open(pdf_path, 'rb') as file_data:
-            file = file_data.read()      
+          
     if file_type == 'pdf':
         file = file.read()
 
-    max_file = db.files.find_one(sort=[('file_id', -1)])
+    max_file = max(
+        db.files.find({}, {"file_id": 1}),
+        key=lambda x: (len(x['file_id']), int(x['file_id'])),
+        default=None
+    )
     max_file = max_file['file_id'] if max_file else 0 
+
     db.files.insert_one({
         "school_id": school_id,
         "class_id": "",
