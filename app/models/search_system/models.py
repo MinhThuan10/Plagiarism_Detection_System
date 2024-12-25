@@ -123,7 +123,7 @@ def update_school_stt(file_id, type, type_sources):
                 source for source in sources 
                 if (source['except'] == 'no' and 
                     source['type_source'] in type_sources and 
-                    source.get('highlight', {}).get('word_count_sml', 0) >= int(minWordValue))
+                    source.get('highlight', {}).get('word_count_sml', 0) > int(minWordValue))
             ]
             if filtered_sources:
                 for source in filtered_sources:
@@ -154,7 +154,7 @@ def update_school_stt(file_id, type, type_sources):
                     source for source in sources 
                     if (source['except'] == 'no' and 
                         source['type_source'] in type_sources and 
-                        source.get('highlight', {}).get('word_count_sml', 0) >= int(minWordValue))
+                        source.get('highlight', {}).get('word_count_sml', 0) > int(minWordValue))
                 ]
                 if filtered_sources:
                     source_max = max(filtered_sources, key=lambda x: x['score'])
@@ -173,7 +173,7 @@ def update_school_stt(file_id, type, type_sources):
                     source for source in sources 
                     if (source['except'] == 'no' and 
                         source['type_source'] in type_sources and 
-                        source.get('highlight', {}).get('word_count_sml', 0) >= int(minWordValue))
+                        source.get('highlight', {}).get('word_count_sml', 0) > int(minWordValue))
                 ]
                 if filtered_sources:
                     for source in filtered_sources:
