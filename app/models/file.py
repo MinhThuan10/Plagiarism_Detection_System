@@ -91,20 +91,60 @@ def add_file(role, school_id, class_id, assignment_id, title, author_id, submit_
     file_type = get_file_type(file)
     if file_type == 'unknown':
         return False, ""
-    
-    # if file_type == 'word':
-    #     file.save(doc_path)
-    #     time.sleep(5)
-    #     try:
-    #         convert(doc_path, pdf_path, keep_active=    False)
-    #         with open(pdf_path, 'rb') as file_data:
-    #             file = file_data.read()     
-    #     except Exception as e:
-    #         print("Error during conversion:", e)
-    #         return False, ""
+
          
     if file_type == 'pdf':
         file = file.read()
+
+    # current_directory = os.getcwd()  # Lấy đường dẫn hiện tại
+    # word_path = os.path.join(current_directory, 'file.docx')
+    # pdf_path = os.path.join(current_directory, 'file.pdf')
+
+    
+
+
+    if file_type == 'word':
+        # Linux
+        upload_dir = "uploads"
+        os.makedirs(upload_dir, exist_ok=True)
+
+        word_path = os.path.join(upload_dir, 'file.docx')
+        pdf_filename = 'file.pdf'
+        pdf_path = os.path.join(upload_dir, pdf_filename)
+        file.save(word_path)
+        subprocess.run(["libreoffice", "--headless", "--convert-to", "pdf", word_path, "--outdir", upload_dir], check=True)
+
+        # Windown
+        # file.save(word_path)
+        # pythoncom.CoInitialize()
+        # try:
+        #     # Đường dẫn tệp
+        #     docx_path = os.path.abspath(word_path)
+        #     pdf_path = os.path.abspath(pdf_path)
+
+        #     # Tạo đối tượng Word
+        #     word = comtypes.client.CreateObject("Word.Application")
+        #     word.Visible = False
+
+        #     # Mở và chuyển đổi tệp
+        #     in_file = word.Documents.Open(docx_path)
+        #     in_file.SaveAs(pdf_path, FileFormat=17)  # 17: Định dạng PDF
+        #     in_file.Close()
+
+        #     # Thoát ứng dụng Word
+        #     word.Quit()
+        # finally:
+        #     # Hủy khởi tạo COM
+        #     pythoncom.CoUninitialize()
+
+        with open(pdf_path, "rb") as pdf_file:
+            file = pdf_file.read()
+
+        if os.path.exists(word_path):
+            os.remove(word_path)
+        if os.path.exists(pdf_path):
+            os.remove(pdf_path)
+
 
     max_file = max(
         db.files.find({}, {"file_id": 1}),
