@@ -209,7 +209,7 @@ def main(file_id):
                 pdf_document.page_count, word_count, 0, file_cursor['content_file'],
                 file_cursor['storage'], file_cursor['quick_submit'], "view_all", "", "", "", "", "", "", 0)
 
-    file_highlighted = highlight(file_id, ["student_Data", "Internet", "Ấn bản"])
+    file_highlighted = highlight(file_id, ["Dữ liệu học viên", "Internet", "Ấn bản"])
     if file_highlighted:
         pdf_output_stream = io.BytesIO()
         file_highlighted.save(pdf_output_stream)

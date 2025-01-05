@@ -7,8 +7,11 @@ import mimetypes
 from app.models.search_system.highlight import highlight
 from app.models.search_system.models import update_file_checked
 import os
+import comtypes.client
+import docx
 from datetime import datetime
 from itertools import groupby
+import pythoncom
 
 def find_assignment_id(assignment_id):
     file_cursor = db.assignments.find_one({'assignment_id':assignment_id})
@@ -55,19 +58,13 @@ def load_files_quick_submit(school_id):
 #         return True
 #     return False
 
-
-
-from docx2pdf import convert
-
-
-
     
 def get_file_type(file):
     mime_type = mimetypes.guess_type(file.filename)[0]
     if mime_type == 'application/pdf':
         file_type = 'pdf'
-    # elif mime_type in ['application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']:
-    #     file_type = 'word'
+    elif mime_type in ['application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']:
+        file_type = 'word'
     else:
         file_type = 'unknown'
     return file_type
@@ -144,8 +141,47 @@ def add_file_quick_submit(school_id, author_name, author_id, submission_title, s
     if file_type == 'unknown':
         return False, ""
           
+
+
     if file_type == 'pdf':
         file = file.read()
+
+    current_directory = os.getcwd()  # Lấy đường dẫn hiện tại
+    word_path = os.path.join(current_directory, 'file.docx')
+    pdf_path = os.path.join(current_directory, 'file.pdf')
+
+    if file_type == 'word':
+        file.save(word_path)
+        # Khởi tạo COM
+        pythoncom.CoInitialize()
+        try:
+            # Đường dẫn tệp
+            docx_path = os.path.abspath(word_path)
+            pdf_path = os.path.abspath(pdf_path)
+
+            # Tạo đối tượng Word
+            word = comtypes.client.CreateObject("Word.Application")
+            word.Visible = False
+
+            # Mở và chuyển đổi tệp
+            in_file = word.Documents.Open(docx_path)
+            in_file.SaveAs(pdf_path, FileFormat=17)  # 17: Định dạng PDF
+            in_file.Close()
+
+            # Thoát ứng dụng Word
+            word.Quit()
+        finally:
+            # Hủy khởi tạo COM
+            pythoncom.CoUninitialize()
+
+        with open(pdf_path, "rb") as pdf_file:
+            file = pdf_file.read()
+
+        if os.path.exists(word_path):
+            os.remove(word_path)
+        if os.path.exists(pdf_path):
+            os.remove(pdf_path)
+
 
     max_file = max(
         db.files.find({}, {"file_id": 1}),
@@ -237,7 +273,7 @@ def get_file_report(file_id):
 
         type_sources = []
         if source_file['student_data'] == True:
-            type_sources.append('Dữ liệu học viên')
+            type_sources.append('student_Data')
         if source_file['internet'] == True:
             type_sources.append('Internet')
         if source_file['paper'] == True:
@@ -260,7 +296,7 @@ def get_file_report(file_id):
                     source for source in sources 
                     if (source['except'] == 'no' and 
                         source['type_source'] in type_sources and 
-                        source.get('highlight', {}).get('word_count_sml', 0) >= int(minWordValue))
+                        source.get('highlight', {}).get('word_count_sml', 0) > int(minWordValue))
                 ]
     
                 if filtered_no:
@@ -374,7 +410,7 @@ def remove_source_school(file_id, school_id):
 
     type_sources = []
     if source_file['student_data'] == True:
-        type_sources.append('Dữ liệu học viên')
+        type_sources.append('student_Data')
     if source_file['internet'] == True:
         type_sources.append('Internet')
     if source_file['paper'] == True:
@@ -399,7 +435,7 @@ def add_source_school(file_id, school_id):
 
     type_sources = []
     if source_file['student_data'] == True:
-        type_sources.append('Dữ liệu học viên')
+        type_sources.append('student_Data')
     if source_file['internet'] == True:
         type_sources.append('Internet')
     if source_file['paper'] == True:
@@ -424,7 +460,7 @@ def add_all_source_school(file_id):
 
     type_sources = []
     if source_file['student_data'] == True:
-        type_sources.append('Dữ liệu học viên')
+        type_sources.append('student_Data')
     if source_file['internet'] == True:
         type_sources.append('Internet')
     if source_file['paper'] == True:
@@ -449,7 +485,7 @@ def remove_text_school(file_id, school_id, page, sentence_index):
 
     type_sources = []
     if source_file['student_data'] == True:
-        type_sources.append('Dữ liệu học viên')
+        type_sources.append('student_Data')
     if source_file['internet'] == True:
         type_sources.append('Internet')
     if source_file['paper'] == True:
@@ -474,7 +510,7 @@ def add_all_text_school(file_id):
 
     type_sources = []
     if source_file['student_data'] == True:
-        type_sources.append('Dữ liệu học viên')
+        type_sources.append('student_Data')
     if source_file['internet'] == True:
         type_sources.append('Internet')
     if source_file['paper'] == True:
@@ -500,7 +536,7 @@ def add_text_school(file_id, page, sentence_index, source_id):
 
     type_sources = []
     if source_file['student_data'] == True:
-        type_sources.append('Dữ liệu học viên')
+        type_sources.append('student_Data')
     if source_file['internet'] == True:
         type_sources.append('Internet')
     if source_file['paper'] == True:
@@ -571,7 +607,7 @@ def apply_filter(file_id, studentData, internet, paper, references, curlybracket
 
     type_sources = []
     if source_file['student_data'] == True:
-        type_sources.append('Dữ liệu học viên')
+        type_sources.append('student_Data')
     if source_file['internet'] == True:
         type_sources.append('Internet')
     if source_file['paper'] == True:

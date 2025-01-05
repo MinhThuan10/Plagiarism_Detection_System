@@ -36,8 +36,7 @@ def split_sentences(text):
     text = text.replace('\n', ' ')
     text = re.sub(r'[ ]{2,}', ' ', text)
     text = text.replace(' .', '.')
-    text = text.replace(' .', '.')
-    text = re.sub(r'\.{2,}', '.', text)
+    # text = re.sub(r'\.{2,}', '.', text)
 
 
     abbreviations = ['TS.', 'Ths.', 'THS.',  'TP.', 'Dr.', 'PhD.', 'BS.', ' Th.', 'S.', 'PGS.', 'GS']
@@ -198,6 +197,27 @@ def common_ordered_words(best_match, sentence):
         p for p in paragraphs_sentence 
         if p and re.search(r'\w', p) and p not in unique_paragraphs_sentence and not unique_paragraphs_sentence.add(p)
     ]
+    # paragraphs_similarity = []
+    # for paragraphs in paragraphs_sentence:
+    #     if paragraphs in sentence:
+    #         paragraphs_similarity.append(paragraphs)
+    #     else:
+    #         print("tách chuỗi con nè")
+    #         temp = ""
+    #         for char in paragraphs:
+    #             if char in sentence:
+    #                 temp += char  # Xây dựng chuỗi tạm nếu ký tự tồn tại trong b
+    #             else:
+    #                 if temp:
+    #                     paragraphs_similarity.append(temp)
+    #                     temp = ""
+    #         # Lưu chuỗi cuối cùng nếu còn dư
+    #         if temp:
+    #             paragraphs_similarity.append(temp)
+
+
+            
+
 
     return word_count_sml, paragraphs_best_match, paragraphs_sentence
 
