@@ -7,12 +7,12 @@ import mimetypes
 from app.models.search_system.highlight import highlight
 from app.models.search_system.models import update_file_checked
 import os
-import comtypes.client
-import docx
 from datetime import datetime
 from itertools import groupby
-import pythoncom
-import subprocess
+import platform
+
+
+
 def find_assignment_id(assignment_id):
     file_cursor = db.assignments.find_one({'assignment_id':assignment_id})
     if file_cursor:
@@ -41,24 +41,6 @@ def load_files_quick_submit(school_id):
     return list_files
 
 
-
-
-# def doc_to_pdf(doc_path, pdf_path):
-#     if doc_path:
-#         comtypes.CoInitialize()
-#         # Khởi tạo Word Application
-#         word = comtypes.client.CreateObject('Word.Application')
-#         doc = word.Documents.Open(doc_path)
-        
-#         # Lưu file dưới dạng PDF
-#         doc.SaveAs(pdf_path, FileFormat=17)
-#         doc.Close()
-#         word.Quit()
-#         comtypes.CoUninitialize()
-#         return True
-#     return False
-
-    
 def get_file_type(file):
     mime_type = mimetypes.guess_type(file.filename)[0]
     if mime_type == 'application/pdf':
@@ -96,25 +78,27 @@ def add_file(role, school_id, class_id, assignment_id, title, author_id, submit_
     if file_type == 'pdf':
         file = file.read()
 
-    # current_directory = os.getcwd()  # Lấy đường dẫn hiện tại
-    # word_path = os.path.join(current_directory, 'file.docx')
-    # pdf_path = os.path.join(current_directory, 'file.pdf')
-
-    
-
 
     if file_type == 'word':
-        # Linux
-        upload_dir = "uploads"
-        os.makedirs(upload_dir, exist_ok=True)
+        if platform.system() == "Windows":
+            file = word_to_pdf_windown(file)
+        else:
+            file = word_to_pdf_linux(file)
 
-        word_path = os.path.join(upload_dir, 'file.docx')
-        pdf_filename = 'file.pdf'
-        pdf_path = os.path.join(upload_dir, pdf_filename)
-        file.save(word_path)
-        subprocess.run(["libreoffice", "--headless", "--convert-to", "pdf", word_path, "--outdir", upload_dir], check=True)
+        # Linux
+        # upload_dir = "uploads"
+        # os.makedirs(upload_dir, exist_ok=True)
+
+        # word_path = os.path.join(upload_dir, 'file.docx')
+        # pdf_filename = 'file.pdf'
+        # pdf_path = os.path.join(upload_dir, pdf_filename)
+        # file.save(word_path)
+        # subprocess.run(["libreoffice", "--headless", "--convert-to", "pdf", word_path, "--outdir", upload_dir], check=True)
 
         # Windown
+        # current_directory = os.getcwd()  # Lấy đường dẫn hiện tại
+        # word_path = os.path.join(current_directory, 'file.docx')
+        # pdf_path = os.path.join(current_directory, 'file.pdf')
         # file.save(word_path)
         # pythoncom.CoInitialize()
         # try:
@@ -137,13 +121,13 @@ def add_file(role, school_id, class_id, assignment_id, title, author_id, submit_
         #     # Hủy khởi tạo COM
         #     pythoncom.CoUninitialize()
 
-        with open(pdf_path, "rb") as pdf_file:
-            file = pdf_file.read()
+        # with open(pdf_path, "rb") as pdf_file:
+        #     file = pdf_file.read()
 
-        if os.path.exists(word_path):
-            os.remove(word_path)
-        if os.path.exists(pdf_path):
-            os.remove(pdf_path)
+        # if os.path.exists(word_path):
+        #     os.remove(word_path)
+        # if os.path.exists(pdf_path):
+            # os.remove(pdf_path)
 
 
     max_file = max(
@@ -180,31 +164,30 @@ def add_file_quick_submit(school_id, author_name, author_id, submission_title, s
     file_type = get_file_type(file)
     if file_type == 'unknown':
         return False, ""
-          
-
 
     if file_type == 'pdf':
         file = file.read()
 
-    # current_directory = os.getcwd()  # Lấy đường dẫn hiện tại
-    # word_path = os.path.join(current_directory, 'file.docx')
-    # pdf_path = os.path.join(current_directory, 'file.pdf')
-
-    
-
-
     if file_type == 'word':
-        # Linux
-        upload_dir = "uploads"
-        os.makedirs(upload_dir, exist_ok=True)
 
-        word_path = os.path.join(upload_dir, 'file.docx')
-        pdf_filename = 'file.pdf'
-        pdf_path = os.path.join(upload_dir, pdf_filename)
-        file.save(word_path)
-        subprocess.run(["libreoffice", "--headless", "--convert-to", "pdf", word_path, "--outdir", upload_dir], check=True)
+        if platform.system() == "Windows":
+            file = word_to_pdf_windown(file)
+        else:
+            file = word_to_pdf_linux(file)
+        # Linux
+        # upload_dir = "uploads"
+        # os.makedirs(upload_dir, exist_ok=True)
+
+        # word_path = os.path.join(upload_dir, 'file.docx')
+        # pdf_filename = 'file.pdf'
+        # pdf_path = os.path.join(upload_dir, pdf_filename)
+        # file.save(word_path)
+        # subprocess.run(["libreoffice", "--headless", "--convert-to", "pdf", word_path, "--outdir", upload_dir], check=True)
 
         # Windown
+        # current_directory = os.getcwd()  # Lấy đường dẫn hiện tại
+        # word_path = os.path.join(current_directory, 'file.docx')
+        # pdf_path = os.path.join(current_directory, 'file.pdf')
         # file.save(word_path)
         # pythoncom.CoInitialize()
         # try:
@@ -227,13 +210,13 @@ def add_file_quick_submit(school_id, author_name, author_id, submission_title, s
         #     # Hủy khởi tạo COM
         #     pythoncom.CoUninitialize()
 
-        with open(pdf_path, "rb") as pdf_file:
-            file = pdf_file.read()
+        # with open(pdf_path, "rb") as pdf_file:
+        #     file = pdf_file.read()
 
-        if os.path.exists(word_path):
-            os.remove(word_path)
-        if os.path.exists(pdf_path):
-            os.remove(pdf_path)
+        # if os.path.exists(word_path):
+        #     os.remove(word_path)
+        # if os.path.exists(pdf_path):
+        #     os.remove(pdf_path)
 
 
     max_file = max(
@@ -259,6 +242,69 @@ def add_file_quick_submit(school_id, author_name, author_id, submission_title, s
         "type": "raw",
     })
     return True, str(int(max_file) + 1)
+
+def word_to_pdf_linux(file):
+    import subprocess
+
+    upload_dir = "uploads"
+    os.makedirs(upload_dir, exist_ok=True)
+
+    word_path = os.path.join(upload_dir, 'file.docx')
+    pdf_filename = 'file.pdf'
+    pdf_path = os.path.join(upload_dir, pdf_filename)
+    file.save(word_path)
+    subprocess.run(["libreoffice", "--headless", "--convert-to", "pdf", word_path, "--outdir", upload_dir], check=True)
+    
+    with open(pdf_path, "rb") as pdf_file:
+        file = pdf_file.read()
+
+    if os.path.exists(word_path):
+        os.remove(word_path)
+    if os.path.exists(pdf_path):
+        os.remove(pdf_path)
+
+    return file
+
+
+def word_to_pdf_windown(file):
+    import pythoncom
+    import comtypes.client
+
+    current_directory = os.getcwd()  # Lấy đường dẫn hiện tại
+    word_path = os.path.join(current_directory, 'file.docx')
+    pdf_path = os.path.join(current_directory, 'file.pdf')
+    file.save(word_path)
+    pythoncom.CoInitialize()
+    try:
+        # Đường dẫn tệp
+        docx_path = os.path.abspath(word_path)
+        pdf_path = os.path.abspath(pdf_path)
+
+        # Tạo đối tượng Word
+        word = comtypes.client.CreateObject("Word.Application")
+        word.Visible = False
+
+        # Mở và chuyển đổi tệp
+        in_file = word.Documents.Open(docx_path)
+        in_file.SaveAs(pdf_path, FileFormat=17)  # 17: Định dạng PDF
+        in_file.Close()
+
+        # Thoát ứng dụng Word
+        word.Quit()
+    finally:
+        # Hủy khởi tạo COM
+        pythoncom.CoUninitialize()
+
+    with open(pdf_path, "rb") as pdf_file:
+        file = pdf_file.read()
+
+    if os.path.exists(word_path):
+        os.remove(word_path)
+    if os.path.exists(pdf_path):
+        os.remove(pdf_path)
+   
+    return file
+
 
 def delete_file_teacher(school_id, class_id, assignment_id, student_id):
     file =  db.files.find_one({"assignment_id": assignment_id, "author_id": student_id, "type": "raw"})
