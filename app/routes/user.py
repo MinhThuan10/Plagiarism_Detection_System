@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, jsonify, session
-from app.models.user import create_user, check_user, send_verification_email, check_user_change_passwd, update_user, create_avatar_image, update_account, update_account_mod, delete_account_mod  # Thay đổi import
+from app.models.user import create_user, check_user, send_verification_email, check_user_change_passwd, update_user, create_avatar_image, update_account, update_account_mod, delete_account_mod, update_role_account_mod  # Thay đổi import
 import random
 
 from app.extensions import db
@@ -253,3 +253,21 @@ def delete_account_api_mod():
             return jsonify(success=True, message="Update success")
         return jsonify(success=False, message="wrong password")
     return jsonify(success=False, message="wrong password") 
+
+
+# change role
+@user.route('/mod/api/update_role_user', methods=["PUT"])
+def update_role_account_api_mod():
+    data = request.get_json() 
+    school_key = data.get('school_key')
+    school_name = data.get('school_name')
+    school = db.schools.find_one({'school_name': school_name})
+
+    email = data.get('email')
+    user = db.users.find_one({'email': email})
+    if user and school_key == school['school_key']:
+        role = data.get("role")
+        if update_role_account_mod(user["user_id"], role):
+            return jsonify(success=True, message="Update success")
+        return jsonify(success=False, message="wrong")
+    return jsonify(success=False, message="wrong") 

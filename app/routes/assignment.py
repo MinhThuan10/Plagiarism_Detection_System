@@ -147,3 +147,81 @@ def delete_assignment_api(school_id, class_id, assignment_id):
         return jsonify(success = False, message = "Unauthorized role") 
         
     return jsonify(success = False, message = "User not logged in")
+
+
+@assignment.route('/mod/api/create_assignment', methods=['POST'])
+def create_assignment_api_mod():
+    data = request.get_json()
+    if not data:
+        return jsonify(success = False, message = "Please re-enter the data")
+    
+    school_key = data.get('school_key')
+    school_name = data.get('school_name')
+    school = db.schools.find_one({'school_name': school_name})
+    
+    class_id = data.get('class_id')
+    classs = db.classs.find_one({"class_id": class_id})
+
+    if school_key == school['school_key'] and classs:
+        assignment_name = data.get('assignmentName')
+        start_day = data.get('startDay')
+        end_day = data.get('dueDay')
+        create_day = data.get('createDay')
+
+        if create_assignment(school['school_id'], class_id, assignment_name, start_day, end_day, create_day):
+            return jsonify(success = True, message = "Successfully created a new assignment")
+        else:
+            return jsonify(success = False, message = "Assignment name already exists")
+            
+    return jsonify(success = False, message = "Not valid")
+
+
+@assignment.route('/mod/api/update_assignmen', methods=['PUT'])
+def update_assignment_api_mod():
+    data = request.get_json()
+    if not data:
+        return jsonify(success = False, message = "Please re-enter the data")
+    
+    school_key = data.get('school_key')
+    school_name = data.get('school_name')
+    school = db.schools.find_one({'school_name': school_name})
+    
+    class_id = data.get('class_id')
+    classs = db.classs.find_one({"class_id": class_id})
+
+    if school_key == school['school_key'] and classs:
+        assignment_name = data.get('assignmentName')
+        start_day = data.get('startDay')
+        end_day = data.get('dueDay')
+        assignment_id = data.get('assignment_id')
+
+        if update_assignment(school["school_id"], class_id, assignment_id, assignment_name, start_day, end_day):
+            return jsonify(success = True, message = "Successfully updated the assignment")
+        else:
+            return jsonify(success = False, message = "Update failed")
+            
+    return jsonify(success = False, message = "Not valid")
+
+
+@assignment.route('/mod/api/delete_assignment', methods=['DELETE'])
+def delete_assignment_api_mod():
+    data = request.get_json()
+    if not data:
+        return jsonify(success = False, message = "Please re-enter the data")
+    
+    school_key = data.get('school_key')
+    school_name = data.get('school_name')
+    school = db.schools.find_one({'school_name': school_name})
+    
+    class_id = data.get('class_id')
+    classs = db.classs.find_one({"class_id": class_id})
+
+    if school_key == school['school_key'] and classs:
+        assignment_id = data.get('assignment_id')
+
+        if delete_assignment(school["school_id"], class_id, assignment_id):
+            return jsonify(success = True, message = "Successfully deleted the assignment")
+        else:
+            return jsonify(success = False, message = "Failed to delete the assignment")
+            
+    return jsonify(success = False, message = "Not valid")

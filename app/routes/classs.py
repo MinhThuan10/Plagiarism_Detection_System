@@ -1,7 +1,9 @@
 from flask import Blueprint, render_template, request, jsonify, session
-from app.models.classs import  load_class_teacher, load_class_student, create_class, update_class, delete_class, load_school_id, add_user_to_class, delete_user_to_class, create_class_mod
+from app.models.classs import  load_class_teacher, load_class_student, create_class, update_class, delete_class, load_school_id, add_user_to_class,add_user_to_class_mod, delete_user_to_class, create_class_mod
 from app.models.file import delete_file_for_user
 from app.models.assignment import delete_student_in_assignments
+from app.models.user import update_role_account_mod
+
 from datetime import datetime
 from bson import ObjectId
 from bson.objectid import ObjectId
@@ -283,3 +285,66 @@ def delete_class_api_mod():
         else:
             return jsonify(success = False, message = "Unable to delete class")
     return jsonify(success = False, message = "School key not value")
+
+
+# Moodle
+
+@classs.route('/mod/api/add_user_to_class', methods=['PUT'])
+def add_user_to_class_api_mod():
+    data = request.get_json()
+    if not data:
+        return jsonify(success = False, message = "Please enter valid data")
+
+    class_id = data.get('class_id')
+    role = data.get('role')
+
+    
+    school_key = data.get('school_key')
+    school_name = data.get('school_name')
+    school = db.schools.find_one({'school_name': school_name})
+
+    if school_key == school['school_key']:
+        classs = db.classs.find_one({'class_id': class_id})
+        list_email = data.get("list_email")
+        if classs:
+            end_day = datetime.strptime(classs['end_day'], "%m/%d/%Y")
+            for email in list_email:
+                user = db.users.find_one({"email": email})
+                if any(student[0] == user["user_id"] for student in classs['student_ids']):
+                    continue 
+                if classs['school_id'] == user['school_id'] and datetime.now() < end_day:
+                    add_user_to_class_mod(user['user_id'], class_id)
+                    update_role_account_mod(user["user_id"], role)
+
+        return jsonify(success = False, message = "Class does not exist") 
+    return jsonify(success = False, message = "School key not value")
+
+
+@classs.route('/mod/api/detele_user_from_class', methods=['PUT'])
+def delete_user_from_class_api_mod():
+    data = request.get_json()
+    if not data:
+        return jsonify(success = False, message = "Please enter valid data")
+
+    class_id = data.get('class_id')
+    role = data.get('role')
+
+    
+    school_key = data.get('school_key')
+    school_name = data.get('school_name')
+    school = db.schools.find_one({'school_name': school_name})
+
+    if school_key == school['school_key']:
+        classs = db.classs.find_one({'class_id': class_id})
+        list_email = data.get("list_email")
+        if classs:
+            for email in list_email:
+                user = db.users.find_one({"email": email})
+                if delete_user_to_class(user["user_id"], class_id) and delete_file_for_user(user["user_id"], class_id) and delete_student_in_assignments(user["user_id"], class_id):
+                    return jsonify(success = True, message = "Class updated successfully")
+                else:
+                    return jsonify(success = False, message = "Unable to update class")
+
+        return jsonify(success = False, message = "Class does not exist") 
+    return jsonify(success = False, message = "School key not value")
+

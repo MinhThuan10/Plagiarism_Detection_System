@@ -87,6 +87,18 @@ def add_user_to_class(user_id, class_id, class_key):
     return False
 
 
+def add_user_to_class_mod(user_id, class_id):
+    classs =  db.classs.find_one({'class_id': class_id})
+    if not classs:
+        return False
+        
+    day = datetime.now().strftime('%m/%d/%Y')
+    classs['student_ids'].append([user_id, day])
+    db.classs.update_one({'class_id': class_id}, {'$set': {'student_ids': classs['student_ids']}})
+    return True
+
+
+
 def delete_user_to_class(user_id, class_id):
     classs = db.classs.find_one({'class_id': class_id})
     if not classs:

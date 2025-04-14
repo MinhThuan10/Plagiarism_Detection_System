@@ -160,6 +160,17 @@ def update_account_mod(user_id, first_name, last_name):
         return True
     return False
 
+def update_role_account_mod(user_id, role):
+    user = db.users.find_one({"user_id": user_id})
+    if user:
+        role = role or user['role']
+        db.users.update_one(
+            { "user_id": user_id},
+            { "$set": { "role": role} }
+        )
+        return True
+    return False
+
 def delete_account_mod(user_id):
     user = db.users.find_one({"user_id": user_id})
     if user:
