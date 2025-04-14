@@ -147,3 +147,22 @@ def update_account(user_id, first_name, last_name, old_password, new_password):
             return True
         return False
     return False
+
+def update_account_mod(user_id, first_name, last_name):
+    user = db.users.find_one({"user_id": user_id})
+    if user:
+        first_name = first_name or user['first_name']
+        last_name = last_name or user['last_name']
+        db.users.update_one(
+            { "user_id": user_id},
+            { "$set": { "first_name": first_name,  "last_name": last_name} }
+        )
+        return True
+    return False
+
+def delete_account_mod(user_id):
+    user = db.users.find_one({"user_id": user_id})
+    if user:
+        db.users.delete_one({"user_id": user_id})
+        return True
+    return False

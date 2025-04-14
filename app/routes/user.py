@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, jsonify, session
-from app.models.user import create_user, check_user, send_verification_email, check_user_change_passwd, update_user, create_avatar_image, update_account  # Thay đổi import
+from app.models.user import create_user, check_user, send_verification_email, check_user_change_passwd, update_user, create_avatar_image, update_account, update_account_mod, delete_account_mod  # Thay đổi import
 import random
 
 from app.extensions import db
@@ -180,3 +180,76 @@ def update_account_api():
             return jsonify(success=True, message="Update success")
         return jsonify(success=False, message="wrong password")
     return jsonify(success=False, message="wrong password")      
+
+
+
+# Moodle
+
+@user.route('/mod/api/add_user', methods=['POST'])
+def add_user():
+    data = request.get_json()  # Nhận dữ liệu JSON từ client
+    print('call api tạo user')
+    print(data)
+
+    
+    first_name = data.get('firstname')
+    last_name = data.get('lastname')
+    role = "Student"
+    email = data.get('email')
+    password = "111111"
+    school_key = data.get('school_key')
+
+    school_name = data.get('school_name')
+    school = db.schools.find_one({'school_name': school_name})
+    school_id = school['school_id']
+
+
+    avatar_letter = first_name[0].upper() if first_name else ""
+
+    # Kiểm tra và tạo user
+    # Tạo hình ảnh avatar từ chữ cái đầu tiên
+    avatar_base64  = create_avatar_image(avatar_letter)
+    if school_key == school['school_key']:
+        if create_user(first_name, last_name, email, password, role, avatar_base64, school_id ):  
+            return jsonify(success=True, message=True)
+        else:
+            return jsonify(success=False, message='Email already exists, please enter another email') 
+    return jsonify(success=False, message='school key error') 
+
+
+
+@user.route('/mod/api/update_user', methods=["PUT"])
+def update_account_api_mod():
+    data = request.get_json() 
+    school_key = data.get('school_key')
+    school_name = data.get('school_name')
+    school = db.schools.find_one({'school_name': school_name})
+
+    email = data.get('email')
+    print(email)
+    user = db.users.find_one({'email': email})
+    if user and school_key == school['school_key']:
+        first_name = data.get('firstname')
+        last_name = data.get('lastname')
+        if update_account_mod(user["user_id"],first_name, last_name):
+            return jsonify(success=True, message="Update success")
+        return jsonify(success=False, message="wrong password")
+    return jsonify(success=False, message="wrong password") 
+
+
+@user.route('/mod/api/delete_user', methods=["DELETE"])
+def delete_account_api_mod():
+    data = request.get_json() 
+    school_key = data.get('school_key')
+    school_name = data.get('school_name')
+    school = db.schools.find_one({'school_name': school_name})
+
+    email = data.get('email')
+    print(email)
+
+    user = db.users.find_one({'email': email})
+    if user and school_key == school['school_key']:
+        if delete_account_mod(user["user_id"]):
+            return jsonify(success=True, message="Update success")
+        return jsonify(success=False, message="wrong password")
+    return jsonify(success=False, message="wrong password") 

@@ -10,6 +10,7 @@ from app.models.search_system.models import add_file_to_elasticsearch, import_fi
 from app.models.search_system.highlight import highlight_school
 from bson import Binary
 import io
+import requests
 
 file = Blueprint('file', __name__)
 
@@ -123,6 +124,81 @@ def create_file_quick_submit_api(school_id):
         return jsonify(success = False, message = "School ID does not match") 
         
     return jsonify(success = False, message = "User not logged in") 
+
+API_KEY = "123456"
+
+# moodle.
+@file.route('/api/check_plagiarism_moodle', methods=['POST'])
+def check_plagiarism_moodle():
+    print("API đã được call")
+    api_key = request.headers.get("API-KEY")
+
+    if api_key != API_KEY:
+        print("API key không đúng")
+        return jsonify({"error": "Invalid API Key"}), 403
+    else:
+        
+        author_name = request.form.get('author_name')
+        submission_title = request.form.get('submissionTitle')
+        storage_option = "do_not_store"
+        submit_day = request.form.get('submitDay')
+        file = request.files.get('file')
+        author_id = "0"
+        submission_id = request.form.get('id')
+        
+        print(f"Thông tin bài nộp: {author_name},{submission_title}, {storage_option}, {submit_day}, {file}, {author_id}, {submission_id}")
+        
+        if file:
+            print("file đã được gửi qua")
+            school_id = "1"
+            result, file_id  =  add_file_quick_submit(school_id, author_name, author_id, submission_title, submit_day, file, storage_option)
+            if result:
+                if storage_option == "standard_repository":
+                    school_cursor = db.schools.find_one({"school_id": school_id})
+                    add_file_to_elasticsearch(school_cursor["ip_cluster"], school_id, school_cursor["school_name"], file_id, school_cursor["index_name"], 'student_Data')
+                # call_test_function_async(file_id)
+
+                main(file_id)
+
+
+                moodle_api_url = "http://localhost/mod/assign/pikapon_callback.php"
+                api_key = "123456"
+
+                score = db.files.find_one({"file_id" : file_id})["plagiarism"]
+                data = {
+                    "api_key": api_key,
+                    "score": score,
+                    "submission_id": submission_id
+                }
+
+                print({api_key}, {score}, {submission_id})
+                try:
+                    response = requests.post(moodle_api_url, data=data)
+                    if response.status_code == 200:
+                        print("Kết quả đạo văn đã gửi về Moodle thành công!")
+                    else:
+                        print("Lỗi gửi kết quả về Moodle:", response.text)
+                except Exception as e:
+                    print("Lỗi gửi request:", str(e))
+                return jsonify({"success": "Invalid API Key"}), 200
+
+
+                
+            else:
+                print("không check đạo văn được")
+
+                return jsonify({"error": "Can't import file"}), 500
+        else:
+            print("không nhận file")
+
+            return jsonify({"error": "not file"}), 500
+            
+    
+
+    
+
+        
+
 
 @file.route('/api/delete_file@school=<school_id>-class=<class_id>-assignment=<assignment_id>-student=<student_id>', methods=['DELETE'])
 def delete_file_api(school_id, class_id, assignment_id, student_id):
