@@ -64,6 +64,21 @@ def create_assignment(school_id, class_id, assignment_name, start_day, end_day, 
                          })
     return True
 
+def create_assignment_mod(school_id, class_id, assignment_id, assignment_name, start_day, end_day, create_day):
+    if db.assignments.find_one({'class_id': class_id, "assignment_name": assignment_name}):
+        return False  
+
+    db.assignments.insert_one({'school_id': school_id,
+                        'class_id': class_id,
+                        'assignment_id': assignment_id,
+                         'assignment_name': assignment_name,
+                         'start_day': start_day,
+                         'end_day': end_day,
+                         'create_day': create_day,
+                         'student_ids': []
+                         })
+    return True
+
 
 def update_assignment(school_id, class_id, assignment_id, assignment_name, start_day, end_day):
     if  db.assignments.find_one({

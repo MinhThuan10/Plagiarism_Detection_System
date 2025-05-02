@@ -163,6 +163,8 @@ def update_account_mod(user_id, first_name, last_name):
 def update_role_account_mod(user_id, role):
     user = db.users.find_one({"user_id": user_id})
     if user:
+        if user['role'] == "Teacher" or "Manager":
+            return True
         role = role or user['role']
         db.users.update_one(
             { "user_id": user_id},

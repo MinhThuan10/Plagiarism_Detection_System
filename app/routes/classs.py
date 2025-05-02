@@ -292,6 +292,7 @@ def delete_class_api_mod():
 @classs.route('/mod/api/add_user_to_class', methods=['PUT'])
 def add_user_to_class_api_mod():
     data = request.get_json()
+    print(data)
     if not data:
         return jsonify(success = False, message = "Please enter valid data")
 
@@ -305,16 +306,16 @@ def add_user_to_class_api_mod():
 
     if school_key == school['school_key']:
         classs = db.classs.find_one({'class_id': class_id})
-        list_email = data.get("list_email")
+        email = data.get("email")
         if classs:
             end_day = datetime.strptime(classs['end_day'], "%m/%d/%Y")
-            for email in list_email:
-                user = db.users.find_one({"email": email})
-                if any(student[0] == user["user_id"] for student in classs['student_ids']):
-                    continue 
-                if classs['school_id'] == user['school_id'] and datetime.now() < end_day:
-                    add_user_to_class_mod(user['user_id'], class_id)
-                    update_role_account_mod(user["user_id"], role)
+            user = db.users.find_one({"email": email})
+            if any(student[0] == user["user_id"] for student in classs['student_ids']):
+                return jsonify(success = False, message = "User exits in class") 
+                
+            if classs['school_id'] == user['school_id'] and datetime.now() < end_day:
+                add_user_to_class_mod(user['user_id'], class_id)
+                update_role_account_mod(user["user_id"], role)
 
         return jsonify(success = False, message = "Class does not exist") 
     return jsonify(success = False, message = "School key not value")
@@ -336,14 +337,13 @@ def delete_user_from_class_api_mod():
 
     if school_key == school['school_key']:
         classs = db.classs.find_one({'class_id': class_id})
-        list_email = data.get("list_email")
+        email = data.get("email")
         if classs:
-            for email in list_email:
-                user = db.users.find_one({"email": email})
-                if delete_user_to_class(user["user_id"], class_id) and delete_file_for_user(user["user_id"], class_id) and delete_student_in_assignments(user["user_id"], class_id):
-                    return jsonify(success = True, message = "Class updated successfully")
-                else:
-                    return jsonify(success = False, message = "Unable to update class")
+            user = db.users.find_one({"email": email})
+            if delete_user_to_class(user["user_id"], class_id) and delete_file_for_user(user["user_id"], class_id) and delete_student_in_assignments(user["user_id"], class_id):
+                return jsonify(success = True, message = "Class updated successfully")
+            else:
+                return jsonify(success = False, message = "Unable to update class")
 
         return jsonify(success = False, message = "Class does not exist") 
     return jsonify(success = False, message = "School key not value")

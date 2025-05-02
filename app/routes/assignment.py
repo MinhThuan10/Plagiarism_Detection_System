@@ -2,8 +2,11 @@ from flask import Blueprint, render_template, request, jsonify, session
 from bson import ObjectId
 from bson.objectid import ObjectId
 from app.extensions import db
-from app.models.assignment import  find_class_id, load_assigment, load_student_in_class, create_assignment, update_assignment, delete_assignment, load_file_in_class
+from app.models.assignment import  find_class_id, load_assigment, load_student_in_class, create_assignment, create_assignment_mod, update_assignment, delete_assignment, load_file_in_class
+from datetime import datetime
 
+# Lấy ngày hôm nay
+today = datetime.now()
 assignment = Blueprint('assignment', __name__)
 
 
@@ -154,7 +157,7 @@ def create_assignment_api_mod():
     data = request.get_json()
     if not data:
         return jsonify(success = False, message = "Please re-enter the data")
-    
+    print(data)
     school_key = data.get('school_key')
     school_name = data.get('school_name')
     school = db.schools.find_one({'school_name': school_name})
@@ -163,12 +166,13 @@ def create_assignment_api_mod():
     classs = db.classs.find_one({"class_id": class_id})
 
     if school_key == school['school_key'] and classs:
+        assignment_id = data.get('assignment_id')
         assignment_name = data.get('assignmentName')
         start_day = data.get('startDay')
         end_day = data.get('dueDay')
-        create_day = data.get('createDay')
+        create_day = today.strftime('%d/%m/%Y')
 
-        if create_assignment(school['school_id'], class_id, assignment_name, start_day, end_day, create_day):
+        if create_assignment_mod(school['school_id'], class_id, assignment_id, assignment_name, start_day, end_day, create_day):
             return jsonify(success = True, message = "Successfully created a new assignment")
         else:
             return jsonify(success = False, message = "Assignment name already exists")
@@ -176,7 +180,7 @@ def create_assignment_api_mod():
     return jsonify(success = False, message = "Not valid")
 
 
-@assignment.route('/mod/api/update_assignmen', methods=['PUT'])
+@assignment.route('/mod/api/update_assignment', methods=['PUT'])
 def update_assignment_api_mod():
     data = request.get_json()
     if not data:

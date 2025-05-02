@@ -11,6 +11,7 @@ from app.models.search_system.highlight import highlight_school
 from bson import Binary
 import io
 import requests
+import base64
 
 file = Blueprint('file', __name__)
 
@@ -96,6 +97,37 @@ def call_test_function_async(file_id):
     thread.start()
 
 
+
+def call_test_function_mod(file_id, submission_id, submission_title, callback_url):
+    def run():
+        try:
+            main(file_id)  # xử lý chính
+
+            # Sau khi xử lý xong, lấy dữ liệu để gửi callback
+            score = db.files.find_one({"file_id": file_id})["plagiarism"]
+            file_checked_doc = db.files.find_one({"file_id": file_id, "type": "checked"})
+            file_checked = base64.b64encode(file_checked_doc["content_file"]).decode("utf-8")
+            url = f"http://localhost:5000/report/file_id={file_id}"
+
+            if callback_url:
+                callback_payload = {
+                    "submission_id": submission_id,
+                    "submission_title": submission_title,
+                    "score": score,
+                    "file_checked": file_checked,
+                    "url": url
+                }
+                headers = {'Content-Type': 'application/json'}
+                res = requests.post(callback_url, json=callback_payload, headers=headers)
+                print("Callback sent:", res.status_code)
+        except Exception as e:
+            print("Error in background thread:", str(e))
+
+    Thread(target=run).start()
+
+
+
+
 @file.route('/api/upload_file_quick_submit@school=<school_id>', methods=['POST'])
 def create_file_quick_submit_api(school_id):
     if 'user_id' not in session:
@@ -125,78 +157,83 @@ def create_file_quick_submit_api(school_id):
         
     return jsonify(success = False, message = "User not logged in") 
 
-API_KEY = "123456"
-
 # moodle.
 @file.route('/api/check_plagiarism_moodle', methods=['POST'])
 def check_plagiarism_moodle():
-    print("API đã được call")
-    api_key = request.headers.get("API-KEY")
-
-    if api_key != API_KEY:
-        print("API key không đúng")
-        return jsonify({"error": "Invalid API Key"}), 403
-    else:
-        
-        author_name = request.form.get('author_name')
+    class_id = request.form.get('class_id')
+    assignment_id = request.form.get('assignment_id')
+    email = request.form.get('email')
+    user = db.users.find_one({"email": email})
+    
+    school_key = request.form.get('school_key')
+    school_name = request.form.get('school_name')
+    school = db.schools.find_one({'school_name': school_name})
+    
+    if user and school_key == school['school_key']:
         submission_title = request.form.get('submissionTitle')
+        submission_id = request.form.get('submission_id')
         storage_option = "do_not_store"
         submit_day = request.form.get('submitDay')
         file = request.files.get('file')
-        author_id = "0"
-        submission_id = request.form.get('id')
-        
-        print(f"Thông tin bài nộp: {author_name},{submission_title}, {storage_option}, {submit_day}, {file}, {author_id}, {submission_id}")
+        callback_url = request.form.get('callback_url')
+
+        print(user['role'], school["school_id"], class_id, assignment_id, submission_id, submission_title, user["user_id"], submit_day, file, storage_option, callback_url)
         
         if file:
-            print("file đã được gửi qua")
-            school_id = "1"
-            result, file_id  =  add_file_quick_submit(school_id, author_name, author_id, submission_title, submit_day, file, storage_option)
-            if result:
+            if db.files.find_one({"assignment_id": assignment_id, "author_id": user["user_id"]}):
+                delete_file_student(user['user_id'], school["school_id"], class_id, assignment_id, user["user_id"]) and delete_student_submit(school["school_id"], assignment_id, user["user_id"])
+            result, file_id = add_file(user['role'], school["school_id"], class_id, assignment_id, submission_title, user["user_id"], submit_day, file, storage_option)
+            if result and add_student_submit(school["school_id"], assignment_id, user["user_id"]):
                 if storage_option == "standard_repository":
-                    school_cursor = db.schools.find_one({"school_id": school_id})
-                    add_file_to_elasticsearch(school_cursor["ip_cluster"], school_id, school_cursor["school_name"], file_id, school_cursor["index_name"], 'student_Data')
-                # call_test_function_async(file_id)
+                    add_file_to_elasticsearch(school["ip_cluster"], school["school_id"], school["school_name"], file_id, school["index_name"], 'student_Data')
+                call_test_function_mod(file_id, submission_id, submission_title, callback_url)
 
-                main(file_id)
-
-
-                moodle_api_url = "http://localhost/mod/assign/pikapon_callback.php"
-                api_key = "123456"
-
-                score = db.files.find_one({"file_id" : file_id})["plagiarism"]
-                data = {
-                    "api_key": api_key,
-                    "score": score,
-                    "submission_id": submission_id
-                }
-
-                print({api_key}, {score}, {submission_id})
-                try:
-                    response = requests.post(moodle_api_url, data=data)
-                    if response.status_code == 200:
-                        print("Kết quả đạo văn đã gửi về Moodle thành công!")
-                    else:
-                        print("Lỗi gửi kết quả về Moodle:", response.text)
-                except Exception as e:
-                    print("Lỗi gửi request:", str(e))
-                return jsonify({"success": "Invalid API Key"}), 200
-
-
-                
+                return jsonify({"success": "accepted"}), 202
             else:
-                print("không check đạo văn được")
-
+                print("ko check được")
                 return jsonify({"error": "Can't import file"}), 500
         else:
-            print("không nhận file")
+            print("không thấy file")
 
             return jsonify({"error": "not file"}), 500
+    else:
+        print("Sai key, ko có user")
+
+        return jsonify({"error": "not file"}), 500
             
     
 
     
+@file.route('/mod/api/delete_file', methods=['DELETE'])
+def delete_file_api_mod():
+    data = request.get_json()
+    print(data)
+    if not data:
+        return jsonify(success = False, message = "Please enter valid data")
 
+    class_id = data.get('class_id')
+    assignment_id = data.get('assignment_id')
+    email = data.get('email')
+    user = db.users.find_one({"email": email})
+    
+    school_key = data.get('school_key')
+    school_name = data.get('school_name')
+    school = db.schools.find_one({'school_name': school_name})
+    
+    if user and school_key == school['school_key']:
+        if school['school_id'] == user['school_id']:
+            if user['role'] == "Teacher" or user['role'] == "Manager":
+                print("Xoa file")
+                if delete_file_teacher(school['school_id'], class_id, assignment_id, user["user_id"]) and delete_student_submit(school['school_id'], assignment_id, user["user_id"]):
+                    return jsonify(success = True, message = "File deleted successfully")
+                return jsonify(success = False, message = "Error occurred during file deletion")  
+            if user['role'] == "Student":
+                if delete_file_student(user['user_id'], school['school_id'], class_id, assignment_id, user["user_id"]) and delete_student_submit(school['school_id'], assignment_id, user["user_id"]):
+                    return jsonify(success = True, message = "File deleted successfully")
+                return jsonify(success = False, message = "Error occurred during file deletion") 
+        return jsonify(success = False, message = "School ID does not match") 
+        
+    return jsonify(success = False, message = "User not logged in") 
         
 
 
