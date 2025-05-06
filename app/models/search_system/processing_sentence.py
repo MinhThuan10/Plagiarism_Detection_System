@@ -28,6 +28,29 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = SentenceTransformer('dangvantuan/vietnamese-embedding', device = device)
 tokenizer = model.tokenizer
 
+# def split_sentences(text):
+#     vietnamese_lowercase = 'aáàảãạăắằẳẵặâấầẩẫậbcdđeéèẻẽẹêếềểễệfghiíìỉĩịjklmnoóòỏõọôốồổỗộơớờởỡợpqrstuúùủũụưứừửữựvxyýỳỷỹỵ'
+#     text = re.sub(rf'\n(?=[{vietnamese_lowercase}])', ' ', text)
+
+#     text = text.replace(' \n', '. ')
+#     text = text.replace('\n', ' ')
+#     text = re.sub(r'[ ]{2,}', ' ', text)
+#     text = text.replace(' .', '.')
+#     # text = re.sub(r'\.{2,}', '.', text)
+
+
+#     abbreviations = ['TS.', 'Ths.', 'THS.',  'TP.', 'Dr.', 'PhD.', 'BS.', ' Th.', 'S.', 'PGS.', 'GS']
+
+#     for abbr in abbreviations:
+#         text = text.replace(abbr, abbr.replace('.', '__DOT__'))
+
+#     sentences = re.split(r'[.!?]\s+', text)
+#     sentences = [s.replace('__DOT__', '.') for s in sentences]
+#     sentences = [s.strip() for s in sentences if s.strip()]
+
+#     return sentences
+
+
 def split_sentences(text):
     vietnamese_lowercase = 'aáàảãạăắằẳẵặâấầẩẫậbcdđeéèẻẽẹêếềểễệfghiíìỉĩịjklmnoóòỏõọôốồổỗộơớờởỡợpqrstuúùủũụưứừửữựvxyýỳỷỹỵ'
     text = re.sub(rf'\n(?=[{vietnamese_lowercase}])', ' ', text)
@@ -49,6 +72,7 @@ def split_sentences(text):
     sentences = [s.strip() for s in sentences if s.strip()]
 
     return sentences
+
     
 def remove_sentences(sentences):
     filtered_sentences = []

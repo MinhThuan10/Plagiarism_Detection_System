@@ -12,6 +12,7 @@ from bson import Binary
 import io
 import requests
 import base64
+import os
 
 file = Blueprint('file', __name__)
 
@@ -102,16 +103,16 @@ def call_test_function_mod(file_id, submission_id, submission_title, callback_ur
     def run():
         try:
             main(file_id)  # xử lý chính
-
+            BASE_URL = os.getenv("BASE_URL")
             # Sau khi xử lý xong, lấy dữ liệu để gửi callback
             score = db.files.find_one({"file_id": file_id})["plagiarism"]
             file_checked_doc = db.files.find_one({"file_id": file_id, "type": "checked"})
             file_checked = base64.b64encode(file_checked_doc["content_file"]).decode("utf-8")
-            url = f"http://localhost:5000/report/file_id={file_id}"
+            url = f"{BASE_URL}report/file_id={file_id}"
 
             if callback_url:
                 callback_payload = {
-                    "submission_id": submission_id,
+                    "submission_id": submission_id, 
                     "submission_title": submission_title,
                     "score": score,
                     "file_checked": file_checked,
