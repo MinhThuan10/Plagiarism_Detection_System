@@ -225,7 +225,8 @@ def create_class_api_mod():
         return jsonify(success = False, message = "Please enter valid data")
     class_name = data.get('class_name')
     class_key = '111111'
-    class_id = data.get('class_id')
+    
+
     start_day = data.get('start_day')
     end_day = data.get('end_day')
     
@@ -233,6 +234,8 @@ def create_class_api_mod():
     school_name = data.get('school_name')
     school = db.schools.find_one({'school_name': school_name})
 
+    class_id = str(school["school_id"]) + "_" + data.get('class_id')
+    
     user = db.users.find_one({'role': 'Teacher', 'school_id': school['school_id']})
     teacher_id = user['user_id']
 
@@ -254,11 +257,11 @@ def update_class_api_mod():
         return jsonify(success = False, message = "Please enter valid data")
     class_name = data.get('class_name')
     end_day = data.get('end_day')
-    class_id = data.get('class_id')
     
     school_key = data.get('school_key')
     school_name = data.get('school_name')
     school = db.schools.find_one({'school_name': school_name})
+    class_id = str(school["school_id"]) + "_" + data.get('class_id')
 
     classs = db.classs.find_one({"class_id": class_id})
     if school_key == school['school_key']:
@@ -273,11 +276,12 @@ def delete_class_api_mod():
     data = request.get_json()
     if not data:
         return jsonify(success = False, message = "Please enter valid data")
-    class_id = data.get('class_id')
+
     
     school_key = data.get('school_key')
     school_name = data.get('school_name')
     school = db.schools.find_one({'school_name': school_name})
+    class_id = str(school["school_id"]) + "_" + data.get('class_id')
 
     if school_key == school['school_key']:
         if delete_class(school['school_id'], class_id):
@@ -296,13 +300,13 @@ def add_user_to_class_api_mod():
     if not data:
         return jsonify(success = False, message = "Please enter valid data")
 
-    class_id = data.get('class_id')
     role = data.get('role')
 
     
     school_key = data.get('school_key')
     school_name = data.get('school_name')
     school = db.schools.find_one({'school_name': school_name})
+    class_id = str(school["school_id"]) + "_" + data.get('class_id')
 
     if school_key == school['school_key']:
         classs = db.classs.find_one({'class_id': class_id})
@@ -310,12 +314,13 @@ def add_user_to_class_api_mod():
         if classs:
             end_day = datetime.strptime(classs['end_day'], "%m/%d/%Y")
             user = db.users.find_one({"email": email})
-            if any(student[0] == user["user_id"] for student in classs['student_ids']):
-                return jsonify(success = False, message = "User exits in class") 
-                
-            if classs['school_id'] == user['school_id'] and datetime.now() < end_day:
-                add_user_to_class_mod(user['user_id'], class_id)
-                update_role_account_mod(user["user_id"], role)
+            if user:
+                if any(student[0] == user["user_id"] for student in classs['student_ids']):
+                    return jsonify(success = False, message = "User exits in class") 
+                    
+                if classs['school_id'] == user['school_id'] and datetime.now() < end_day:
+                    add_user_to_class_mod(user['user_id'], class_id)
+                    update_role_account_mod(user["user_id"], role)
 
         return jsonify(success = False, message = "Class does not exist") 
     return jsonify(success = False, message = "School key not value")
@@ -327,13 +332,14 @@ def delete_user_from_class_api_mod():
     if not data:
         return jsonify(success = False, message = "Please enter valid data")
 
-    class_id = data.get('class_id')
-    role = data.get('role')
+
 
     
     school_key = data.get('school_key')
     school_name = data.get('school_name')
     school = db.schools.find_one({'school_name': school_name})
+    
+    class_id = str(school["school_id"]) + "_" + data.get('class_id')
 
     if school_key == school['school_key']:
         classs = db.classs.find_one({'class_id': class_id})

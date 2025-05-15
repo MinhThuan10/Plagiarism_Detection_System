@@ -161,15 +161,16 @@ def create_file_quick_submit_api(school_id):
 # moodle.
 @file.route('/api/check_plagiarism_moodle', methods=['POST'])
 def check_plagiarism_moodle():
-    class_id = request.form.get('class_id')
-    assignment_id = request.form.get('assignment_id')
+    
     email = request.form.get('email')
     user = db.users.find_one({"email": email})
     
     school_key = request.form.get('school_key')
     school_name = request.form.get('school_name')
     school = db.schools.find_one({'school_name': school_name})
-    
+    class_id = school["school_id"] + "_" + request.form.get('class_id')
+    assignment_id = school["school_id"] + "_" + request.form.get('assignment_id')
+    print(f"email: {email}, school_key: {school_key}, school_name: {school_name}, class_id: {class_id}, assignment_id: {assignment_id}")
     if user and school_key == school['school_key']:
         submission_title = request.form.get('submissionTitle')
         submission_id = request.form.get('submission_id')
@@ -212,19 +213,19 @@ def delete_file_api_mod():
     if not data:
         return jsonify(success = False, message = "Please enter valid data")
 
-    class_id = data.get('class_id')
-    assignment_id = data.get('assignment_id')
     email = data.get('email')
     user = db.users.find_one({"email": email})
     
     school_key = data.get('school_key')
     school_name = data.get('school_name')
     school = db.schools.find_one({'school_name': school_name})
-    
+    class_id = school["school_id"] + "_" + str(data.get('class_id'))
+    assignment_id = school["school_id"] + "_" + str(data.get('assignment_id'))
     if user and school_key == school['school_key']:
         if school['school_id'] == user['school_id']:
-            if user['role'] == "Teacher" or user['role'] == "Manager":
+            if user['role'] == "Teacher":
                 print("Xoa file")
+                print(f"school_id: {school['school_id']}, class_id: {class_id}, assignment_id: {assignment_id}, user_id: {user["user_id"]}")
                 if delete_file_teacher(school['school_id'], class_id, assignment_id, user["user_id"]) and delete_student_submit(school['school_id'], assignment_id, user["user_id"]):
                     return jsonify(success = True, message = "File deleted successfully")
                 return jsonify(success = False, message = "Error occurred during file deletion")  

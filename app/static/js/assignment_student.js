@@ -35,11 +35,13 @@ let class_id = "";
 const url = window.location.href;
 
 // Sử dụng regex để tìm giá trị của 'class'
-const match = url.match(/class=(\d+)/);
+const match = url.match(/class=([\w_]+)/);
 
 if (match) {
   class_id = match[1];
 }
+
+
 let userId = document.getElementById("user-info").getAttribute("data-user-id");
 
 document.addEventListener("DOMContentLoaded", function () {

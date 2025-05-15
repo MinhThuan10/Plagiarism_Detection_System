@@ -1,6 +1,7 @@
 # models/assignment.py
 from app.extensions import db
 from bson.objectid import ObjectId
+from pymongo import DESCENDING
 
 
 
@@ -26,7 +27,6 @@ def load_student_in_class(class_id):
     list_class = find_class_id(class_id)
     list_student = []
     for student in list_class['student_ids']:
-        print(student)
         student_cursor = db.users.find_one({'user_id': student[0]})
         
         if student_cursor:
@@ -50,12 +50,25 @@ def create_assignment(school_id, class_id, assignment_name, start_day, end_day, 
     if db.assignments.find_one({'class_id': class_id, "assignment_name": assignment_name}):
         return False  
     
-    max_assignment = db.assignments.find_one(sort=[('assignment_id', -1)])
-    max_assignment = max_assignment['assignment_id'] if max_assignment else 0 
+    pattern = f'^{school_id}_[0-9]+$'
+
+    max_assignment = db.assignments.find_one(
+        {'assignment_id': {'$regex': pattern}},
+        sort=[(
+            'assignment_id', DESCENDING
+        )]
+    )
+    if max_assignment:
+        max_assignment_id = int(max_assignment['assignment_id'].split('_')[1])
+    else:
+        max_assignment_id = 0
+
+    assignment_id = str(school_id) + '_' + str(max_assignment_id + 1)
+
 
     db.assignments.insert_one({'school_id': school_id,
                         'class_id': class_id,
-                        'assignment_id': str(int(max_assignment) + 1),
+                        'assignment_id': assignment_id,
                          'assignment_name': assignment_name,
                          'start_day': start_day,
                          'end_day': end_day,
@@ -65,12 +78,12 @@ def create_assignment(school_id, class_id, assignment_name, start_day, end_day, 
     return True
 
 def create_assignment_mod(school_id, class_id, assignment_id, assignment_name, start_day, end_day, create_day):
-    if db.assignments.find_one({'class_id': class_id}):
+    if db.assignments.find_one({'assignment_id': school_id + "_" + assignment_id}):
         return False  
 
     db.assignments.insert_one({'school_id': school_id,
-                        'class_id': class_id,
-                        'assignment_id': assignment_id,
+                        'class_id': school_id + "_" + class_id,
+                        'assignment_id': school_id + "_" + assignment_id,
                          'assignment_name': assignment_name,
                          'start_day': start_day,
                          'end_day': end_day,

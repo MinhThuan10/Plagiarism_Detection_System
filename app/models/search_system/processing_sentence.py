@@ -50,48 +50,80 @@ tokenizer = model.tokenizer
 
 #     return sentences
 
+abbreviations = ['1. ', '2. ', '3. ', '4. ', '5. ', '6. ', '7. ', '8. ', '9. ', '10. ', '11. ', '12. ', '13. ', '14. ', '15. ', '16. ', '17. ', '18. ', '19. ', '20. ', 'TS. ', 'Ths.', 'THS.',  'TP.', 'Dr.', 'PhD.', 'BS.', ' Th.', 'S.', 'PGS.', 'GS.']
 
 def split_sentences(text):
-    vietnamese_lowercase = 'aáàảãạăắằẳẵặâấầẩẫậbcdđeéèẻẽẹêếềểễệfghiíìỉĩịjklmnoóòỏõọôốồổỗộơớờởỡợpqrstuúùủũụưứừửữựvxyýỳỷỹỵ'
-    text = re.sub(rf'\n(?=[{vietnamese_lowercase}])', ' ', text)
+    replacements = {}
 
-    text = text.replace(' \n', '. ')
-    text = text.replace('\n', ' ')
-    text = re.sub(r'[ ]{2,}', ' ', text)
-    text = text.replace(' .', '.')
-    # text = re.sub(r'\.{2,}', '.', text)
+    for word in abbreviations:
+        safe_word = word.replace('.', '⸱')
+        text = text.replace(word, safe_word)
+        replacements[safe_word] = word
+
+    result = []
+    parts = re.split(r" \n \n", text)
+    
+    for part in parts:
+        stripped_part = part.strip()
+        if stripped_part != "":
+            stripped_part = re.sub(r'\.{3,}\s*\d*', '.', stripped_part)
+            sentences = re.split(r'[.!?]\s+', stripped_part)
+            sentences = [re.sub(r'[.!?]+$', '', s.strip()) for s in sentences if s.strip()]
+            for sentence in sentences:
+                sentence_strip = sentence.strip()
+                if sentence_strip != "":
+                    sentence_strip = sentence_strip.replace(" \n", " ")
+                    sentence_strip = sentence_strip.replace("\n", " ")
+                    cleaned = sentence_strip
+                    for safe, original in replacements.items():
+                        cleaned = cleaned.replace(safe, original)
+
+                    result.append(cleaned)
+
+    return result
 
 
-    abbreviations = ['TS.', 'Ths.', 'THS.',  'TP.', 'Dr.', 'PhD.', 'BS.', ' Th.', 'S.', 'PGS.', 'GS']
-
-    for abbr in abbreviations:
-        text = text.replace(abbr, abbr.replace('.', '__DOT__'))
-
-    sentences = re.split(r'[.!?]\s+', text)
-    sentences = [s.replace('__DOT__', '.') for s in sentences]
-    sentences = [s.strip() for s in sentences if s.strip()]
-
-    return sentences
 
     
+# def remove_sentences(sentences):
+#     filtered_sentences = []
+#     for sentence in sentences:
+#         # Đếm số lượng tokens trong câu
+#         # processed_sentences_text = preprocess_text_vietnamese(sentence)[0]
+#         tokenizer_sent = tokenize(sentence)
+#         o = model[0].tokenizer(tokenizer_sent, return_attention_mask=False, return_token_type_ids=False)
+#         if len(o.input_ids) > 256:
+#             sentences_split = re.split(r'[;,:-]', sentence)
+#             sentences_split = [s.strip() for s in sentences_split if s.strip()]
+#             for sentence_split in sentences_split:
+#                 # processed_sentences_text_split = preprocess_text_vietnamese(sentence_split)[0]
+#                 tokenizer_sent_split = tokenize(sentence)
+#                 o_split = model[0].tokenizer(tokenizer_sent_split, return_attention_mask=False, return_token_type_ids=False)
+#                 if 3 < len(o_split.input_ids) <= 256 and len(sentence_split.split()) > 3:
+#                     filtered_sentences.append(sentence_split)
+#         if 3 < len(o.input_ids) <= 256  and len(sentence.split()) > 3:
+#             filtered_sentences.append(sentence)
+#     return filtered_sentences
+
 def remove_sentences(sentences):
     filtered_sentences = []
+
     for sentence in sentences:
-        # Đếm số lượng tokens trong câu
-        processed_sentences_text = preprocess_text_vietnamese(sentence)[0]
-        tokenizer_sent = tokenize(processed_sentences_text)
-        o = model[0].tokenizer(tokenizer_sent, return_attention_mask=False, return_token_type_ids=False)
-        if len(o.input_ids) > 256:
-            sentences_split = re.split(r'[;,:-]', sentence)
-            sentences_split = [s.strip() for s in sentences_split if s.strip()]
-            for sentence_split in sentences_split:
-                processed_sentences_text_split = preprocess_text_vietnamese(sentence_split)[0]
-                tokenizer_sent_split = tokenize(processed_sentences_text_split)
-                o_split = model[0].tokenizer(tokenizer_sent_split, return_attention_mask=False, return_token_type_ids=False)
-                if 3 < len(o_split.input_ids) <= 256 and len(sentence_split.split()) > 3:
-                    filtered_sentences.append(sentence_split)
-        if 3 < len(o.input_ids) <= 256  and len(sentence.split()) > 3:
+        tokenized_sentence = tokenize(sentence)
+        token_count = len(tokenizer.encode(tokenized_sentence, add_special_tokens=True))
+        if 10 < token_count <= 256:
             filtered_sentences.append(sentence)
+        elif token_count > 256:
+            # Tách câu theo dấu :, -, ;
+            parts = re.split(r'[:;\-]', sentence)
+            for part in parts:
+                part = part.strip()
+                if part:
+                    tokenized_part = tokenize(part)
+                    part_token_count = len(tokenizer.encode(tokenized_part, add_special_tokens=True))
+                    if 10 < part_token_count <= 256:
+                        filtered_sentences.append(part)
+
     return filtered_sentences
 
 def preprocess_text_vietnamese(text):
@@ -266,9 +298,9 @@ def calculate_similarity(query_features, reference_features):
     return similarity_scores
 
 def compare_sentences(sentence, all_snippets):
-    preprocessed_query, _ = preprocess_text_vietnamese(sentence)
-    preprocessed_references = [preprocess_text_vietnamese(snippet)[0] for snippet in all_snippets]
-    all_sentences = [s for s in [preprocessed_query] + preprocessed_references if s.strip()]
+    # preprocessed_query, _ = preprocess_text_vietnamese(sentence)
+    # preprocessed_references = [preprocess_text_vietnamese(snippet)[0] for snippet in all_snippets]
+    all_sentences = [s for s in [sentence] + all_snippets if s.strip()]
     if len(all_sentences) <= 1:
         print("Error: Not enough valid sentences for comparison.")
         return []
@@ -293,11 +325,11 @@ def compare_sentences(sentence, all_snippets):
 
 
 def compare_with_sentences(sentence, sentences):
-    preprocessed_query, _ = preprocess_text_vietnamese(sentence)
-    preprocessed_references = [preprocess_text_vietnamese(ref)[0] for ref in sentences]
+    # preprocessed_query, _ = preprocess_text_vietnamese(sentence)
+    # preprocessed_references = [preprocess_text_vietnamese(ref)[0] for ref in sentences]
 
 
-    all_sentences = [preprocessed_query] + preprocessed_references
+    all_sentences = [sentence] + sentences
     if len(all_sentences) > 2:
         embeddings = embedding_vietnamese(all_sentences)
         if embeddings is not None and embeddings.any():

@@ -344,9 +344,9 @@ def add_file_to_elasticsearch(ip_cluster, school_id, school_name, file_id, index
         if sentences:
             sentences = remove_sentences(sentences)
             if sentences:
-                processed_sentences = [preprocess_text_vietnamese(sentence)[0] for sentence in sentences]
-                if processed_sentences:
-                    vector_sentences = embedding_vietnamese(processed_sentences)
+                # processed_sentences = [preprocess_text_vietnamese(sentence)[0] for sentence in sentences]
+                if sentences:
+                    vector_sentences = embedding_vietnamese(sentences)
                     if vector_sentences is not None and vector_sentences.any():
                         save_to_elasticsearch(ip_cluster, sentences, vector_sentences, school_id, school_name, int(file_id), file_cursor['title'], index_name, type)
 
@@ -357,9 +357,9 @@ def import_file_to_elastic(ip_cluster, index_name, school_id, school_name, file,
         if sentences:
             sentences = remove_sentences(sentences)
             if sentences:
-                processed_sentences = [preprocess_text_vietnamese(sentence)[0] for sentence in sentences]
-                if processed_sentences:
-                    vector_sentences = embedding_vietnamese(processed_sentences)
+                # processed_sentences = [preprocess_text_vietnamese(sentence)[0] for sentence in sentences]
+                if sentences:
+                    vector_sentences = embedding_vietnamese(sentences)
                     if vector_sentences is not None and vector_sentences.any():
                         add_to_elasticsearch(ip_cluster, sentences, vector_sentences, school_id, school_name, title, index_name, type)
 

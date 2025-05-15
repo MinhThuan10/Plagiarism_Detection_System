@@ -10,6 +10,7 @@ import os
 from datetime import datetime
 from itertools import groupby
 import platform
+from pymongo import DESCENDING
 
 
 
@@ -86,19 +87,33 @@ def add_file(role, school_id, class_id, assignment_id, title, author_id, submit_
             file = word_to_pdf_linux(file)
 
 
+    pattern = f'^{school_id}_[0-9]+$'
 
-
-    max_file = max(
-        db.files.find({}, {"file_id": 1}),
-        key=lambda x: (len(x['file_id']), int(x['file_id'])),
-        default=None
+    max_file = db.files.find_one(
+        {'file_id': {'$regex': pattern}},
+        sort=[(
+            'file_id', DESCENDING
+        )]
     )
-    max_file = max_file['file_id'] if max_file else 0 
+    if max_file:
+        max_file_id = int(max_file['file_id'].split('_')[1])
+    else:
+        max_file_id = 0
+
+    file_id = str(school_id) + '_' + str(max_file_id + 1)
+
+    # max_file = max(
+    #     db.files.find({}, {"file_id": 1}),
+    #     key=lambda x: (len(x['file_id']), int(x['file_id'])),
+    #     default=None
+    # )
+    # max_file = max_file['file_id'] if max_file else 0 
+
     db.files.insert_one({
         "school_id": school_id,
         "class_id": class_id,
         'assignment_id': assignment_id,
-        "file_id": str(int(max_file) + 1),
+        "file_id": file_id,
         "title": title,
         "author_id": author_id,
         "author_name": "",
@@ -113,7 +128,7 @@ def add_file(role, school_id, class_id, assignment_id, title, author_id, submit_
         os.remove(doc_path)
         os.remove(pdf_path)
 
-    return True, str(int(max_file) + 1)
+    return True, file_id
 
 
 def add_file_quick_submit(school_id, author_name, author_id, submission_title, submit_day, file, storage_option):
@@ -133,20 +148,33 @@ def add_file_quick_submit(school_id, author_name, author_id, submission_title, s
         else:
             file = word_to_pdf_linux(file)
 
+    pattern = f'^{school_id}_[0-9]+$'
 
-
-    max_file = max(
-        db.files.find({}, {"file_id": 1}),
-        key=lambda x: (len(x['file_id']), int(x['file_id'])),
-        default=None
+    max_file = db.files.find_one(
+        {'file_id': {'$regex': pattern}},
+        sort=[(
+            'file_id', DESCENDING
+        )]
     )
-    max_file = max_file['file_id'] if max_file else 0 
+    if max_file:
+        max_file_id = int(max_file['file_id'].split('_')[1])
+    else:
+        max_file_id = 0
+
+    file_id = str(school_id) + '_' + str(max_file_id + 1)
+
+    # max_file = max(
+    #     db.files.find({}, {"file_id": 1}),
+    #     key=lambda x: (len(x['file_id']), int(x['file_id'])),
+    #     default=None
+    # )
+    # max_file = max_file['file_id'] if max_file else 0 
 
     db.files.insert_one({
         "school_id": school_id,
         "class_id": "",
         'assignment_id': "",
-        "file_id": str(int(max_file) + 1),
+        "file_id": file_id,
         "title": submission_title,
         "author_id": author_id,
         "author_name": author_name,
@@ -157,7 +185,7 @@ def add_file_quick_submit(school_id, author_name, author_id, submission_title, s
         "plagiarism": "",
         "type": "raw",
     })
-    return True, str(int(max_file) + 1)
+    return True, file_id
 
 def word_to_pdf_linux(file):
     import subprocess

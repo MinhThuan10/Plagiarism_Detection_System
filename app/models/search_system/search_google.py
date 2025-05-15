@@ -120,7 +120,7 @@ def fetch_response(url):
         response.raise_for_status()
         return response
     except (requests.exceptions.RequestException, TimeoutError) as e:
-        print(f"Error accessing {url}: {e}")
+        # print(f"Error accessing {url}: {e}")
         return None
     
 def extract_text_from_pdf(response):

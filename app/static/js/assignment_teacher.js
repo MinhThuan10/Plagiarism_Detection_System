@@ -19,10 +19,11 @@ let class_id = "";
 const url = window.location.href;
 
 // Sử dụng regex để tìm giá trị của 'class'
-const match = url.match(/class=(\d+)/);
+const match = url.match(/class=([\w_]+)/);
 
 if (match) {
   class_id = match[1];
+  console.log("class_id:", class_id);
 }
 
 function convertDateFormat(dateString) {

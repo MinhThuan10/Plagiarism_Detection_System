@@ -2,6 +2,7 @@
 from app.extensions import db
 from bson.objectid import ObjectId
 from datetime import datetime
+from pymongo import DESCENDING
 
 def load_school_id(school_id):
     school = db.schools.find_one({'school_id': school_id})
@@ -35,11 +36,24 @@ def create_class(school_id, class_name, class_key, teacher_id, start_day, end_da
     if db.classs.find_one({'school_id': school_id, "class_name": class_name}):
         return False, None   
     
-    max_class = db.classs.find_one(sort=[('class_id', -1)])
-    max_class = max_class['class_id'] if max_class else 0 
+    pattern = f'^{school_id}_[0-9]+$'
+
+    # max_class = db.classs.find_one(sort=[('class_id', -1)])
+    # max_class = max_class['class_id'] if max_class else 0 
     
+    max_class = db.classs.find_one(
+        {'class_id': {'$regex': pattern}},
+        sort=[(
+            'class_id', DESCENDING
+        )]
+    )
+    if max_class:
+        max_class_id = int(max_class['class_id'].split('_')[1])
+    else:
+        max_class_id = 0
+    class_id = str(school_id) + '_' + str(max_class_id + 1)
     db.classs.insert_one({'school_id': school_id,
-                        'class_id': str(int(max_class) + 1),
+                        'class_id': class_id,
                          'class_name': class_name,
                          'class_key': class_key,
                          'teacher_id': teacher_id,
@@ -47,7 +61,7 @@ def create_class(school_id, class_name, class_key, teacher_id, start_day, end_da
                          'end_day': end_day,
                          'student_ids': []
                          })
-    return True, str(int(max_class) + 1)
+    return True, class_id
 
 def update_class(school_id, class_id, class_name, class_key, end_day):
     if  db.classs.find_one({

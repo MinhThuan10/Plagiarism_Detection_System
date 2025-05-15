@@ -39,12 +39,12 @@ let assignment_id = "";
 const url = window.location.href;
 
 // Sử dụng regex để tìm giá trị của 'class'
-const match = url.match(/class=(\d+)/);
+const match = url.match(/class=([\w_]+)/);
 
 if (match) {
   class_id = match[1];
 }
-const assignment = url.match(/assignment=(\d+)/);
+const assignment = url.match(/assignment=([\w_]+)/);
 
 if (assignment) {
   assignment_id = assignment[1];

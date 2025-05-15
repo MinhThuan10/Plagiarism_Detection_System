@@ -163,7 +163,7 @@ def create_assignment_api_mod():
     school = db.schools.find_one({'school_name': school_name})
     
     class_id = data.get('class_id')
-    classs = db.classs.find_one({"class_id": class_id})
+    classs = db.classs.find_one({"class_id": str(school["school_id"]) + "_" + str(class_id)})
 
     if school_key == school['school_key'] and classs:
         assignment_id = data.get('assignment_id')
