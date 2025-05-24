@@ -143,7 +143,7 @@ def delete_class(school_id, class_id):
 # Moodle
 
 def create_class_mod(school_id, class_id, class_name, class_key, teacher_id, start_day, end_day):
-    if db.classs.find_one({'school_id': school_id, "class_name": class_name}):
+    if db.classs.find_one({'school_id': school_id, "class_id": class_id}):
         return False  
     db.classs.insert_one({'school_id': school_id,
                         'class_id': class_id,

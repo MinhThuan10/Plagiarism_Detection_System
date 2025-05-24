@@ -225,8 +225,8 @@ def delete_file_api_mod():
         if school['school_id'] == user['school_id']:
             if user['role'] == "Teacher":
                 print("Xoa file")
-                print(f"school_id: {school['school_id']}, class_id: {class_id}, assignment_id: {assignment_id}, user_id: {user["user_id"]}")
-                if delete_file_teacher(school['school_id'], class_id, assignment_id, user["user_id"]) and delete_student_submit(school['school_id'], assignment_id, user["user_id"]):
+                print(f"school_id: {school['school_id']}, class_id: {class_id}, assignment_id: {assignment_id}, user_id: {user['user_id']}")
+                if delete_file_teacher(school['school_id'], class_id, assignment_id, user["user_id"]) and delete_student_submit(school['school_id'], assignment_id, user['user_id']):
                     return jsonify(success = True, message = "File deleted successfully")
                 return jsonify(success = False, message = "Error occurred during file deletion")  
             if user['role'] == "Student":

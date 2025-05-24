@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, jsonify, session
 from app.models.classs import  load_class_teacher, load_class_student, create_class, update_class, delete_class, load_school_id, add_user_to_class,add_user_to_class_mod, delete_user_to_class, create_class_mod
 from app.models.file import delete_file_for_user
 from app.models.assignment import delete_student_in_assignments
-from app.models.user import update_role_account_mod
+from app.models.user import update_role_account_mod, create_user, create_avatar_image
 
 from datetime import datetime
 from bson import ObjectId
@@ -314,13 +314,32 @@ def add_user_to_class_api_mod():
         if classs:
             end_day = datetime.strptime(classs['end_day'], "%m/%d/%Y")
             user = db.users.find_one({"email": email})
-            if user:
-                if any(student[0] == user["user_id"] for student in classs['student_ids']):
-                    return jsonify(success = False, message = "User exits in class") 
-                    
-                if classs['school_id'] == user['school_id'] and datetime.now() < end_day:
-                    add_user_to_class_mod(user['user_id'], class_id)
-                    update_role_account_mod(user["user_id"], role)
+            if not user:
+                first_name = data.get('firstname')
+                last_name = data.get('lastname')
+                password = "111111"
+
+
+
+                avatar_letter = first_name[0].upper() if first_name else ""
+
+                # Kiểm tra và tạo user
+                # Tạo hình ảnh avatar từ chữ cái đầu tiên
+                avatar_base64  = create_avatar_image(avatar_letter)
+                if school_key == school['school_key']:
+                    if create_user(first_name, last_name, email, password, role, avatar_base64, school['school_id'] ):  
+                        return jsonify(success=True, message=True)
+                    else:
+                        return jsonify(success=False, message='Email already exists, please enter another email') 
+                return jsonify(success=False, message='school key error') 
+            
+            # if user:
+            if any(student[0] == user["user_id"] for student in classs['student_ids']):
+                return jsonify(success = False, message = "User exits in class") 
+                
+            if classs['school_id'] == user['school_id'] and datetime.now() < end_day:
+                add_user_to_class_mod(user['user_id'], class_id)
+                update_role_account_mod(user["user_id"], role)
 
         return jsonify(success = False, message = "Class does not exist") 
     return jsonify(success = False, message = "School key not value")
