@@ -7,8 +7,9 @@ from bson import Binary
 import fitz
 import io
 import os
+from app.extensions import db
 import concurrent.futures
-from app.models.search_system.models import find_file, insert_sentence, insert_file, update_file, update_file_checked, word_count_function
+from app.models.search_system.models import find_file, insert_sentence, insert_file, update_file, update_file_checked, word_count_function, add_file_to_elasticsearch
 from app.models.search_system.elastic_search import search_top10_vector_elastic, save_to_elasticsearch
 from app.models.search_system.search_google import search_google, fetch_url
 from app.models.search_system.highlight import is_within, is_position, wrap_paragraphs_with_color, source_append, highlight
@@ -16,15 +17,11 @@ from app.models.search_system.processing_sentence import split_sentences, remove
 embedding_vietnamese, check_type_setence, calculate_dynamic_threshold, common_ordered_words, compare_sentences, compare_with_sentences, count_common_words
 
 
-
 def process_page(page_num, page, file_id, file_cursor, sentences_cache, school_cache):
     sentence_index = 0
     text = page.get_text("text")
     if text:
         sentences = split_sentences(text)
-        with open("test.txt", "a", encoding="utf-8") as f:
-            for sentence in sentences:
-                    f.write(sentence + "\n")
         if sentences:
             sentences = remove_sentences(sentences)
             if sentences:
@@ -169,7 +166,7 @@ def process_page(page_num, page, file_id, file_cursor, sentences_cache, school_c
 
 cpu_cores = os.cpu_count()
 
-def main(file_id):
+def main(file_id, storage_option, school_id):
     file_cursor = find_file(file_id)
     pdf_binary = file_cursor['content_file']
 
@@ -216,12 +213,16 @@ def main(file_id):
                 pdf_document.page_count, word_count, 0, file_cursor['content_file'],
                 file_cursor['storage'], file_cursor['quick_submit'], "view_all", "", "", "", "", "", "", 0)
 
-    file_highlighted = highlight(file_id, ["Dữ liệu học viên", "Internet", "Ấn bản"])
+    file_highlighted = highlight(file_id, ["student_Data", "Internet", "paper"])
     if file_highlighted:
         pdf_output_stream = io.BytesIO()
         file_highlighted.save(pdf_output_stream)
         file_highlighted.close()
         update_file_checked(file_id, Binary(pdf_output_stream.getvalue()))
+
+    if storage_option == "standard_repository":
+        school_cursor = db.schools.find_one({"school_id": school_id})
+        add_file_to_elasticsearch(school_cursor["ip_cluster"], school_id, school_cursor["school_name"], file_id, school_cursor["index_name"], 'student_Data')
 
 
 

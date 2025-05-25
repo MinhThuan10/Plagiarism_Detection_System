@@ -6,7 +6,7 @@ from app.models.file import  find_assignment_id, load_files, add_file, add_file_
 get_file_report , remove_source_school, add_source_school, remove_text_school, add_text_school, add_all_source_school, add_all_text_school, apply_filter
 from app.models.assignment import  load_student_in_class, add_student_submit, delete_student_submit
 from app.models.search_system.main import main
-from app.models.search_system.models import add_file_to_elasticsearch, import_file_to_elastic, update_file_view_all
+from app.models.search_system.models import import_file_to_elastic, update_file_view_all
 from app.models.search_system.highlight import highlight_school
 from bson import Binary
 import io
@@ -61,10 +61,7 @@ def create_file_api(school_id, class_id, assignment_id):
                 if file:
                     result, file_id = add_file(user['role'], school_id, class_id, assignment_id, submission_title, student_id, submit_day, file, storage_option)
                     if result and add_student_submit(school_id, assignment_id, student_id):
-                        if storage_option == "standard_repository":
-                            school_cursor = db.schools.find_one({"school_id": school_id})
-                            add_file_to_elasticsearch(school_cursor["ip_cluster"], school_id, school_cursor["school_name"], file_id, school_cursor["index_name"], 'student_Data')
-                        call_test_function_async(file_id)
+                        call_test_function_async(file_id, storage_option, school_id)
                         return jsonify(success = True, message = "File upload successful")
                     return jsonify(success = False, message = "The assignment name is duplicated.") 
                 return jsonify(success = False, message = "File upload failed") 
@@ -78,10 +75,7 @@ def create_file_api(school_id, class_id, assignment_id):
                 if file:
                     result, file_id  = add_file(user['role'], school_id, class_id, assignment_id, submission_title, student_id, submit_day, file, storage_option)
                     if result and add_student_submit(school_id, assignment_id, student_id):
-                        if storage_option == "standard_repository":
-                            school_cursor = db.schools.find_one({"school_id": school_id})
-                            add_file_to_elasticsearch(school_cursor["ip_cluster"], school_id, school_cursor["school_name"], file_id, school_cursor["index_name"], 'student_Data')
-                        call_test_function_async(file_id)
+                        call_test_function_async(file_id, storage_option, school_id)
                         return jsonify(success = True, message = "File upload successful")
                     return jsonify(success = False, message = "Submission deadline has passed.") 
                 return jsonify(success = False, message = "Unable to upload file") 
@@ -92,9 +86,9 @@ def create_file_api(school_id, class_id, assignment_id):
 
 from threading import Thread
 from flask import jsonify, Response
-def call_test_function_async(file_id):
+def call_test_function_async(file_id, storage_option, school_id):
     # Khởi tạo và chạy luồng để gọi hàm main với file_id
-    thread = Thread(target=main, args=(file_id,))
+    thread = Thread(target=main, args=(file_id, storage_option, school_id))
     thread.start()
 
 
@@ -109,6 +103,7 @@ def call_test_function_mod(file_id, submission_id, submission_title, callback_ur
             file_checked_doc = db.files.find_one({"file_id": file_id, "type": "checked"})
             file_checked = base64.b64encode(file_checked_doc["content_file"]).decode("utf-8")
             url = f"{BASE_URL}report/file_id={file_id}"
+
 
             if callback_url:
                 callback_payload = {
@@ -146,10 +141,7 @@ def create_file_quick_submit_api(school_id):
             if file:
                 result, file_id  =  add_file_quick_submit(school_id, author_name, author_id, submission_title, submit_day, file, storage_option)
                 if result:
-                    if storage_option == "standard_repository":
-                        school_cursor = db.schools.find_one({"school_id": school_id})
-                        add_file_to_elasticsearch(school_cursor["ip_cluster"], school_id, school_cursor["school_name"], file_id, school_cursor["index_name"], 'student_Data')
-                    call_test_function_async(file_id)
+                    call_test_function_async(file_id, storage_option, school_id)
                     return jsonify(success = True, message = "File uploaded successfully")
                 return jsonify(success = False, message = "Error occurred during file upload") 
             return jsonify(success = False, message = "No file provided") 
@@ -179,15 +171,13 @@ def check_plagiarism_moodle():
         file = request.files.get('file')
         callback_url = request.form.get('callback_url')
 
-        print(user['role'], school["school_id"], class_id, assignment_id, submission_id, submission_title, user["user_id"], submit_day, file, storage_option, callback_url)
         
         if file:
             if db.files.find_one({"assignment_id": assignment_id, "author_id": user["user_id"]}):
                 delete_file_student(user['user_id'], school["school_id"], class_id, assignment_id, user["user_id"]) and delete_student_submit(school["school_id"], assignment_id, user["user_id"])
             result, file_id = add_file(user['role'], school["school_id"], class_id, assignment_id, submission_title, user["user_id"], submit_day, file, storage_option)
             if result and add_student_submit(school["school_id"], assignment_id, user["user_id"]):
-                if storage_option == "standard_repository":
-                    add_file_to_elasticsearch(school["ip_cluster"], school["school_id"], school["school_name"], file_id, school["index_name"], 'student_Data')
+                
                 call_test_function_mod(file_id, submission_id, submission_title, callback_url)
 
                 return jsonify({"success": "accepted"}), 202
@@ -422,7 +412,7 @@ def highlight_school_api(file_id, school_id):
     if source['internet']:
         type_source.append('Internet')
     if source['paper']:
-        type_source.append("Ấn bản")
+        type_source.append("paper")
     file_highlighted = highlight_school(file_id, school_id, type_source)
     if file_highlighted:
         pdf_output_stream = io.BytesIO()
@@ -522,7 +512,7 @@ def import_file_api():
         school_cursor = db.schools.find_one({'school_id': user['school_id']})
         if file:
             print(file.filename)
-            import_file_to_elastic(school_cursor['ip_cluster'], school_cursor['index_name'], user['school_id'], school_cursor['school_name'], file, file.filename, "Ấn bản")
+            import_file_to_elastic(school_cursor['ip_cluster'], school_cursor['index_name'], user['school_id'], school_cursor['school_name'], file, file.filename, "paper")
             return jsonify(success = True, message = "File upload success") 
         return jsonify(success = False, message = "Document not found") 
     return jsonify(success = False, message = "You do not have permission to submit the file.") 

@@ -320,7 +320,7 @@ def get_file_report(file_id):
         if source_file['internet'] == True:
             type_sources.append('Internet')
         if source_file['paper'] == True:
-            type_sources.append("Ấn bản")
+            type_sources.append("paper")
 
         school_source_off = {}
         school_source_on = {}
@@ -457,7 +457,7 @@ def remove_source_school(file_id, school_id):
     if source_file['internet'] == True:
         type_sources.append('Internet')
     if source_file['paper'] == True:
-        type_sources.append("Ấn bản")
+        type_sources.append("paper")
 
     file_highlighted =  highlight(file_id, type_sources)
     if file_highlighted:
@@ -482,7 +482,7 @@ def add_source_school(file_id, school_id):
     if source_file['internet'] == True:
         type_sources.append('Internet')
     if source_file['paper'] == True:
-        type_sources.append("Ấn bản")
+        type_sources.append("paper")
 
     file_highlighted =  highlight(file_id, type_sources)
     if file_highlighted:
@@ -507,7 +507,7 @@ def add_all_source_school(file_id):
     if source_file['internet'] == True:
         type_sources.append('Internet')
     if source_file['paper'] == True:
-        type_sources.append("Ấn bản")
+        type_sources.append("paper")
 
     file_highlighted =  highlight(file_id, type_sources)
     if file_highlighted:
@@ -532,7 +532,7 @@ def remove_text_school(file_id, school_id, page, sentence_index):
     if source_file['internet'] == True:
         type_sources.append('Internet')
     if source_file['paper'] == True:
-        type_sources.append("Ấn bản")
+        type_sources.append("paper")
 
     file_highlighted =  highlight(file_id, type_sources)
     if file_highlighted:
@@ -557,7 +557,7 @@ def add_all_text_school(file_id):
     if source_file['internet'] == True:
         type_sources.append('Internet')
     if source_file['paper'] == True:
-        type_sources.append("Ấn bản")
+        type_sources.append("paper")
 
     file_highlighted =  highlight(file_id, type_sources)
     if file_highlighted:
@@ -583,7 +583,7 @@ def add_text_school(file_id, page, sentence_index, source_id):
     if source_file['internet'] == True:
         type_sources.append('Internet')
     if source_file['paper'] == True:
-        type_sources.append("Ấn bản")
+        type_sources.append("paper")
 
     file_highlighted =  highlight(file_id, type_sources)
     if file_highlighted:
@@ -654,7 +654,7 @@ def apply_filter(file_id, studentData, internet, paper, references, curlybracket
     if source_file['internet'] == True:
         type_sources.append('Internet')
     if source_file['paper'] == True:
-        type_sources.append("Ấn bản")
+        type_sources.append("paper")
 
     file_highlighted =  highlight(file_id, type_sources)
     if file_highlighted:
