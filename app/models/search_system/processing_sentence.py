@@ -10,6 +10,8 @@ import tempfile
 import os
 from pyvi.ViTokenizer import tokenize
 
+
+HF_KEY = os.getenv("HF_KEY")
 # Load Vietnamese spaCy model
 nlp = spacy.blank("vi")
 nlp.add_pipe("sentencizer")
@@ -25,7 +27,7 @@ def is_vietnamese(text):
         return False
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model = SentenceTransformer('dangvantuan/vietnamese-embedding', device = device)
+model = SentenceTransformer('dangvantuan/vietnamese-embedding', device = device, use_auth_token=HF_KEY )
 tokenizer = model.tokenizer
 
 # def split_sentences(text):

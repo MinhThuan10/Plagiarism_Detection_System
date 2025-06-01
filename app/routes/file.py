@@ -93,10 +93,10 @@ def call_test_function_async(file_id, storage_option, school_id):
 
 
 
-def call_test_function_mod(file_id, submission_id, submission_title, callback_url):
+def call_test_function_mod(file_id, submission_id, submission_title, callback_url, storage_option, school_id):
     def run():
         try:
-            main(file_id)  # xử lý chính
+            main(file_id, storage_option, school_id)  # xử lý chính
             BASE_URL = os.getenv("BASE_URL")
             # Sau khi xử lý xong, lấy dữ liệu để gửi callback
             score = db.files.find_one({"file_id": file_id})["plagiarism"]
@@ -178,7 +178,7 @@ def check_plagiarism_moodle():
             result, file_id = add_file(user['role'], school["school_id"], class_id, assignment_id, submission_title, user["user_id"], submit_day, file, storage_option)
             if result and add_student_submit(school["school_id"], assignment_id, user["user_id"]):
                 
-                call_test_function_mod(file_id, submission_id, submission_title, callback_url)
+                call_test_function_mod(file_id, submission_id, submission_title, callback_url, storage_option, school["school_id"])
 
                 return jsonify({"success": "accepted"}), 202
             else:
