@@ -191,14 +191,15 @@ def update_assignment_api_mod():
     school = db.schools.find_one({'school_name': school_name})
     
     class_id = data.get('class_id')
-    classs = db.classs.find_one({"class_id": class_id})
+    classs = db.classs.find_one({"class_id": str(school["school_id"]) + "_" + str(class_id)})
 
+    print (school_key, classs)
     if school_key == school['school_key'] and classs:
         assignment_name = data.get('assignmentName')
         start_day = data.get('startDay')
         end_day = data.get('dueDay')
-        assignment_id = data.get('assignment_id')
-
+        assignment_id = str(school["school_id"]) + "_" + data.get('assignment_id')
+        print(class_id, assignment_id, assignment_name, start_day, end_day)
         if update_assignment(school["school_id"], class_id, assignment_id, assignment_name, start_day, end_day):
             return jsonify(success = True, message = "Successfully updated the assignment")
         else:
@@ -218,10 +219,11 @@ def delete_assignment_api_mod():
     school = db.schools.find_one({'school_name': school_name})
     
     class_id = data.get('class_id')
-    classs = db.classs.find_one({"class_id": class_id})
+    classs = db.classs.find_one({"class_id": str(school["school_id"]) + "_" + str(class_id)})
+
 
     if school_key == school['school_key'] and classs:
-        assignment_id = data.get('assignment_id')
+        assignment_id = str(school["school_id"]) + "_" + data.get('assignment_id')
 
         if delete_assignment(school["school_id"], class_id, assignment_id):
             return jsonify(success = True, message = "Successfully deleted the assignment")
