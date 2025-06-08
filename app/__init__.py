@@ -2,7 +2,7 @@
 from flask import Flask
 from flask_pymongo import PyMongo
 from config import Config
-from .routes import register_blueprints  # Import hàm đăng ký blueprint
+from .routes import register_blueprints  
 
 mongo = PyMongo()
 
@@ -11,6 +11,6 @@ def create_app():
     app.config.from_object(Config)
     mongo.init_app(app)
 
-    register_blueprints(app)  # Đăng ký các blueprint
+    register_blueprints(app)  
 
     return app

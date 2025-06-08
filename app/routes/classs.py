@@ -312,7 +312,7 @@ def add_user_to_class_api_mod():
         classs = db.classs.find_one({'class_id': class_id})
         email = data.get("email")
         if classs:
-            end_day = datetime.strptime(classs['end_day'], "%m/%d/%Y")
+            # end_day = datetime.strptime(classs['end_day'], "%m/%d/%Y")
             user = db.users.find_one({"email": email})
             if not user:
                 first_name = data.get('firstname')
@@ -327,17 +327,14 @@ def add_user_to_class_api_mod():
                 # Tạo hình ảnh avatar từ chữ cái đầu tiên
                 avatar_base64  = create_avatar_image(avatar_letter)
                 if school_key == school['school_key']:
-                    if create_user(first_name, last_name, email, password, role, avatar_base64, school['school_id'] ):  
-                        return jsonify(success=True, message=True)
-                    else:
-                        return jsonify(success=False, message='Email already exists, please enter another email') 
-                return jsonify(success=False, message='school key error') 
-            
-            # if user:
+                    create_user(first_name, last_name, email, password, role, avatar_base64, school['school_id'] )
+                    user = db.users.find_one({"email": email})
+
             if any(student[0] == user["user_id"] for student in classs['student_ids']):
+                update_role_account_mod(user["user_id"], role)
                 return jsonify(success = False, message = "User exits in class") 
                 
-            if classs['school_id'] == user['school_id'] and datetime.now() < end_day:
+            if classs['school_id'] == user['school_id']:
                 add_user_to_class_mod(user['user_id'], class_id)
                 update_role_account_mod(user["user_id"], role)
 
