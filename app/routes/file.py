@@ -3,7 +3,7 @@ from bson import ObjectId
 from bson.objectid import ObjectId
 from app.extensions import db
 from app.models.file import  find_assignment_id, load_files, add_file, add_file_quick_submit, delete_file_teacher, delete_file_student, delete_file_quick_submit, load_files_quick_submit, \
-get_file_report , remove_source_school, add_source_school, remove_text_school, add_text_school, add_all_source_school, add_all_text_school, apply_filter
+get_file_report , remove_source_school, add_source_school, remove_text_school, add_text_school, add_all_source_school, add_all_text_school, apply_filter, download_source
 from app.models.assignment import  load_student_in_class, add_student_submit, delete_student_submit
 from app.models.search_system.main import main
 from app.models.search_system.models import import_file_to_elastic, update_file_view_all
@@ -101,8 +101,15 @@ def call_test_function_mod(file_id, submission_id, submission_title, callback_ur
             # Sau khi xử lý xong, lấy dữ liệu để gửi callback
             score = db.files.find_one({"file_id": file_id})["plagiarism"]
             file_checked_doc = db.files.find_one({"file_id": file_id, "type": "checked"})
-            file_checked = base64.b64encode(file_checked_doc["content_file"]).decode("utf-8")
+
+            # file_checked = base64.b64encode(file_checked_doc["content_file"]).decode("utf-8")
             url = f"{BASE_URL}report/file_id={file_id}"
+
+            pdf_bytes = bytes(file_checked_doc['content_file'])
+
+            output_io = download_source(pdf_bytes, file_id)
+       
+            file_checked = base64.b64encode(output_io.getvalue()).decode("utf-8")
 
 
             if callback_url:
@@ -310,7 +317,10 @@ def download_pdf_raw(school_id, class_id, assignment_id, student_id):
         
         return jsonify(success=False, message="Unauthorized school.")  # sai 3
     
-    return jsonify(success=False, message="User not authenticated.")  # sai 4
+    return jsonify(success=False, message="User not authenticated.")  # sai 
+
+
+
 
 @file.route('/api/download_pdf@file_id=<file_id>-type=<type>', methods=['GET'])
 def download_pdf_quick_submit_raw(file_id, type):
@@ -322,26 +332,28 @@ def download_pdf_quick_submit_raw(file_id, type):
             "file_id": file_id,
             "type": type
         })
-        if user['role'] == "Teacher" and pdf_record['school_id'] == user['school_id']:
+        if user['role'] == "Teacher" and pdf_record['school_id'] == user['school_id']:                
             pdf_bytes = bytes(pdf_record['content_file'])
-            pdf_io = io.BytesIO(pdf_bytes)
-            file_name = pdf_record['title']
-            file_name += '.pdf'
+
+            output_io = download_source(pdf_bytes, file_id)
+            file_name = pdf_record['title'] + '.pdf'
             return send_file(
-                pdf_io, 
-                download_name=file_name, 
-                as_attachment=True, 
+                output_io,
+                download_name=file_name,
+                as_attachment=True,
                 mimetype='application/pdf'
             )
+
+
         if user['role'] == "Student" and pdf_record['author_id'] == user['user_id']:
             pdf_bytes = bytes(pdf_record['content_file'])
-            pdf_io = io.BytesIO(pdf_bytes)
-            file_name = pdf_record['title']
-            file_name += '.pdf'
+
+            output_io = download_source(pdf_bytes, file_id)
+            file_name = pdf_record['title'] + '.pdf'
             return send_file(
-                pdf_io, 
-                download_name=file_name, 
-                as_attachment=True, 
+                output_io,
+                download_name=file_name,
+                as_attachment=True,
                 mimetype='application/pdf'
             )
             

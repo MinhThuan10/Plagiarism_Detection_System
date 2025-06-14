@@ -663,4 +663,168 @@ def apply_filter(file_id, studentData, internet, paper, references, curlybracket
         file_highlighted.close()
         update_file_checked(file_id, Binary(pdf_output_stream.getvalue()))
 
+
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from PyPDF2 import PdfMerger
+import os
+
+def draw_turnitin_style(canvas, width, height, name, word_count, source_data):
+    canvas.setFont("Helvetica-Bold", 16)
+    canvas.drawString(30, height - 40, name)
+
+    # Vẽ dòng kẻ mỏng màu xám nhạt
+    canvas.setStrokeColor(colors.lightgrey)
+    canvas.setLineWidth(0.5)  # độ dày rất mỏng
+    canvas.line(30, height - 50, width - 30, height - 50)
+
+    canvas.setFillColor(colors.red)  # đổi màu chữ thành đỏ
+    canvas.setFont("Helvetica", 8)
+    canvas.drawString(40, height - 70, "ORIGINALITY REPORT")
+
+    # Vẽ dòng kẻ mỏng màu xám nhạt
+    canvas.setStrokeColor(colors.lightgrey)
+    canvas.setLineWidth(0.3)  # độ dày rất mỏng
+    canvas.line(30, height - 80, width - 30, height - 80)
+
+    # Tổng điểm đạo văn
+    word_count_plagiarism = sum(school[1]['word_count'] for school in source_data)
+    total_similarity = (word_count_plagiarism / word_count) * 100
+    total_similarity = round(total_similarity, 2)
+    canvas.setFont("Helvetica-Bold", 36 )
+    canvas.setFillColor(colors.red)
+    canvas.drawString(40, height - 110, f"{total_similarity}%")
+
+    canvas.setFont("Helvetica", 10)
+    canvas.setFillColor(colors.black)
+    canvas.drawString(40, height - 130, "SIMILARITY INDEX")
+
+
+    # Tính nhóm loại nguồn
+    group_stats = {"Internet Source": 0, "Publications": 0, "Student Paper": 0}
+    for school in source_data:
+        details = school[1]
+
+        source_type = details["type_source"]
+        if "Internet" == source_type:
+            group_stats["Internet Source"] += details['word_count']
+        elif "student_Data" == source_type:
+            group_stats["Publications"] += details['word_count']
+        elif "paper" == source_type:
+            group_stats["Student Paper"] += details['word_count']
+
+    group_stats["Internet Source"] = round(group_stats["Internet Source"]/word_count * 100, 2)
+    group_stats["Publications"] = round(group_stats["Publications"]/word_count * 100, 2)
+    group_stats["Student Paper"] = round(group_stats["Student Paper"]/word_count * 100, 2)
+
+    canvas.setFont("Helvetica-Bold", 30 )
+    canvas.setFillColor(colors.black)
+    canvas.drawString(180, height - 110, f"{group_stats["Internet Source"]}%")
+    canvas.setFont("Helvetica", 10)
+    canvas.setFillColor(colors.black)
+    canvas.drawString(180, height - 130, "Internet Source")
+
+    canvas.setFont("Helvetica-Bold", 30 )
+    canvas.setFillColor(colors.black)
+    canvas.drawString(310, height - 110, f"{group_stats["Publications"]}%")
+    canvas.setFont("Helvetica", 10)
+    canvas.setFillColor(colors.black)
+    canvas.drawString(310, height - 130, "Publications")
+
+    canvas.setFont("Helvetica-Bold", 30 )
+    canvas.setFillColor(colors.black)
+    canvas.drawString(440, height - 110, f"{group_stats["Student Paper"]}%")
+    canvas.setFont("Helvetica", 10)
+    canvas.setFillColor(colors.black)
+    canvas.drawString(440, height - 130, "Student Paper")
+
+
+    # Vẽ dòng kẻ mỏng màu xám nhạt
+    canvas.setStrokeColor(colors.lightgrey)
+    canvas.setLineWidth(0.3)  # độ dày rất mỏng
+    canvas.line(30, height - 150, width - 30, height - 150)
+
+    # Primary Sources
+    canvas.setFont("Helvetica-Bold", 12)
+    canvas.setFillColor(colors.red)
+    canvas.drawString(40, height - 170, "PRIMARY SOURCES")
+
+    y = height - 200
+
+    for idx, school in enumerate(source_data, 1):
+        details = school[1]
+        
+        color = details['color']
+        canvas.setFillColor(color)
+        canvas.rect(30, y - 5, 15, 15, fill=1)
+
+        canvas.setFillColor(colors.black)
+        canvas.setFont("Helvetica-Bold", 12)
+        canvas.drawString(50, y, f"{idx}. {details['school_name']}")
+
+        canvas.setFont("Helvetica", 10)
+        canvas.drawString(50, y - 15, details['type_source'])
+
+
+        percent = round(details['word_count']/word_count * 100, 0)
+
+        canvas.setFont("Helvetica-Bold", 14)
+        canvas.drawString(500, y, f"{percent}%")
+        
+        y -= 40
+        if y < 80:
+            canvas.showPage()
+            y = height - 50
+
+from io import BytesIO
+from PyPDF2 import PdfMerger, PdfReader
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from PyPDF2 import PdfReader, PdfWriter
+
+def download_source(pdf_bytes, file_id):
+
+    original_pdf_io = BytesIO(pdf_bytes)
+    reader = PdfReader(original_pdf_io)
+
+    writer = PdfWriter()
+
+    # Copy tất cả các trang cũ
+    for page in reader.pages:
+        writer.add_page(page)
+
+    # Lấy kích thước trang gốc (nếu có), fallback về A4
+    if reader.pages:
+        page0 = reader.pages[0]
+        width = float(page0.mediabox.width)
+        height = float(page0.mediabox.height)
+    else:
+        width, height = A4  # fallback
+
+    file =  db.files.find_one({"file_id": file_id, "type": "checked"})
+    file_name = file['title']
+    word_count = file['word_count']
     
+    # Tạo trang Turnitin dạng PDF bytes
+    turnitin_io = BytesIO()
+    c = canvas.Canvas(turnitin_io,pagesize=[width, height])
+
+    _, school_source_off, *_ = get_file_report(file_id)
+
+    draw_turnitin_style(c, width, height, file_name, word_count, school_source_off)
+
+    c.save()
+    turnitin_io.seek(0)
+
+    # Merge PDF gốc với trang Turnitin
+    merger = PdfMerger()
+    merger.append(PdfReader(original_pdf_io))
+    merger.append(PdfReader(turnitin_io))
+
+    final_io = BytesIO()
+    merger.write(final_io)
+    merger.close()
+    final_io.seek(0)
+    return final_io
