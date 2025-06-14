@@ -291,7 +291,7 @@ def download_pdf_raw(school_id, class_id, assignment_id, student_id):
                 pdf_bytes = bytes(pdf_record['content_file'])
                 pdf_io = io.BytesIO(pdf_bytes)
                 file_name = pdf_record['title']
-                file_name += '.pdf'
+                file_name += '_checked'
                 return send_file(
                     pdf_io, 
                     download_name=file_name, 
@@ -304,7 +304,7 @@ def download_pdf_raw(school_id, class_id, assignment_id, student_id):
                     pdf_bytes = bytes(pdf_record['content_file'])
                     pdf_io = io.BytesIO(pdf_bytes)
                     file_name = pdf_record['title']
-                    file_name += '.pdf'
+                    file_name += '_checked'
                     return send_file(
                         pdf_io, 
                         download_name=file_name,
@@ -336,7 +336,7 @@ def download_pdf_quick_submit_raw(file_id, type):
             pdf_bytes = bytes(pdf_record['content_file'])
 
             output_io = download_source(pdf_bytes, file_id)
-            file_name = pdf_record['title'] + '.pdf'
+            file_name = pdf_record['title'] + '_checked'
             return send_file(
                 output_io,
                 download_name=file_name,
@@ -349,7 +349,7 @@ def download_pdf_quick_submit_raw(file_id, type):
             pdf_bytes = bytes(pdf_record['content_file'])
 
             output_io = download_source(pdf_bytes, file_id)
-            file_name = pdf_record['title'] + '.pdf'
+            file_name = pdf_record['title'] + '_checked'
             return send_file(
                 output_io,
                 download_name=file_name,
