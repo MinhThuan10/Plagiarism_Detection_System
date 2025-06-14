@@ -334,9 +334,8 @@ def download_pdf_quick_submit_raw(file_id, type):
         })
         if user['role'] == "Teacher" and pdf_record['school_id'] == user['school_id']:                
             pdf_bytes = bytes(pdf_record['content_file'])
-
-            file_name = pdf_record['title'] + '_checked'
             output_io = download_source(pdf_bytes, file_id)
+            file_name = pdf_record['title'] + '_checked'
             return send_file(
                 output_io,
                 download_name=file_name,
@@ -347,9 +346,8 @@ def download_pdf_quick_submit_raw(file_id, type):
 
         if user['role'] == "Student" and pdf_record['author_id'] == user['user_id']:
             pdf_bytes = bytes(pdf_record['content_file'])
-
-            file_name = pdf_record['title'] + '_checked'
             output_io = download_source(pdf_bytes, file_id)
+            file_name = pdf_record['title'] + '_checked'
             return send_file(
                 output_io,
                 download_name=file_name,
