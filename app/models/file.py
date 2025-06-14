@@ -727,14 +727,14 @@ def draw_turnitin_style(canvas, width, height, name, word_count, source_data):
 
     canvas.setFont("Helvetica-Bold", 30 )
     canvas.setFillColor(colors.black)
-    canvas.drawString(310, height - 110, f"{group_stats["Publications"]}%")
+    canvas.drawString(310, height - 110, f"{group_stats['Publications']}%")
     canvas.setFont("Helvetica", 10)
     canvas.setFillColor(colors.black)
     canvas.drawString(310, height - 130, "Publications")
 
     canvas.setFont("Helvetica-Bold", 30 )
     canvas.setFillColor(colors.black)
-    canvas.drawString(440, height - 110, f"{group_stats["Student Paper"]}%")
+    canvas.drawString(440, height - 110, f"{group_stats['Student Paper']}%")
     canvas.setFont("Helvetica", 10)
     canvas.setFillColor(colors.black)
     canvas.drawString(440, height - 130, "Student Paper")
