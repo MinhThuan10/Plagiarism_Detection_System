@@ -720,7 +720,7 @@ def draw_turnitin_style(canvas, width, height, name, word_count, source_data):
 
     canvas.setFont("Helvetica-Bold", 30 )
     canvas.setFillColor(colors.black)
-    canvas.drawString(180, height - 110, f"{group_stats["Internet Source"]}%")
+    canvas.drawString(180, height - 110, f"{group_stats['Internet Source']}%")
     canvas.setFont("Helvetica", 10)
     canvas.setFillColor(colors.black)
     canvas.drawString(180, height - 130, "Internet Source")
