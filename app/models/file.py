@@ -356,11 +356,24 @@ def get_file_report(file_id):
                         school_source_off[school_id] = {
                             "school_name": school_name,
                             "word_count": 0,
+                            "word_count_detail": {
+                                "student_Data": 0,
+                                "Internet": 0,
+                                "paper": 0
+                            },
                             "color": color,
-                            "type_source":type_source,
+                            "type_source":[type_source],
                             "sentences": {}  
                         }
+                    # update
+                    else:
+                        if type_source not in school_source_off[school_id]['type_source']:
+                            school_source_off[school_id]['type_source'].append(type_source)
+
+                    # 
                     school_source_off[school_id]['word_count'] += highlight.get('word_count_sml', 0)
+                    school_source_off[school_id]['word_count_detail'][type_source] += highlight.get('word_count_sml', 0)
+
                     if page not in school_source_off[school_id]['sentences']:
                         school_source_off[school_id]['sentences'][page] = {}
                     school_source_off[school_id]['sentences'][page][sentence_index] = {
@@ -392,12 +405,23 @@ def get_file_report(file_id):
                             school_source_on[school_id] = {
                                 "school_name": school_name,
                                 "word_count": 0,
+                                "word_count_detail": {
+                                    "student_Data": 0,
+                                    "Internet": 0,
+                                    "paper": 0
+                                },
                                 "color": color,
-                                "type_source":type_source,
+                                "type_source":[type_source],
                                 "sentences": {}  
                             }
-                        
+                            # update
+                        else:
+                            if type_source not in school_source_on[school_id]['type_source']:
+                                school_source_on[school_id]['type_source'].append(type_source)
+                            
                         school_source_on[school_id]['word_count'] += highlight.get('word_count_sml', 0)
+                        school_source_on[school_id]['word_count_detail'][type_source] += highlight.get('word_count_sml', 0)
+
                         if page not in school_source_on[school_id]['sentences']:
                             school_source_on[school_id]['sentences'][page] = {}
                         school_source_on[school_id]['sentences'][page][sentence_index] = {
@@ -707,12 +731,12 @@ def draw_turnitin_style(canvas, width, height, name, word_count, source_data):
         details = school[1]
 
         source_type = details["type_source"]
-        if "Internet" == source_type:
-            group_stats["Internet Source"] += details['word_count']
-        elif "student_Data" == source_type:
-            group_stats["Publications"] += details['word_count']
-        elif "paper" == source_type:
-            group_stats["Student Paper"] += details['word_count']
+        if "Internet" in source_type:
+            group_stats["Internet Source"] += details['word_count_detail']['Internet']
+        if "paper" in source_type:
+            group_stats["Publications"] += details['word_count_detail']['paper']
+        if "student_Data" in source_type:
+            group_stats["Student Paper"] += details['word_count_detail']['student_Data']
 
     group_stats["Internet Source"] = round(group_stats["Internet Source"]/word_count * 100, 2)
     group_stats["Publications"] = round(group_stats["Publications"]/word_count * 100, 2)
@@ -764,7 +788,13 @@ def draw_turnitin_style(canvas, width, height, name, word_count, source_data):
         canvas.drawString(50, y, f"{idx}. {details['school_name']}")
 
         canvas.setFont("Helvetica", 10)
-        canvas.drawString(50, y - 15, details['type_source'])
+        type_source_str = (
+            ", ".join(details['type_source'])
+            if isinstance(details['type_source'], list)
+            else str(details['type_source'])
+        )
+
+        canvas.drawString(50, y - 15, type_source_str)
 
 
         percent = round(details['word_count']/word_count * 100, 0)
