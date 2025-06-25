@@ -17,14 +17,16 @@ Plagiarism detection system based on internal data sources and the Internet
 
 ## Architecture
 
-![screenshot](app/static/images/imageschool.jpg)
+![screenshot](images/architecture.png)
 
 ## Demo
 
-![screenshot](app/static/images/imageschool.jpg)
+### Stander report:
+![screenshot](images/stander_report.png)
 
-![screenshot](app/static/images/imageschool.jpg)
+### Report with 1 source:
+![screenshot](images/report_1_school.png)
 
-![screenshot](app/static/images/imageschool.jpg)
+### Apply Filters:
+![screenshot](images/filters.png)
 
-![screenshot](app/static/images/imageschool.jpg)
